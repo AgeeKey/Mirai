@@ -1,0 +1,59 @@
+[
+  {
+    "key": "ctrl+shift+a",
+    "command": "workbench.action.tasks.runTask",
+    "args": "🤖 Copilot Auto Setup"
+  },
+  {
+    "key": "ctrl+alt+f",
+    "command": "workbench.action.tasks.runTask",
+    "args": "🔧 Auto Fix All"
+  },
+  {
+    "key": "ctrl+alt+d",
+    "command": "workbench.action.tasks.runTask",
+    "args": "🚀 Auto Deploy"
+  },
+  {
+    "key": "ctrl+alt+c",
+    "command": "workbench.action.tasks.runTask",
+    "args": "🔄 Auto Commit"
+  },
+  {
+    "key": "ctrl+shift+space",
+    "command": "github.copilot.generate"
+  },
+  {
+    "key": "ctrl+shift+i",
+    "command": "github.copilot.interactiveEditor.generate"
+  },
+  {
+    "key": "ctrl+shift+c",
+    "command": "workbench.panel.chat.view.copilot.focus"
+  },
+  {
+    "key": "tab",
+    "command": "github.copilot.acceptSuggestion",
+    "when": "github.copilot.suggestionVisible && editorTextFocus"
+  },
+  {
+    "key": "alt+right",
+    "command": "github.copilot.acceptPartialSuggestion",
+    "when": "github.copilot.suggestionVisible && editorTextFocus"
+  },
+  {
+    "key": "escape",
+    "command": "github.copilot.hideSuggestion",
+    "when": "github.copilot.suggestionVisible && editorTextFocus"
+  },
+  {
+    "key": "alt+]",
+    "command": "github.copilot.nextSuggestion",
+    "when": "github.copilot.suggestionVisible && editorTextFocus"
+  },
+  {
+    "key": "alt+[",
+    "command": "github.copilot.previousSuggestion",
+    "when": "github.copilot.suggestionVisible && editorTextFocus"
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "workbench.enableExperiments": false,
+  "workbench.settings.openDefaultSettings": false,
+  "diffEditor.confirmClose": false,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "problems.showFirstRun": false,
+  "workbench.welcomePage.hiddenCategories": [
+    "Beginner",
+    "Intermediate",
+    "Setup"
+  ],
+  "github.copilot.advanced": {
+    "secret_key": "github_copilot_key",
+    "length": 500,
+    "temperature": 0.1,
+    "top_p": 1,
+    "stop": [
+      "\n\n\n"
+    ],
+    "max_tokens": 1000,
+    "presence_penalty": 0,
+    "frequency_penalty": 0,
+    "logit_bias": {},
+    "user": "",
+    "n": 1,
+    "stream": true,
+    "suffix": "",
+    "echo": false,
+    "best_of": 1
+  },
+  "window.restoreWindows": "all",
+  "window.closeWhenEmpty": false,
+  "workbench.editor.closeOnFileDelete": true,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "update.mode": "start",
+  "update.enableWindowsBackgroundUpdates": false,
+  "update.showReleaseNotes": false,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/tmp": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/venv": true,
+    "**/env": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.hg/store/**": true,
+    "**/venv/**": true,
+    "**/env/**": true
+  }
+}

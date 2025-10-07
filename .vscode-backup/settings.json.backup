@@ -1,0 +1,9 @@
+{
+  "_comment": "🤖 АВТОМАТИЗАЦИЯ COPILOT — РЕЖИМ ПРОФИ 🔥 Все настройки включены для максимальной скорости работы!",
+  "global.tools.terminal.autoExecute": true,
+  "global.tools.files.autoApplyEdits": true,
+  "global.tools.git.autoCommit": true,
+  "global.tools.docker.autoRestart": true,
+  "global.tools.nginx.autoReload": true,
+  "_note": "Copilot теперь выполняет все действия автоматически без подтверждения"
+}

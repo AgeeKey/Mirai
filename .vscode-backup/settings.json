@@ -1,0 +1,109 @@
+{
+  // 🧠 АВТОНОМНЫЙ РЕЖИМ MIRAI — ПОЛНОЕ ДОВЕРИЕ
+  // Все действия выполняются автоматически без подтверждения
+  "chat.tools.global.autoApprove": true,
+  "chat.tools.terminal.autoExecute": true,
+  "chat.tools.files.autoApplyEdits": true,
+  "chat.tools.git.autoCommit": true,
+  "chat.tools.docker.autoRestart": true,
+  "chat.tools.nginx.autoReload": true,
+  // 🤖 GitHub Copilot Автоматизация
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true,
+    "javascript": true,
+    "python": true,
+    "typescript": true,
+    "json": true,
+    "jsonc": true,
+    "bash": true,
+    "shell": true
+  },
+  "github.copilot.advanced": {},
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.editor.iterativeEditing": true,
+  "github.copilot.editor.enableCodeActions": true,
+  "github.copilot.chat.autoAcceptSuggestions": true,
+  "github.copilot.chat.followUpQuestions": true,
+  "github.copilot.chat.allowCodeGeneration": true,
+  "github.copilot.chat.allowCodeExecution": true,
+  "github.copilot.chat.allowFileCreation": true,
+  "github.copilot.chat.allowFileModification": true,
+  "github.copilot.terminal.executeWithoutConfirmation": true,
+  // 🔧 Автоматическое применение изменений
+  "editor.suggest.insertMode": "replace",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.wordBasedSuggestions": "allDocuments",
+  "editor.parameterHints.enabled": true,
+  "editor.quickSuggestionsDelay": 0,
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  // 🚀 Автоматическая работа с файлами
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.associations": {
+    "*.py": "python",
+    "*.js": "javascript",
+    "*.ts": "typescript",
+    "*.sh": "shellscript",
+    "*.yaml": "yaml",
+    "*.yml": "yaml"
+  },
+  // 🔄 Git автоматизация
+  "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+  "git.autoStash": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.suggestSmartCommit": true,
+  "git.autoRepositoryDetection": true,
+  // 🛠️ Terminal и Shell автоматизация
+  "terminal.integrated.confirmOnExit": "never",
+  "terminal.integrated.confirmOnKill": "never",
+  "terminal.integrated.enableVisualBell": false,
+  "accessibility.signals.terminalBell": {
+    "sound": "off"
+  },
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.automationProfile.linux": {
+    "path": "/bin/bash",
+    "args": [
+      "-l"
+    ]
+  },
+  // 📦 Extensions автоматизация
+  "extensions.autoCheckUpdates": true,
+  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "extensions.ignoreRecommendations": false,
+  // 🔐 Безопасность (сохранение автономности)
+  "security.workspace.trust.untrustedFiles": "open",
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.startupPrompt": "never",
+  "security.workspace.trust.emptyWindow": false,
+  // 💡 IntelliSense улучшения
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoFormatStrings": true,
+  // 🎯 Notification управление
+  "notification.showConfirmations": false,
+  "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "telemetry.telemetryLevel": "off"
+}

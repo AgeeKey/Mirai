@@ -1,0 +1,18 @@
+{
+    "auto_setup_completed": true,
+    "timestamp": "2025-10-07T22:05:22+00:00",
+    "features": {
+        "auto_suggestions": true,
+        "auto_completion": true,
+        "auto_commit": true,
+        "auto_format": true,
+        "auto_fix": true
+    },
+    "hotkeys": {
+        "copilot_generate": "Ctrl+Shift+Space",
+        "copilot_chat": "Ctrl+Shift+C", 
+        "auto_fix": "Ctrl+Alt+F",
+        "auto_deploy": "Ctrl+Alt+D",
+        "auto_commit": "Ctrl+Alt+C"
+    }
+}
