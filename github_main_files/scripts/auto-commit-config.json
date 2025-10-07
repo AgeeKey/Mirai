@@ -1,0 +1,17 @@
+{
+  "intervalMinutes": 3,
+  "maxFileSizeKB": 1000,
+  "commitPrefix": "🔥 auto:",
+  "includeFileCount": true,
+  "autoPush": false,
+  "runOnce": false,
+  "excludePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "*.log",
+    "*.tmp",
+    ".env*"
+  ],
+  "description": "🔥 EXTREME автокоммит конфигурация",
+  "warning": "⚠️ Данная конфигурация предназначена только для экспериментов!"
+}
