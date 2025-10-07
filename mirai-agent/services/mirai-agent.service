@@ -1,0 +1,19 @@
+[Unit]
+Description=Mirai Master Agent (FastAPI + Trading + Autonomous Agent)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__WORKDIR__
+EnvironmentFile=__ENVFILE__
+Environment=PYTHONUNBUFFERED=1
+ExecStart=__PYTHON__ -m core.master_agent
+Restart=on-failure
+RestartSec=5
+# Optionally adjust limits
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
