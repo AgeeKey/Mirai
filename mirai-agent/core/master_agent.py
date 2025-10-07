@@ -4,6 +4,7 @@ MASTER AGENT - Единое ядро Mirai Agent
 """
 
 import asyncio
+import os
 
 from core.ai_engine import AIEngine
 from core.config import Config
@@ -45,6 +46,18 @@ class MasterAgent:
             },
         )
 
+        # Безопасные флаги окружения
+        dry_run_flag = (os.getenv("DRY_RUN", "true").lower() == "true")
+        enable_telegram = (os.getenv("ENABLE_TELEGRAM", "false").lower() == "true")
+        enable_binance = (os.getenv("ENABLE_BINANCE", "false").lower() == "true")
+
+        self.logger.info(
+            "Startup flags: DRY_RUN=%s, ENABLE_TELEGRAM=%s, ENABLE_BINANCE=%s",
+            dry_run_flag,
+            enable_telegram,
+            enable_binance,
+        )
+
         # Трейдер
         self.trader = Trader(
             config=self.config.trading,
@@ -52,7 +65,8 @@ class MasterAgent:
             logger=trader_logger,
             runtime_config={
                 "cycle_interval": self.config.trader_settings.cycle_interval,
-                "demo_mode": self.config.trader_settings.demo_mode,
+                # Enforce DRY_RUN for safety unless explicitly disabled
+                "demo_mode": True if dry_run_flag else self.config.trader_settings.demo_mode,
             },
         )
 
