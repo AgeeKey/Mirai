@@ -33,7 +33,10 @@ class BinanceClient:
 
         # Get API credentials from environment
         self.api_key = os.getenv("BINANCE_API_KEY", "")
-        self.secret_key = os.getenv("BINANCE_SECRET_KEY", "")
+        # Prefer BINANCE_SECRET_KEY but fall back to legacy BINANCE_API_SECRET
+        self.secret_key = os.getenv("BINANCE_SECRET_KEY", "") or os.getenv("BINANCE_API_SECRET", "")
+        if not os.getenv("BINANCE_SECRET_KEY") and os.getenv("BINANCE_API_SECRET"):
+            logger.warning("Using legacy env BINANCE_API_SECRET; please rename to BINANCE_SECRET_KEY for consistency")
 
         # Initialize client if not in dry run mode and credentials are available
         self.client = None

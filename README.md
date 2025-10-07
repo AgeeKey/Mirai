@@ -152,23 +152,28 @@ mirai-agent/
 ### Endpoints
 
 ```bash
-# Health check
+# Health check (общий статус)
 GET http://localhost:8000/health
 
-# Статистика агента
+# Комбинированная статистика (агент + трейдинг)
 GET http://localhost:8000/stats
 
-# Спросить AI
-POST http://localhost:8000/ai/ask
-{
-  "question": "Что происходит с BTC?",
-  "model": "gpt-4"
-}
+# Отдельно: статистика задач агента
+GET http://localhost:8000/agent/stats
 
-# Статус торговли
+# Отдельно: статистика трейдера (баланс/позиции)
+GET http://localhost:8000/trader/stats
+
+# Расширенный статус торговли
 GET http://localhost:8000/trading/status
 
-# Документация
+# Вопрос к AI (модель: auto|gpt-4|grok)
+POST http://localhost:8000/ai/ask?question=Стоит%20ли%20покупать%20BTC%20сейчас?&model=auto
+
+# Создать задачу для агента
+POST http://localhost:8000/agent/task?description=Изучить%20рынок%20BTC
+
+# Документация FastAPI (если включена)
 GET http://localhost:8000/docs
 ```
 
@@ -183,7 +188,9 @@ curl http://localhost:8000/health
 
 ### Получение статистики
 ```bash
-curl http://localhost:8000/stats
+curl http://localhost:8000/stats | jq
+curl http://localhost:8000/agent/stats | jq
+curl http://localhost:8000/trader/stats | jq
 ```
 
 ### Вопрос к AI

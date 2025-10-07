@@ -78,8 +78,14 @@ test_api() {
     curl -s http://localhost:8000/health | python3 -m json.tool
     echo ""
     
-    echo -e "${YELLOW}2. Stats:${NC}"
-    curl -s http://localhost:8000/stats | python3 -m json.tool
+    echo -e "${YELLOW}2. Combined Stats (/stats):${NC}"
+    curl -s http://localhost:8000/stats | python3 -m json.tool || echo "(endpoint not available)"
+    echo ""
+    echo -e "${YELLOW}3. Agent Stats (/agent/stats):${NC}"
+    curl -s http://localhost:8000/agent/stats | python3 -m json.tool
+    echo ""
+    echo -e "${YELLOW}4. Trader Stats (/trader/stats):${NC}"
+    curl -s http://localhost:8000/trader/stats | python3 -m json.tool
     echo ""
 }
 
@@ -122,20 +128,16 @@ restart_agent() {
 
 # Функция 9: База данных
 show_db() {
-    echo -e "${BLUE}📚 База данных агента...${NC}"
-    echo ""
-    
-    DB="/root/mirai/mirai-agent/state/agent_memory.db"
-    
-    if [ -f "$DB" ]; then
-        echo -e "${YELLOW}Задачи:${NC}"
-        sqlite3 "$DB" "SELECT COUNT(*) FROM tasks;" 2>/dev/null || echo "0"
-        
+    echo -e "${BLUE}📚 Задачи агента (из JSON)${NC}"
+    TASKS_JSON="/root/mirai/mirai-agent/state/agent_tasks.json"
+    if [ -f "$TASKS_JSON" ]; then
+        COUNT=$(jq '. | length' "$TASKS_JSON" 2>/dev/null || echo 0)
+        echo -e "${YELLOW}Всего задач:${NC} $COUNT"
         echo ""
         echo -e "${YELLOW}Последние 5 задач:${NC}"
-        sqlite3 "$DB" "SELECT * FROM tasks ORDER BY created_at DESC LIMIT 5;" 2>/dev/null || echo "Нет данных"
+        jq '.[-5:]' "$TASKS_JSON" 2>/dev/null || echo "Нет данных"
     else
-        echo -e "${RED}База данных не найдена${NC}"
+        echo -e "${RED}Файл задач не найден: $TASKS_JSON${NC}"
     fi
 }
 

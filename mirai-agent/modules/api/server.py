@@ -65,6 +65,43 @@ class APIServer:
                 "positions": len(self.trader.positions),
             }
 
+        @self.app.get("/stats")
+        async def combined_stats():
+            """Aggregate stats similar to what documentation expects."""
+            total_tasks = len(self.agent.tasks)
+            pending = len([t for t in self.agent.tasks if t.status == "pending"])
+            return {
+                "status": "ok",
+                "agent": {
+                    "tasks_completed": self.agent.state["tasks_completed"],
+                    "learning_sessions": self.agent.state["learning_sessions"],
+                    "tasks_total": total_tasks,
+                    "tasks_pending": pending,
+                },
+                "trading": {
+                    "balance": self.trader.balance,
+                    "positions": len(self.trader.positions),
+                },
+            }
+
+        @self.app.get("/trading/status")
+        async def trading_status():
+            return {
+                "mode": getattr(self.trader, "mode", "demo"),
+                "balance": self.trader.balance,
+                "positions": [str(p) for p in getattr(self.trader, "positions", [])],
+                "positions_count": len(self.trader.positions),
+            }
+
+        @self.app.post("/ai/ask")
+        async def ai_ask(question: str, model: str = "auto"):
+            """Simple AI proxy endpoint (light wrapper)."""
+            try:
+                answer = await self.agent.ai.think(question, model=model)
+                return {"question": question, "answer": answer, "model": model}
+            except Exception as exc:  # noqa: BLE001
+                return {"error": str(exc)}
+
         @self.app.post("/agent/task")
         async def create_task(description: str):
             task = Task(id=str(uuid.uuid4()), description=description)
