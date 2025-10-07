@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "github.copilot",
+    "github.copilot-chat",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions",
+    "github.remotehub",
+    "emeraldwalk.runonsave",
+    "ms-azuretools.vscode-docker",
+    "blackboxapp.blackbox",
+    "continue.continue",
+    "kodu-ai.claude-dev-experimental"
+  ],
+  "unwantedRecommendations": [
+    "ms-python.pylint",
+    "ms-python.flake8"
+  ]
+}

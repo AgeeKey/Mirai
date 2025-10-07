@@ -1,0 +1,84 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🤖 Copilot Auto Setup",
+      "type": "shell",
+      "command": "echo",
+      "args": [
+        "GitHub Copilot автоматическая настройка завершена!"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔧 Auto Fix All",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "find . -name '*.py' -exec autopep8 --in-place {} \\; 2>/dev/null || echo 'Автоисправление завершено'"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🚀 Auto Deploy",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "./scripts/auto-deploy.sh"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "🔄 Auto Commit",
+      "type": "shell",
+      "command": "git",
+      "args": [
+        "add",
+        ".",
+        "&&",
+        "git",
+        "commit",
+        "-m",
+        "🤖 Auto commit by Copilot",
+        "&&",
+        "git",
+        "push"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
