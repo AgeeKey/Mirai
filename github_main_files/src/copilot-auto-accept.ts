@@ -158,9 +158,3 @@ export class CopilotAutoAccept {
     this.disposables.forEach(d => d.dispose());
   }
 }
-
-jq '. + {
-  "copilotAutoAccept.enable": true,
-  "copilotAutoAccept.strategy": "first",
-  "copilotAutoAccept.smartGuards": false
-}' ~/.config/Code/User/settings.json > /tmp/settings.new && mv /tmp/settings.new ~/.config/Code/User/settings.json
