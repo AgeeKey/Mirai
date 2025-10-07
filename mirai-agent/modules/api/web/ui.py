@@ -320,8 +320,3 @@ HTML_TEMPLATE = """
 async def get_dashboard(request: Request, authorized: bool = Depends(verify_credentials)):
     """Serve the main dashboard HTML page"""
     return HTMLResponse(content=HTML_TEMPLATE)
-
-@ui_router.get("/dashboard", response_class=HTMLResponse)
-async def get_dashboard_alt(request: Request, authorized: bool = Depends(verify_credentials)):
-    """Alias for the main dashboard HTML page"""
-    return HTMLResponse(content=HTML_TEMPLATE)

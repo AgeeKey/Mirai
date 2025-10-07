@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel
 
 from modules.trading.binance_client import BinanceClient
@@ -34,6 +34,13 @@ app.add_middleware(
 
 # Include UI router
 app.include_router(ui_router)
+
+
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    """Redirect root to UI dashboard"""
+    from .ui import HTML_TEMPLATE
+    return HTML_TEMPLATE
 
 
 # Pydantic models for request bodies

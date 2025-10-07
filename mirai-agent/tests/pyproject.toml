@@ -1,7 +1,0 @@
-"""
-Информация о проекте:
-- Проект: Mirai Agent API
-- Описание: RESTful API для управления Mirai Agent и просмотра данных
-"""
-
-pytest_plugins = ["pytest_asyncio"]

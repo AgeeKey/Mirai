@@ -34,6 +34,11 @@ from modules.utils.logger import Logger
 logger = Logger("TelegramBot").logger
 
 
+def get_telegram_token():
+    """Get Telegram token with fallback to legacy environment variable"""
+    return os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN")
+
+
 class TelegramNotifier:
     """
     Telegram notification service for trading events

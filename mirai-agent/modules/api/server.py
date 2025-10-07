@@ -13,7 +13,6 @@ from typing import Any, Dict, Optional
 import uvicorn
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from modules.agent.autonomous import Task
@@ -44,9 +43,9 @@ class APIServer:
         )
 
     def _setup_routes(self):
-        # Mount simple HTML UI на корневом пути
+        # Mount simple HTML UI at root
         self.app.include_router(ui_router)
-
+        
         @self.app.get("/api")
         async def api_root():
             return {"status": "ok", "service": "Mirai Agent API"}
@@ -298,11 +297,6 @@ class APIServer:
         @self.app.post("/kill")
         async def kill_switch(_: KillReq):
             return {"success": True}
-
-        # Обеспечиваем обратную совместимость для UI при вызове через старый путь
-        @self.app.get("/ui", response_class=HTMLResponse)
-        async def ui_redirect():
-            return HTMLResponse(content='<meta http-equiv="refresh" content="0;url=/" />')
 
     async def run(self):
         self.logger.info("🚀 API Server starting on http://0.0.0.0:8000")
