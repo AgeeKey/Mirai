@@ -1,5 +1,5 @@
 // ==========================================
-// MIRAI AI - Full Integration Script
+// MIRAI AI - Full Integration Script (FIXED)
 // ==========================================
 
 // API Configuration
@@ -287,29 +287,44 @@ async function loadSectionData(sectionId) {
 }
 
 // ==========================================
-// ACTION BUTTONS
+// ACTION BUTTONS - FIXED VERSION
 // ==========================================
 
 function initializeActionButtons() {
-    document.addEventListener('click', (e) => {
-        const target = e.target;
-        
-        if (target.closest('[data-action="new-task"]') || 
-            (target.textContent && target.textContent.includes('Новая задача'))) {
-            showCreateTaskDialog();
-        }
-        
-        if (target.closest('[data-action="refresh"]') || 
-            (target.textContent && target.textContent.includes('Обновить'))) {
-            loadAllData();
-            showNotification('Данные обновлены', 'success');
-        }
-        
-        if (target.closest('[data-action="analytics"]') ||
-            (target.textContent && target.textContent.includes('Аналитика'))) {
-            navigateToSection('stats');
-        }
+    // Получаем все кнопки в сайдбаре
+    const actionButtons = document.querySelectorAll('.sidebar-actions button');
+    
+    actionButtons.forEach((btn, index) => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const text = btn.textContent.trim();
+            
+            console.log('Button clicked:', text);
+            
+            if (text.includes('Новая задача')) {
+                showCreateTaskDialog();
+            } else if (text.includes('Обновить')) {
+                refreshData();
+            } else if (text.includes('Аналитика')) {
+                navigateToSection('stats');
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('.nav-link[data-section="stats"]')?.classList.add('active');
+            } else if (text.includes('Чат')) {
+                navigateToSection('chat');
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('.nav-link[data-section="chat"]')?.classList.add('active');
+            } else if (text.includes('Поиск')) {
+                showWebSearchDialog();
+            }
+        });
     });
+    
+    console.log(`✅ ${actionButtons.length} action buttons initialized`);
+}
+
+async function refreshData() {
+    await loadAllData();
+    showNotification('Данные обновлены', 'success');
 }
 
 // ==========================================
@@ -324,17 +339,23 @@ function showCreateTaskDialog() {
     createTask(title.trim(), parseInt(priority) || 2);
 }
 
-async function createTask(title, priority = 2) {
+async function createTask(description, priority = 2) {
     try {
+        console.log('Creating task:', description, priority);
+        
         const response = await fetch(API_ENDPOINTS.createTask, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, priority })
+            body: JSON.stringify({ 
+                description: description,
+                priority: priority 
+            })
         });
         
         const data = await response.json();
+        console.log('Task creation response:', data);
         
-        if (data.status === 'created') {
+        if (data.status === 'created' || data.id) {
             showNotification('✅ Задача создана', 'success');
             await loadTasks();
             updateTasksList();
@@ -343,26 +364,86 @@ async function createTask(title, priority = 2) {
         }
     } catch (error) {
         console.error('Error creating task:', error);
-        showNotification('❌ Ошибка подключения', 'error');
+        showNotification('❌ Ошибка подключения: ' + error.message, 'error');
     }
 }
 
 // ==========================================
-// CHAT FUNCTIONALITY
+// WEB SEARCH FUNCTIONALITY - NEW
+// ==========================================
+
+async function showWebSearchDialog() {
+    const query = prompt('🔍 Что найти в интернете?');
+    if (!query || query.trim() === '') return;
+    
+    showNotification('🌐 Выполняю поиск в интернете...', 'info');
+    
+    try {
+        // Создаём задачу для агента на поиск в интернете
+        const response = await fetch(API_ENDPOINTS.createTask, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                description: `Поиск в интернете: ${query}`,
+                priority: 2,
+                metadata: {
+                    type: 'web_search',
+                    query: query
+                }
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'created' || data.id) {
+            showNotification(`✅ Задача на поиск "${query}" создана`, 'success');
+            
+            // Переходим в раздел задач
+            navigateToSection('tasks');
+            await loadTasks();
+            updateTasksList();
+            
+            // Обновляем навигацию
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('.nav-link[data-section="tasks"]')?.classList.add('active');
+        } else {
+            showNotification('❌ Ошибка создания задачи поиска', 'error');
+        }
+    } catch (error) {
+        console.error('Web search error:', error);
+        showNotification('❌ Ошибка поиска: ' + error.message, 'error');
+    }
+}
+
+// ==========================================
+// CHAT FUNCTIONALITY - FIXED
 // ==========================================
 
 function initializeChat() {
     const chatInput = document.querySelector('.chat-input');
     const chatSend = document.querySelector('.chat-send');
     
+    console.log('Chat elements:', { input: !!chatInput, send: !!chatSend });
+    
     if (chatInput && chatSend) {
-        chatSend.addEventListener('click', sendChatMessage);
+        // Обработчик кнопки отправки
+        chatSend.addEventListener('click', () => {
+            console.log('Chat send button clicked');
+            sendChatMessage();
+        });
+        
+        // Обработчик Enter
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
+                console.log('Enter pressed in chat');
                 sendChatMessage();
             }
         });
+        
+        console.log('✅ Chat initialized successfully');
+    } else {
+        console.error('❌ Chat elements not found!');
     }
 }
 
@@ -370,10 +451,20 @@ async function sendChatMessage() {
     const input = document.querySelector('.chat-input');
     const messagesContainer = document.getElementById('chatMessages');
     
-    if (!input || !messagesContainer) return;
+    if (!input || !messagesContainer) {
+        console.error('Chat elements not found!');
+        return;
+    }
     
     const message = input.value.trim();
     if (!message) return;
+    
+    console.log('Sending message:', message);
+    
+    // Очищаем старые сообщения-примеры
+    if (messagesContainer.children.length <= 3) {
+        messagesContainer.innerHTML = '';
+    }
     
     addChatMessage(message, 'user');
     input.value = '';
@@ -384,10 +475,19 @@ async function sendChatMessage() {
         const response = await fetch(API_ENDPOINTS.aiAsk, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: message, temperature: 0.7, max_tokens: 500 })
+            body: JSON.stringify({ 
+                prompt: message, 
+                temperature: 0.7, 
+                max_tokens: 500 
+            })
         });
         
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('AI response:', data);
         
         removeChatMessage(typingId);
         addChatMessage(data.answer || 'Извините, не могу ответить.', 'mirai');
@@ -395,7 +495,7 @@ async function sendChatMessage() {
     } catch (error) {
         console.error('Chat error:', error);
         removeChatMessage(typingId);
-        addChatMessage('❌ Ошибка подключения к AI', 'mirai');
+        addChatMessage('❌ Ошибка подключения к AI: ' + error.message, 'mirai');
     }
 }
 
@@ -413,12 +513,27 @@ function addChatMessage(text, sender, isTemporary = false) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     
-    messageEl.innerHTML = `
-        <div class="message-content">
-            <div class="message-text">${text}</div>
-            <div class="message-time">${timeStr}</div>
-        </div>
-    `;
+    const avatarUrl = sender === 'mirai' 
+        ? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23a361ff'/%3E%3Ctext x='20' y='26' font-family='Arial' font-size='18' fill='white' text-anchor='middle'%3E未%3C/text%3E%3C/svg%3E"
+        : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%236e56cf'/%3E%3Ctext x='20' y='26' font-family='Arial' font-size='18' fill='white' text-anchor='middle'%3EU%3C/text%3E%3C/svg%3E";
+    
+    if (sender === 'mirai') {
+        messageEl.innerHTML = `
+            <img src="${avatarUrl}" alt="Mirai" class="message-avatar">
+            <div class="message-content">
+                <div class="message-text">${text}</div>
+                <div class="message-time">${timeStr}</div>
+            </div>
+        `;
+    } else {
+        messageEl.innerHTML = `
+            <div class="message-content">
+                <div class="message-text">${text}</div>
+                <div class="message-time">${timeStr}</div>
+            </div>
+            <img src="${avatarUrl}" alt="User" class="message-avatar">
+        `;
+    }
     
     messagesContainer.appendChild(messageEl);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -522,26 +637,21 @@ function showNotification(message, type = 'info') {
     
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <span>${icons[type]} ${message}</span>
-    `;
+    notification.style.cssText = 'padding:15px 20px;margin:10px;background:#1a1a2e;color:white;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;gap:10px;animation:slideIn 0.3s ease;';
+    notification.innerHTML = `<span style="font-size:20px;">${icons[type]}</span><span>${message}</span>`;
     
     let container = document.querySelector('.notifications-container');
     if (!container) {
         container = document.createElement('div');
         container.className = 'notifications-container';
-        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:10000;max-width:400px;';
         document.body.appendChild(container);
     }
     
     container.appendChild(notification);
     
     setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
+        notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
@@ -556,7 +666,7 @@ function showLoadingIndicator() {
         loader = document.createElement('div');
         loader.className = 'global-loader';
         loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
-        loader.innerHTML = '<div style="color:white;font-size:24px;">Загрузка...</div>';
+        loader.innerHTML = '<div style="color:white;font-size:24px;padding:20px;background:#1a1a2e;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">⏳ Загрузка...</div>';
         document.body.appendChild(loader);
     }
     loader.style.display = 'flex';
@@ -567,4 +677,18 @@ function hideLoadingIndicator() {
     if (loader) loader.style.display = 'none';
 }
 
-console.log('📝 Mirai AI Full Integration loaded successfully');
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+console.log('📝 Mirai AI Full Integration (FIXED) loaded successfully');
