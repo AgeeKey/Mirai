@@ -12,14 +12,23 @@ try:  # pragma: no cover - optional dependency
 except ImportError:  # pragma: no cover
     OpenAI = None
 
+# Import AI Tools
+try:
+    from .ai_tools import ai_tools
+    AI_TOOLS_AVAILABLE = True
+except ImportError:
+    AI_TOOLS_AVAILABLE = False
+    ai_tools = None
+
 
 class AIEngine:
-    """Единый AI движок для GPT-4 и Grok"""
+    """Единый AI движок для GPT-4 и Grok с дополнительными инструментами"""
 
     def __init__(self, openai_key: Optional[str] = None, grok_key: Optional[str] = None):
         self.openai_key = openai_key
         self.grok_key = grok_key
         self._openai_client = None
+        self.tools = ai_tools if AI_TOOLS_AVAILABLE else None
 
         if openai_key and OpenAI:
             try:
@@ -45,27 +54,9 @@ class AIEngine:
             max_tokens: Макс длина ответа
         """
 
-        # Авто-выбор модели с умной приоритизацией
+        # Авто-выбор модели - используем только GPT-4
         if model == "auto":
-            # Определяем сложность задачи по ключевым словам
-            complex_keywords = [
-                "анализ", "стратегия", "решение", "plan", "strategy", 
-                "analyze", "decide", "optimize", "calculate", "evaluate",
-                "критическ", "важн", "critical", "important"
-            ]
-            is_complex = any(kw in prompt.lower() for kw in complex_keywords)
-            
-            if is_complex and self._openai_client:
-                # Сложные задачи → GPT-4 (мозг)
-                model = "gpt-4"
-            elif self.grok_key:
-                # Простые задачи → Grok (быстро и дёшево)
-                model = "grok"
-            elif self._openai_client:
-                # Fallback на GPT-4 если Grok недоступен
-                model = "gpt-4"
-            else:
-                model = "grok"  # Последний шанс
+            model = "gpt-4" if self._openai_client else "grok"
 
         if model == "gpt-4" and not self._openai_client:
             return "AI (OpenAI) не настроен"

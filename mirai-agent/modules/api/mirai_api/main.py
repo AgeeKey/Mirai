@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import json
 import asyncio
@@ -56,7 +57,7 @@ app.add_middleware(
 # Add emergency middleware
 app.middleware("http")(emergency_middleware_func)
 
-# Include web extension routers
+# Include web extension routers FIRST (before static files)
 app.include_router(auth_router)
 app.include_router(blog_router)
 app.include_router(voice_router)
@@ -65,6 +66,14 @@ app.include_router(emergency_router)
 app.include_router(admin_router)
 app.include_router(integration_router)
 app.include_router(notifications_router)
+
+# Mount static files for web interface LAST (catch-all)
+web_dir = "/root/mirai/mirai-agent/web"
+if os.path.exists(web_dir):
+    app.mount("/web", StaticFiles(directory=web_dir, html=True), name="webui")
+    print(f"✅ Web interface mounted at /web from {web_dir}")
+else:
+    print(f"⚠️ Web directory not found: {web_dir}")
 
 class ConnectionManager:
     def __init__(self):
