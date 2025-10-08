@@ -3,76 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mirai AI - Autonomous Agent Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Mirai - AI Trading Platform</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <h1>🤖 Mirai AI Agent</h1>
-            <p class="subtitle">Autonomous AI Trading & Task Management System</p>
-        </header>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Miraxa</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">What Mirai Does</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#services" class="nav-link">Services</a>
+                <a href="#dashboard" class="nav-link btn-get-started">Dashboard</a>
+            </div>
+        </div>
+    </nav>
 
-        <!-- Status Section -->
-        <section class="status-panel">
-            <h2>📊 System Status</h2>
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    A platform for<br>
+                    <span class="gradient-text">high-performance</span><br>
+                    AI trading
+                </h1>
+                <p class="hero-subtitle">Meet Mirai, your intelligent AI trader</p>
+                <p class="hero-description">
+                    Empowering your investments with cutting-edge artificial intelligence 
+                    and advanced trading strategies.
+                </p>
+                <button onclick="scrollToDashboard()" class="hero-btn">Get Started</button>
+            </div>
+            <div class="hero-image">
+                <div class="character-container">
+                    <div class="glow-effect"></div>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:0.8' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:0.8' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='200' cy='180' rx='80' ry='100' fill='url(%23grad1)' /%3E%3Crect x='120' y='260' width='160' height='200' rx='10' fill='url(%23grad1)' /%3E%3Ccircle cx='170' cy='160' r='8' fill='%23fff' /%3E%3Ccircle cx='230' cy='160' r='8' fill='%23fff' /%3E%3Cpath d='M 170 200 Q 200 210 230 200' stroke='%23fff' stroke-width='3' fill='none' /%3E%3C/svg%3E" 
+                         alt="Mirai AI Character" class="character-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="about">
+        <div class="features-container">
+            <div class="feature-card">
+                <h3>What Mirai Does</h3>
+                <p>AI-powered blogs, crypto analysis, & more</p>
+            </div>
+            <div class="feature-card">
+                <h3>About</h3>
+                <p>Innovating the future of AI in finance</p>
+            </div>
+            <div class="feature-card">
+                <h3>Services</h3>
+                <p>Tailored solutions for diverse trading needs</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard-section" id="dashboard">
+        <div class="container">
+            <header class="dashboard-header">
+                <h2>🤖 AI Agent Dashboard</h2>
+                <p class="subtitle">Real-time monitoring & control</p>
+            </header>
+
             <div class="status-grid">
-                <div class="status-card" id="agent-status">
+                <div class="status-card pulse" id="agent-status">
+                    <div class="card-icon">🤖</div>
                     <h3>Agent Status</h3>
-                    <p class="status-value">Loading...</p>
+                    <div class="status-indicator">⚪ Checking...</div>
                 </div>
-                <div class="status-card" id="ai-engine">
+                <div class="status-card pulse" id="ai-engine-status">
+                    <div class="card-icon">🧠</div>
                     <h3>AI Engine</h3>
-                    <p class="status-value">Loading...</p>
+                    <div class="status-indicator">⚪ Checking...</div>
                 </div>
-                <div class="status-card" id="trader-status">
+                <div class="status-card pulse" id="trader-status">
+                    <div class="card-icon">📈</div>
                     <h3>Trader</h3>
-                    <p class="status-value">Loading...</p>
+                    <div class="status-indicator">⚪ Checking...</div>
                 </div>
-                <div class="status-card" id="api-status">
+                <div class="status-card pulse" id="api-status">
+                    <div class="card-icon">🌐</div>
                     <h3>API Server</h3>
-                    <p class="status-value">Loading...</p>
+                    <div class="status-indicator">⚪ Checking...</div>
                 </div>
             </div>
-        </section>
 
-        <!-- Tasks Section -->
-        <section class="tasks-panel">
-            <h2>📝 Active Tasks</h2>
-            <div id="tasks-list" class="tasks-list">
-                <p>Loading tasks...</p>
+            <div class="section">
+                <h2>📋 Active Tasks</h2>
+                <div id="tasks-container" class="tasks-container">
+                    <p>Loading tasks...</p>
+                </div>
             </div>
-        </section>
 
-        <!-- Statistics Section -->
-        <section class="stats-panel">
-            <h2>📈 Statistics</h2>
-            <div id="stats-content" class="stats-content">
-                <p>Loading statistics...</p>
+            <div class="section">
+                <h2>📊 Statistics</h2>
+                <div id="stats-container" class="stats-container">
+                    <p>Loading stats...</p>
+                </div>
             </div>
-        </section>
 
-        <!-- Logs Section -->
-        <section class="logs-panel">
-            <h2>📜 Recent Logs</h2>
-            <div id="logs-container" class="logs-container">
-                <p>Connecting to live logs...</p>
+            <div class="section">
+                <h2>📜 Recent Logs</h2>
+                <div id="logs-container" class="logs-container">
+                    <p>Loading logs...</p>
+                </div>
             </div>
-        </section>
 
-        <!-- Control Panel -->
-        <section class="control-panel">
-            <h2>🎮 Controls</h2>
-            <div class="controls-grid">
+            <div class="controls">
                 <button onclick="refreshStatus()" class="btn btn-primary">🔄 Refresh</button>
                 <button onclick="executeTask()" class="btn btn-success">▶️ Execute Task</button>
-                <button onclick="viewLogs()" class="btn btn-info">📋 View Full Logs</button>
+                <button onclick="viewLogs()" class="btn btn-info">📜 View Logs</button>
                 <button onclick="openTelegram()" class="btn btn-secondary">💬 Telegram</button>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
-    <script src="app.js"></script>
+    <!-- Subscribe Section -->
+    <section class="subscribe-section" id="services">
+        <div class="subscribe-container">
+            <h2>Subscribe for updates</h2>
+            <p>Stay informed with the latest insights and news.</p>
+            <div class="subscribe-form">
+                <input type="text" placeholder="First name" class="subscribe-input">
+                <input type="email" placeholder="Email" class="subscribe-input">
+                <button class="subscribe-btn">Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="#contact">Contact</a>
+                <a href="#privacy">Privacy</a>
+                <a href="#terms">Terms of Service</a>
+            </div>
+            <p class="footer-text">© 2025 Mirai AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/app.js"></script>
 </body>
 </html>
