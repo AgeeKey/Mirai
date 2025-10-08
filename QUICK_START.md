@@ -3,12 +3,14 @@
 ## 📋 Что Нужно Перед Запуском
 
 ### Требования:
+
 - ✅ Ubuntu 24.04 (или выше)
 - ✅ Python 3.12
 - ✅ Доступ к интернету
 - ✅ Root доступ (или sudo)
 
 ### API Ключи (обязательно):
+
 - ✅ **OpenAI API Key** - для GPT-4
 - ✅ **Telegram Bot Token** - для Telegram бота
 - ✅ **Telegram Chat ID** - твой Telegram ID
@@ -74,6 +76,7 @@ pip install -r requirements.txt
 ```
 
 **Дополнительно (для веб и поиска):**
+
 ```bash
 pip install beautifulsoup4 lxml requests python-dotenv
 ```
@@ -124,6 +127,7 @@ grep -E "OPENAI_API_KEY|TELEGRAM_BOT_TOKEN|TELEGRAM_CHAT_ID_ADMIN" .env | sed 's
 ```
 
 Должно вывести:
+
 ```
 OPENAI_API_KEY=***
 TELEGRAM_BOT_TOKEN=***
@@ -214,32 +218,32 @@ sudo nano /etc/nginx/sites-available/mirai
 server {
     listen 80;
     server_name aimirai.online www.aimirai.online;
-    
+
     # Логи
     access_log /var/log/nginx/mirai_access.log;
     error_log /var/log/nginx/mirai_error.log;
-    
+
     # Reverse proxy к FastAPI
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
-        
+
         # Headers
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # WebSocket support
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        
+
         # Таймауты
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
-    
+
     # Статические файлы
     location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg)$ {
         proxy_pass http://127.0.0.1:8000;
@@ -296,27 +300,31 @@ curl http://localhost:8000/stats
 ```
 
 **Ожидаемый ответ:**
+
 ```json
 {
-    "status": "healthy",
-    "agent_running": true,
-    "trader_running": true
+  "status": "healthy",
+  "agent_running": true,
+  "trader_running": true
 }
 ```
 
 ### 6.3 Проверка Веб-Интерфейса
 
 **В браузере открой:**
+
 ```
 http://localhost:8000/
 ```
 
 **Или через домен (если настроен DNS):**
+
 ```
 http://aimirai.online/
 ```
 
 **Должно показать:**
+
 - 🤖 Mirai AI Agent Dashboard
 - 📊 4 карточки статуса (все зелёные)
 - 📝 Active Tasks
@@ -417,6 +425,7 @@ chmod +x /root/mirai/quick_check.sh
 ```
 
 **Запуск:**
+
 ```bash
 /root/mirai/quick_check.sh
 ```
@@ -428,16 +437,19 @@ chmod +x /root/mirai/quick_check.sh
 ### Проблема 1: "Сервис не запускается"
 
 **Диагностика:**
+
 ```bash
 sudo journalctl -u mirai-agent -n 50
 ```
 
 **Возможные причины:**
+
 - ❌ Неверный путь в .service файле
 - ❌ Нет прав на выполнение
 - ❌ Отсутствуют зависимости
 
 **Решение:**
+
 ```bash
 # Проверь пути
 ls -la /root/mirai/mirai-agent/main.py
@@ -455,12 +467,14 @@ sudo systemctl restart mirai-agent
 ### Проблема 2: "API ключи не работают"
 
 **Диагностика:**
+
 ```bash
 # Проверь .env файл
 cat /root/mirai/mirai-agent/.env | grep API_KEY
 ```
 
 **Решение:**
+
 ```bash
 # Отредактируй .env
 nano /root/mirai/mirai-agent/.env
@@ -473,17 +487,20 @@ sudo systemctl restart mirai-agent
 ### Проблема 3: "Telegram бот не отвечает"
 
 **Диагностика:**
+
 ```bash
 # Проверь логи Telegram
 sudo journalctl -u mirai-agent | grep Telegram
 ```
 
 **Возможные причины:**
+
 - ❌ Неверный токен бота
 - ❌ Неверный Chat ID
 - ❌ ENABLE_TELEGRAM=false
 
 **Решение:**
+
 ```bash
 # Проверь .env
 grep TELEGRAM /root/mirai/mirai-agent/.env
@@ -500,6 +517,7 @@ sudo systemctl restart mirai-agent
 ### Проблема 4: "Веб-интерфейс не открывается"
 
 **Диагностика:**
+
 ```bash
 # Проверь API
 curl http://localhost:8000/health
@@ -509,6 +527,7 @@ sudo systemctl status nginx
 ```
 
 **Решение:**
+
 ```bash
 # Перезапусти оба сервиса
 sudo systemctl restart mirai-agent
@@ -533,21 +552,25 @@ sudo systemctl restart nginx
 ### 📈 Мониторинг:
 
 **Через веб:**
+
 ```
 http://localhost:8000/
 ```
 
 **Через API:**
+
 ```bash
 curl http://localhost:8000/stats
 ```
 
 **Через Telegram:**
+
 ```
 /status
 ```
 
 **Через логи:**
+
 ```bash
 sudo journalctl -u mirai-agent -f
 ```
@@ -559,16 +582,18 @@ sudo journalctl -u mirai-agent -f
 ### После успешного запуска:
 
 1. **Настрой домен (если есть):**
+
    ```bash
    # Настрой DNS A-запись
    aimirai.online → IP_сервера
-   
+
    # Установи SSL
    sudo apt install certbot python3-certbot-nginx
    sudo certbot --nginx -d aimirai.online
    ```
 
 2. **Добавь авторизацию:**
+
    ```bash
    # Для веб-интерфейса
    sudo apt install apache2-utils
@@ -576,6 +601,7 @@ sudo journalctl -u mirai-agent -f
    ```
 
 3. **Настрой мониторинг:**
+
    - Проверяй логи ежедневно
    - Следи за статистикой через Telegram
    - Проверяй веб-интерфейс
@@ -595,18 +621,21 @@ sudo journalctl -u mirai-agent -f
 ## 📚 Полезные Ссылки
 
 ### Документация:
+
 - `/root/mirai/MIRAI_READY_REPORT.md` - Полный отчёт о системе
 - `/root/mirai/WEB_ACCESS_GUIDE.md` - Веб-интерфейс и доступ
 - `/root/mirai/WEB_AND_AI_TOOLS.md` - AI Tools и возможности
 - `/root/mirai/QUICK_START.md` - **ЭТА ИНСТРУКЦИЯ**
 
 ### API Endpoints:
+
 - `http://localhost:8000/` - Dashboard
 - `http://localhost:8000/health` - Health check
 - `http://localhost:8000/stats` - Статистика
 - `http://localhost:8000/status` - Полный статус
 
 ### Логи и Мониторинг:
+
 ```bash
 # Live логи
 sudo journalctl -u mirai-agent -f
@@ -625,21 +654,25 @@ curl http://localhost:8000/health
 После выполнения всех шагов у тебя будет:
 
 ✅ **Полностью автономный AI агент**
+
 - Работает 24/7
 - Сам ставит и выполняет задачи
 - Учится через GPT-4
 
 ✅ **Telegram бот**
+
 - Отвечает на команды
 - Показывает статус
 - Отправляет уведомления
 
 ✅ **Веб-интерфейс**
+
 - Мониторинг в реальном времени
 - Красивый dashboard
 - Live логи
 
 ✅ **AI Tools**
+
 - Поиск в интернете
 - Создание кода
 - Выполнение задач
