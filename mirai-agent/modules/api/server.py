@@ -57,15 +57,26 @@ class APIServer:
             except FileNotFoundError:
                 return "<h1>🤖 Mirai Agent Running</h1><p>Web interface not found</p>"
         
+        @self.app.get("/styles.css")
+        async def get_styles_css():
+            """CSS файл"""
+            return FileResponse("/root/mirai/mirai-agent/web/styles.css")
+
+        @self.app.get("/script.js")
+        async def get_script_js():
+            """JavaScript файл"""
+            return FileResponse("/root/mirai/mirai-agent/web/script.js")
+        
+        # Legacy endpoints for compatibility
         @self.app.get("/style.css")
         async def get_css():
-            """CSS файл"""
-            return FileResponse("/root/mirai/mirai-agent/web/style.css")
+            """CSS файл (legacy)"""
+            return FileResponse("/root/mirai/mirai-agent/web/styles.css")
 
         @self.app.get("/app.js")
         async def get_js():
-            """JavaScript файл"""
-            return FileResponse("/root/mirai/mirai-agent/web/app.js")
+            """JavaScript файл (legacy)"""
+            return FileResponse("/root/mirai/mirai-agent/web/script.js")
         
         @self.app.get("/api")
         async def api_root():
