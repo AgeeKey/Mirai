@@ -13,6 +13,7 @@ from typing import Any, Dict, Optional
 import uvicorn
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel, Field
 
 from modules.agent.autonomous import Task
@@ -43,8 +44,28 @@ class APIServer:
         )
 
     def _setup_routes(self):
-        # Mount simple HTML UI at root
-        self.app.include_router(ui_router)
+        # Mount simple HTML UI at root - DISABLED (uses auth)
+        # self.app.include_router(ui_router)
+        
+        # Веб-интерфейс Mirai Dashboard (публичный)
+        @self.app.get("/", response_class=HTMLResponse)
+        async def web_dashboard():
+            """Главная страница с веб-интерфейсом"""
+            try:
+                with open("/root/mirai/mirai-agent/web/index.html", "r") as f:
+                    return f.read()
+            except FileNotFoundError:
+                return "<h1>🤖 Mirai Agent Running</h1><p>Web interface not found</p>"
+        
+        @self.app.get("/style.css")
+        async def get_css():
+            """CSS файл"""
+            return FileResponse("/root/mirai/mirai-agent/web/style.css")
+
+        @self.app.get("/app.js")
+        async def get_js():
+            """JavaScript файл"""
+            return FileResponse("/root/mirai/mirai-agent/web/app.js")
         
         @self.app.get("/api")
         async def api_root():

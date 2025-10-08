@@ -1,6 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import json
@@ -58,14 +58,15 @@ app.add_middleware(
 app.middleware("http")(emergency_middleware_func)
 
 # Include web extension routers FIRST (before static files)
-app.include_router(auth_router)
-app.include_router(blog_router)
-app.include_router(voice_router)
-app.include_router(memory_router)
-app.include_router(emergency_router)
-app.include_router(admin_router)
-app.include_router(integration_router)
-app.include_router(notifications_router)
+# Temporarily disabled for debugging
+# app.include_router(auth_router)
+# app.include_router(blog_router)
+# app.include_router(voice_router)
+# app.include_router(memory_router)
+# app.include_router(emergency_router)
+# app.include_router(admin_router)
+# app.include_router(integration_router)
+# app.include_router(notifications_router)
 
 # Mount static files for web interface LAST (catch-all)
 web_dir = "/root/mirai/mirai-agent/web"
@@ -136,9 +137,24 @@ def get_db_connection() -> Optional[sqlite3.Connection]:
         return conn
     return None
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    return {"message": "🤖 Mirai Trading API активен!", "status": "running"}
+    """Главная страница с веб-интерфейсом"""
+    try:
+        with open("/root/mirai/mirai-agent/web/index.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return {"message": "🤖 Mirai Trading API активен!", "status": "running"}
+
+@app.get("/style.css")
+async def get_css():
+    """CSS файл"""
+    return FileResponse("/root/mirai/mirai-agent/web/style.css")
+
+@app.get("/app.js")
+async def get_js():
+    """JavaScript файл"""
+    return FileResponse("/root/mirai/mirai-agent/web/app.js")
 
 @app.get("/api/health")
 async def health_check():
