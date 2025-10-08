@@ -9,15 +9,54 @@ import time
 import uuid
 from dataclasses import asdict
 from typing import Any, Dict, Optional
+from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 
 import uvicorn
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from modules.agent.autonomous import Task
 from modules.api.web.ui import ui_router
+
+
+# Standardized API response format
+def api_response(data: Any = None, error: str = None, status: str = "success") -> dict:
+    """Create standardized API response"""
+    from datetime import timezone
+    response = {
+        "status": status if not error else "error",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+    }
+    if data is not None:
+        response["data"] = data
+    if error:
+        response["error"] = error
+    return response
+
+
+# Simple rate limiter
+class RateLimiter:
+    """Simple in-memory rate limiter"""
+    def __init__(self):
+        self.requests = defaultdict(list)
+    
+    def is_allowed(self, key: str, max_requests: int = 60, window: int = 60) -> bool:
+        """Check if request is allowed (max_requests per window seconds)"""
+        now = datetime.now(timezone.utc)
+        cutoff = now - timedelta(seconds=window)
+        
+        # Clean old requests
+        self.requests[key] = [ts for ts in self.requests[key] if ts > cutoff]
+        
+        # Check limit
+        if len(self.requests[key]) >= max_requests:
+            return False
+        
+        self.requests[key].append(now)
+        return True
 
 
 class APIServer:
@@ -27,8 +66,9 @@ class APIServer:
         self.agent = agent
         self.trader = trader
         self.logger = logger
+        self.rate_limiter = RateLimiter()
 
-        self.app = FastAPI(title="Mirai Agent API")
+        self.app = FastAPI(title="Mirai Agent API", version="1.0.0")
         self._setup_middleware()
         self._setup_routes()
 
@@ -42,6 +82,23 @@ class APIServer:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+        
+        # Rate limiting middleware
+        @self.app.middleware("http")
+        async def rate_limit_middleware(request: Request, call_next):
+            # Skip rate limiting for static files
+            if request.url.path.endswith(('.css', '.js', '.html', '/')):
+                return await call_next(request)
+            
+            # Apply rate limiting to API endpoints
+            client_ip = request.client.host if request.client else "unknown"
+            if not self.rate_limiter.is_allowed(client_ip, max_requests=60, window=60):
+                return JSONResponse(
+                    status_code=429,
+                    content=api_response(error="Rate limit exceeded. Try again later.", status="error")
+                )
+            
+            return await call_next(request)
 
     def _setup_routes(self):
         # Mount simple HTML UI at root - DISABLED (uses auth)
@@ -80,33 +137,51 @@ class APIServer:
         
         @self.app.get("/api")
         async def api_root():
-            return {"status": "ok", "service": "Mirai Agent API"}
+            return api_response(data={"service": "Mirai Agent API", "version": "1.0.0"})
 
         @self.app.get("/health")
         async def health():
-            return {
-                "status": "healthy",
-                "agent_running": getattr(self.agent, "running", False),
-                "trader_running": getattr(self.trader, "running", False),
-            }
+            try:
+                # Add AI engine stats if available
+                ai_stats = {}
+                if hasattr(self.agent, 'ai') and hasattr(self.agent.ai, 'get_usage_stats'):
+                    ai_stats = self.agent.ai.get_usage_stats()
+                
+                data = {
+                    "status": "healthy",
+                    "agent_running": getattr(self.agent, "running", False),
+                    "trader_running": getattr(self.trader, "running", False),
+                    "ai_usage": ai_stats,
+                }
+                return api_response(data=data)
+            except Exception as e:
+                return api_response(error=str(e), status="error")
 
         @self.app.get("/agent/stats")
         async def agent_stats():
-            total_tasks = len(self.agent.tasks)
-            pending = len([t for t in self.agent.tasks if t.status == "pending"])
-            return {
-                "tasks_completed": self.agent.state["tasks_completed"],
-                "learning_sessions": self.agent.state["learning_sessions"],
-                "tasks_total": total_tasks,
-                "tasks_pending": pending,
-            }
+            try:
+                total_tasks = len(self.agent.tasks)
+                pending = len([t for t in self.agent.tasks if t.status == "pending"])
+                data = {
+                    "tasks_completed": self.agent.state["tasks_completed"],
+                    "learning_sessions": self.agent.state["learning_sessions"],
+                    "tasks_total": total_tasks,
+                    "tasks_pending": pending,
+                }
+                return api_response(data=data)
+            except Exception as e:
+                return api_response(error=str(e), status="error")
 
         @self.app.get("/trader/stats")
         async def trader_stats():
-            return {
-                "balance": self.trader.balance,
-                "positions": len(self.trader.positions),
-            }
+            try:
+                data = {
+                    "balance": self.trader.balance,
+                    "positions": len(self.trader.positions),
+                }
+                return api_response(data=data)
+            except Exception as e:
+                return api_response(error=str(e), status="error")
 
         @self.app.get("/stats")
         async def combined_stats():
