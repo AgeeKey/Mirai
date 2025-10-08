@@ -20,6 +20,10 @@ import signal
 import sys
 from pathlib import Path
 
+# Загрузка переменных окружения из .env
+from dotenv import load_dotenv
+load_dotenv()
+
 # Добавляем корень проекта в PYTHONPATH
 sys.path.insert(0, str(Path(__file__).parent))
 

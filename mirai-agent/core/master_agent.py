@@ -13,6 +13,13 @@ from modules.trading.trader import Trader
 from modules.api.server import APIServer
 from modules.utils.logger import Logger
 
+# Telegram бот (опционально)
+try:
+    from modules.telegram_bot.bot import create_bot_from_env
+    TELEGRAM_AVAILABLE = True
+except ImportError:
+    TELEGRAM_AVAILABLE = False
+
 
 class MasterAgent:
     """Главный агент - управляет всем"""
@@ -77,6 +84,26 @@ class MasterAgent:
             logger=api_logger,
         )
 
+        # Telegram бот
+        self.telegram_bot = None
+        if enable_telegram and TELEGRAM_AVAILABLE:
+            try:
+                # Установка переменных окружения для бота
+                os.environ["TELEGRAM_TOKEN"] = os.getenv("TELEGRAM_BOT_TOKEN", "")
+                os.environ["TELEGRAM_CHAT_ID"] = os.getenv("TELEGRAM_CHAT_ID_ADMIN", "")
+                
+                self.telegram_bot = create_bot_from_env()
+                if self.telegram_bot and self.telegram_bot.is_enabled():
+                    self.logger.info("✅ Telegram бот инициализирован")
+                else:
+                    self.logger.warning("⚠️ Telegram бот не активен")
+                    self.telegram_bot = None
+            except Exception as e:
+                self.logger.error("❌ Ошибка инициализации Telegram бота: %s", e)
+                self.telegram_bot = None
+        elif enable_telegram and not TELEGRAM_AVAILABLE:
+            self.logger.warning("⚠️ Telegram модуль недоступен")
+
         self.logger.info("🤖 MasterAgent initialized")
 
     async def start(self):
@@ -90,6 +117,11 @@ class MasterAgent:
             self.api.run(),  # API сервер
         ]
 
+        # Добавляем Telegram бот если доступен
+        if self.telegram_bot:
+            self.logger.info("📱 Запуск Telegram бота...")
+            tasks.append(self.telegram_bot.start_polling())
+
         await asyncio.gather(*tasks)
 
     async def stop(self):
@@ -99,6 +131,10 @@ class MasterAgent:
         await self.autonomous.stop()
         await self.trader.stop()
         await self.api.stop()
+        
+        if self.telegram_bot:
+            self.logger.info("📱 Остановка Telegram бота...")
+            # Telegram бот остановится при завершении программы
 
         self.logger.info("✅ MasterAgent stopped")
 

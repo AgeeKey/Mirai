@@ -1,19 +1,39 @@
 [Unit]
-Description=Mirai Master Agent (FastAPI + Trading + Autonomous Agent)
+Description=Mirai Autonomous AI Agent
+Documentation=https://github.com/AgeeKey/Mirai
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=__WORKDIR__
-EnvironmentFile=__ENVFILE__
-Environment=PYTHONUNBUFFERED=1
-ExecStart=__PYTHON__ -m core.master_agent
-Restart=on-failure
-RestartSec=5
-# Optionally adjust limits
+User=root
+Group=root
+WorkingDirectory=/root/mirai/mirai-agent
+Environment="PATH=/root/mirai/mirai-agent/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+EnvironmentFile=/root/mirai/mirai-agent/.env
+
+# Запуск
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai-agent/main.py
+
+# Автоматический перезапуск при сбоях
+Restart=always
+RestartSec=10
+StartLimitInterval=200
+StartLimitBurst=5
+
+# Безопасность
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Логирование
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mirai-agent
+
+# Ресурсы
 LimitNOFILE=65536
+LimitNPROC=4096
 
 [Install]
 WantedBy=multi-user.target
-

@@ -374,8 +374,15 @@ Use /mode <advisor|semi|auto> to change mode"""
         await self.application.start()
         await self.application.updater.start_polling()
 
-        # Keep the bot running
-        await self.application.updater.idle()
+        # Keep the bot running indefinitely
+        try:
+            # Вместо idle() используем бесконечный цикл
+            while True:
+                await asyncio.sleep(1)
+        except asyncio.CancelledError:
+            logger.info("Bot polling cancelled")
+        except Exception as e:
+            logger.error(f"Bot polling error: {e}")
 
     def start_polling_sync(self):
         """Synchronous wrapper for starting polling"""
