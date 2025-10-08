@@ -45,9 +45,27 @@ class AIEngine:
             max_tokens: Макс длина ответа
         """
 
-        # Авто-выбор модели
+        # Авто-выбор модели с умной приоритизацией
         if model == "auto":
-            model = "gpt-4" if self._openai_client else "grok"
+            # Определяем сложность задачи по ключевым словам
+            complex_keywords = [
+                "анализ", "стратегия", "решение", "plan", "strategy", 
+                "analyze", "decide", "optimize", "calculate", "evaluate",
+                "критическ", "важн", "critical", "important"
+            ]
+            is_complex = any(kw in prompt.lower() for kw in complex_keywords)
+            
+            if is_complex and self._openai_client:
+                # Сложные задачи → GPT-4 (мозг)
+                model = "gpt-4"
+            elif self.grok_key:
+                # Простые задачи → Grok (быстро и дёшево)
+                model = "grok"
+            elif self._openai_client:
+                # Fallback на GPT-4 если Grok недоступен
+                model = "gpt-4"
+            else:
+                model = "grok"  # Последний шанс
 
         if model == "gpt-4" and not self._openai_client:
             return "AI (OpenAI) не настроен"
