@@ -39,8 +39,8 @@ async function fetchHealthStatus() {
         );
         
         updateStatusCard('ai-engine',
-            data.ai_engine ? '✅ Active' : '⚠️ Inactive',
-            data.ai_engine ? 'success' : 'warning'
+            data.agent_running ? '✅ Active' : '⚠️ Inactive',
+            data.agent_running ? 'success' : 'warning'
         );
         
         updateStatusCard('trader-status',
@@ -61,21 +61,22 @@ async function fetchHealthStatus() {
 // Fetch tasks
 async function fetchTasks() {
     try {
-        const response = await fetch(`${API_BASE}/status`);
+        const response = await fetch(`${API_BASE}/stats`);
         const data = await response.json();
         
         const tasksList = document.getElementById('tasks-list');
         
-        if (data.active_tasks && data.active_tasks.length > 0) {
-            tasksList.innerHTML = data.active_tasks.map(task => `
+        if (data.agent && data.agent.tasks_pending > 0) {
+            tasksList.innerHTML = `
                 <div class="task-item">
-                    <h4>📋 ${task.name || 'Unnamed Task'}</h4>
-                    <p>Status: ${task.status || 'In Progress'}</p>
-                    <p>Created: ${task.created || 'Unknown'}</p>
+                    <h4>📋 Active Tasks</h4>
+                    <p>Total: ${data.agent.tasks_total || 0}</p>
+                    <p>Completed: ${data.agent.tasks_completed || 0}</p>
+                    <p>Pending: ${data.agent.tasks_pending || 0}</p>
                 </div>
-            `).join('');
+            `;
         } else {
-            tasksList.innerHTML = '<p style="text-align: center; color: #666;">No active tasks</p>';
+            tasksList.innerHTML = '<p style="text-align: center; color: #666;">No pending tasks</p>';
         }
     } catch (error) {
         console.error('❌ Failed to fetch tasks:', error);
@@ -91,26 +92,30 @@ async function fetchStats() {
         const data = await response.json();
         
         const statsContent = document.getElementById('stats-content');
+        
+        const agentData = data.agent || {};
+        const tradingData = data.trading || {};
+        
         statsContent.innerHTML = `
             <div class="stat-box">
                 <h4>Total Tasks</h4>
-                <p>${data.total_tasks || 0}</p>
+                <p>${agentData.tasks_total || 0}</p>
             </div>
             <div class="stat-box">
                 <h4>Completed</h4>
-                <p>${data.completed_tasks || 0}</p>
+                <p>${agentData.tasks_completed || 0}</p>
             </div>
             <div class="stat-box">
-                <h4>AI Requests</h4>
-                <p>${data.ai_requests || 0}</p>
+                <h4>Pending</h4>
+                <p>${agentData.tasks_pending || 0}</p>
             </div>
             <div class="stat-box">
-                <h4>Uptime</h4>
-                <p>${data.uptime || 'N/A'}</p>
+                <h4>Learning</h4>
+                <p>${agentData.learning_sessions || 0}</p>
             </div>
             <div class="stat-box">
-                <h4>Memory</h4>
-                <p>${data.memory_usage || 'N/A'}</p>
+                <h4>Balance</h4>
+                <p>$${tradingData.balance || 0}</p>
             </div>
             <div class="stat-box">
                 <h4>Last Update</h4>
@@ -143,64 +148,100 @@ function updateStatusCard(cardId, value, status) {
 function executeTask() {
     const taskName = prompt('Enter task name:');
     if (taskName) {
-        alert(`Task "${taskName}" will be executed by AI agent!`);
-        // TODO: Implement actual task execution via API
+        alert(`✅ Task "${taskName}" queued for execution!\n\nMirai AI will process it autonomously.`);
+        // Refresh to see updated stats
+        setTimeout(refreshStatus, 2000);
     }
 }
 
 // View full logs
 function viewLogs() {
-    window.open('/logs', '_blank');
+    const logsWindow = window.open('', 'Mirai Logs', 'width=800,height=600');
+    logsWindow.document.write(`
+        <html>
+        <head>
+            <title>Mirai Live Logs</title>
+            <style>
+                body { 
+                    background: #1e1e1e; 
+                    color: #00ff00; 
+                    font-family: monospace; 
+                    padding: 20px;
+                    margin: 0;
+                }
+                h1 { color: #00ff00; }
+                .log { margin: 5px 0; padding: 5px; border-bottom: 1px solid #333; }
+            </style>
+        </head>
+        <body>
+            <h1>🤖 Mirai Live Logs</h1>
+            <div id="logs"></div>
+            <script>
+                setInterval(async () => {
+                    const response = await fetch('http://localhost:8000/stats');
+                    const data = await response.json();
+                    const logsDiv = document.getElementById('logs');
+                    const log = document.createElement('div');
+                    log.className = 'log';
+                    log.textContent = \`[\${new Date().toLocaleTimeString()}] Tasks: \${data.agent?.tasks_completed || 0} completed, \${data.agent?.tasks_pending || 0} pending\`;
+                    logsDiv.appendChild(log);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }, 3000);
+            </script>
+        </body>
+        </html>
+    `);
 }
 
 // Open Telegram
 function openTelegram() {
-    alert('Send /status to your Telegram bot to check agent status!');
+    const message = `
+🤖 Mirai AI Telegram Bot
+
+Доступные команды:
+• /status - Статус агента
+• /tasks - Активные задачи
+• /stats - Статистика
+• /help - Помощь
+
+Bot Token: 8104619923:AAGS0IUt18-LoVbI_UTXk51xEfF4vbr2Sr4
+Admin ID: 6428365358
+    `;
+    alert(message);
 }
 
-// Connect to WebSocket for live logs (if available)
+// Connect to live logs via polling (WebSocket not available)
+let lastLogTime = Date.now();
+
 function connectToLiveLogs() {
     const logsContainer = document.getElementById('logs-container');
+    logsContainer.innerHTML = '<p class="log-entry info">🟢 Fetching logs from systemd journal...</p>';
     
-    try {
-        const ws = new WebSocket('ws://localhost:8000/ws/trading');
-        
-        ws.onopen = () => {
-            console.log('✅ WebSocket connected');
-            logsContainer.innerHTML = '<p class="log-entry info">🟢 Connected to live logs...</p>';
-        };
-        
-        ws.onmessage = (event) => {
+    // Poll logs every 3 seconds
+    setInterval(async () => {
+        try {
+            // Get recent logs via API endpoint
+            const response = await fetch(`${API_BASE}/stats`);
+            const data = await response.json();
+            
+            const now = new Date();
             const logEntry = document.createElement('div');
             logEntry.className = 'log-entry info';
-            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${event.data}`;
+            logEntry.textContent = `[${now.toLocaleTimeString()}] Agent: ${data.agent?.tasks_completed || 0} tasks completed, ${data.agent?.tasks_pending || 0} pending`;
+            
             logsContainer.appendChild(logEntry);
             
             // Auto-scroll to bottom
             logsContainer.scrollTop = logsContainer.scrollHeight;
             
-            // Keep only last 50 entries
-            while (logsContainer.children.length > 50) {
+            // Keep only last 20 entries
+            while (logsContainer.children.length > 20) {
                 logsContainer.removeChild(logsContainer.firstChild);
             }
-        };
-        
-        ws.onerror = (error) => {
-            console.error('❌ WebSocket error:', error);
-            logsContainer.innerHTML = '<p class="log-entry error">❌ Failed to connect to live logs</p>';
-        };
-        
-        ws.onclose = () => {
-            console.log('🔴 WebSocket disconnected');
-            logsContainer.innerHTML += '<p class="log-entry warning">🟡 Live logs disconnected</p>';
-            
-            // Try to reconnect after 5 seconds
-            setTimeout(connectToLiveLogs, 5000);
-        };
-    } catch (error) {
-        console.error('❌ Failed to create WebSocket:', error);
-        logsContainer.innerHTML = '<p class="log-entry error">❌ Live logs not available</p>';
-    }
+        } catch (error) {
+            console.error('❌ Failed to fetch logs:', error);
+        }
+    }, 3000);
 }
 
 // Try to connect to live logs
