@@ -1,34 +1,250 @@
 // ==========================================
-// MIRAI AI - JavaScript Functionality
+// MIRAI AI - Full Integration Script
 // ==========================================
+
+// API Configuration
+const API_BASE = '';
+const API_ENDPOINTS = {
+    health: '/health',
+    stats: '/stats',
+    agentStats: '/agent/stats',
+    tasks: '/agent/tasks',
+    createTask: '/agent/tasks',
+    memory: '/agent/memory',
+    createMemory: '/agent/memory',
+    aiAsk: '/ai/ask',
+    tradingStatus: '/trading/status',
+    traderDecide: '/trader/decide',
+    status: '/status',
+    setMode: '/mode',
+    pause: '/pause'
+};
 
 // Global State
 const state = {
     currentSection: 'dashboard',
-    theme: 'dark',
+    theme: localStorage.getItem('theme') || 'dark',
+    agentStartTime: Date.now(),
     user: {
-        name: 'Пользователь',
-        tokensUsed: 12450,
-        tasksCompleted: 127,
-        activeTime: '18ч 24м',
-        memoryUsage: '256 МБ'
-    }
+        name: 'Командир',
+        tokensUsed: 0,
+        tasksCompleted: 0,
+        activeTime: '0ч 0м',
+        memoryUsage: '0 МБ'
+    },
+    health: {},
+    stats: {},
+    tasks: [],
+    memory: [],
+    isLoading: false
 };
 
 // ==========================================
 // INITIALIZATION
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 Initializing Mirai AI Interface...');
+    
+    // Apply saved theme
+    document.body.classList.toggle('dark-theme', state.theme === 'dark');
+    document.body.classList.toggle('light-theme', state.theme === 'light');
+    
     initializeNavigation();
     initializeThemeToggle();
     initializeDateTime();
-    initializeCharts();
+    initializeActionButtons();
     initializeChat();
     initializeSettings();
-    updateStatistics();
+    
+    // Load initial data
+    await loadAllData();
+    
+    // Start auto-update
     startAutoUpdate();
+    
+    console.log('✅ Mirai AI Interface ready!');
 });
+
+// ==========================================
+// DATA LOADING
+// ==========================================
+
+async function loadAllData() {
+    try {
+        state.isLoading = true;
+        showLoadingIndicator();
+        
+        await Promise.all([
+            loadHealth(),
+            loadStats(),
+            loadTasks()
+        ]);
+        
+        updateAllUI();
+        
+    } catch (error) {
+        console.error('❌ Error loading data:', error);
+        showNotification('Ошибка загрузки данных', 'error');
+    } finally {
+        state.isLoading = false;
+        hideLoadingIndicator();
+    }
+}
+
+async function loadHealth() {
+    try {
+        const response = await fetch(API_ENDPOINTS.health);
+        const data = await response.json();
+        state.health = data;
+        
+        const statusIndicator = document.querySelector('.status-indicator');
+        const statusText = document.querySelector('.status-text');
+        
+        if (data.agent_running) {
+            statusIndicator?.classList.add('active');
+            statusIndicator?.classList.remove('inactive');
+            if (statusText) statusText.textContent = 'AI Активен';
+        } else {
+            statusIndicator?.classList.remove('active');
+            statusIndicator?.classList.add('inactive');
+            if (statusText) statusText.textContent = 'AI Остановлен';
+        }
+        
+        console.log('✅ Health loaded');
+    } catch (error) {
+        console.error('❌ Error loading health:', error);
+    }
+}
+
+async function loadStats() {
+    try {
+        const response = await fetch(API_ENDPOINTS.stats);
+        const data = await response.json();
+        state.stats = data;
+        
+        if (data.agent) {
+            state.user.tasksCompleted = data.agent.tasks_completed || 0;
+            const tokensEstimate = Math.floor(
+                (data.agent.tasks_completed || 0) * 150 + 
+                (data.agent.learning_sessions || 0) * 800
+            );
+            state.user.tokensUsed = tokensEstimate;
+        }
+        
+        console.log('✅ Stats loaded');
+    } catch (error) {
+        console.error('❌ Error loading stats:', error);
+    }
+}
+
+async function loadTasks() {
+    try {
+        const response = await fetch(API_ENDPOINTS.tasks);
+        const data = await response.json();
+        state.tasks = Array.isArray(data) ? data : [];
+        console.log(`✅ Tasks loaded: ${state.tasks.length} tasks`);
+    } catch (error) {
+        console.error('❌ Error loading tasks:', error);
+        state.tasks = [];
+    }
+}
+
+// ==========================================
+// UI UPDATES
+// ==========================================
+
+function updateAllUI() {
+    updateStatistics();
+    updateDashboardCards();
+    updateTasksList();
+    updateUptime();
+}
+
+function updateStatistics() {
+    const tokensEl = document.getElementById('tokensUsed');
+    const tasksEl = document.getElementById('tasksCompleted');
+    const activeTimeEl = document.getElementById('activeTime');
+    const memoryEl = document.getElementById('memoryUsage');
+    
+    if (tokensEl) {
+        const tokens = state.user.tokensUsed;
+        tokensEl.textContent = tokens > 1000 
+            ? `${(tokens / 1000).toFixed(1)}K` 
+            : tokens.toString();
+    }
+    
+    if (tasksEl) tasksEl.textContent = state.user.tasksCompleted.toString();
+    if (activeTimeEl) activeTimeEl.textContent = state.user.activeTime;
+    
+    if (memoryEl) {
+        const memoryCount = state.stats.agent?.tasks_completed || 0;
+        const memoryMB = Math.floor(memoryCount * 0.5);
+        memoryEl.textContent = memoryMB > 1024 
+            ? `${(memoryMB / 1024).toFixed(1)} GB` 
+            : `${memoryMB} МБ`;
+    }
+}
+
+function updateDashboardCards() {
+    const cards = {
+        'agent-status': state.health.agent_running ? 'Активен' : 'Остановлен',
+        'tasks-total': state.stats.agent?.tasks_total || 0,
+        'tasks-pending': state.stats.agent?.tasks_pending || 0,
+        'tasks-completed': state.stats.agent?.tasks_completed || 0,
+        'learning-sessions': state.stats.agent?.learning_sessions || 0,
+        'ai-tokens': state.user.tokensUsed
+    };
+    
+    Object.entries(cards).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    });
+}
+
+function updateTasksList() {
+    const container = document.querySelector('#tasks-list');
+    if (!container) return;
+    
+    if (state.tasks.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>Нет активных задач</h3>
+                <button class="btn-primary" onclick="showCreateTaskDialog()">➕ Создать задачу</button>
+            </div>
+        `;
+        return;
+    }
+    
+    const priorityMap = { 3: 'high', 2: 'medium', 1: 'low' };
+    
+    container.innerHTML = state.tasks.map(task => `
+        <div class="task-card ${task.status || 'pending'}">
+            <div class="task-header">
+                <span class="task-priority priority-${priorityMap[task.priority] || 'medium'}">
+                    Приоритет: ${task.priority || 2}
+                </span>
+                <span class="task-status">${task.status || 'pending'}</span>
+            </div>
+            <div class="task-body">
+                <h3>${task.description || 'Без названия'}</h3>
+                <p>ID: ${task.id.substring(0, 8)}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateUptime() {
+    const diff = Date.now() - state.agentStartTime;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    const uptimeStr = `${hours}ч ${minutes}м`;
+    state.user.activeTime = uptimeStr;
+    
+    const el = document.getElementById('uptime');
+    if (el) el.textContent = uptimeStr;
+}
 
 // ==========================================
 // NAVIGATION
@@ -36,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
-    const actionButtons = document.querySelectorAll('[data-section]');
     
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -44,394 +259,92 @@ function initializeNavigation() {
             const section = link.dataset.section;
             navigateToSection(section);
             
-            // Update active state
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-        });
-    });
-    
-    actionButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.dataset.section;
-            if (section) {
-                navigateToSection(section);
-                // Update nav link active state
-                navLinks.forEach(l => l.classList.remove('active'));
-                const matchingNav = document.querySelector(`.nav-link[data-section="${section}"]`);
-                if (matchingNav) matchingNav.classList.add('active');
-            }
         });
     });
 }
 
 function navigateToSection(sectionId) {
-    // Hide all sections
+    state.currentSection = sectionId;
+    
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
     
-    // Show target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
-        state.currentSection = sectionId;
-        
-        // Add transition animation
-        targetSection.style.opacity = '0';
-        setTimeout(() => {
-            targetSection.style.opacity = '1';
-            targetSection.style.transition = 'opacity 0.3s ease';
-        }, 10);
+        loadSectionData(sectionId);
+    }
+}
+
+async function loadSectionData(sectionId) {
+    if (sectionId === 'tasks') {
+        await loadTasks();
+        updateTasksList();
     }
 }
 
 // ==========================================
-// THEME TOGGLE
+// ACTION BUTTONS
 // ==========================================
 
-function initializeThemeToggle() {
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    
-    themeToggle.addEventListener('click', () => {
-        if (body.classList.contains('dark-theme')) {
-            body.classList.remove('dark-theme');
-            body.classList.add('light-theme');
-            themeToggle.querySelector('.theme-icon').textContent = '☀️';
-            state.theme = 'light';
-        } else {
-            body.classList.remove('light-theme');
-            body.classList.add('dark-theme');
-            themeToggle.querySelector('.theme-icon').textContent = '🌙';
-            state.theme = 'dark';
+function initializeActionButtons() {
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        if (target.closest('[data-action="new-task"]') || 
+            (target.textContent && target.textContent.includes('Новая задача'))) {
+            showCreateTaskDialog();
         }
         
-        // Re-render charts with new theme
-        setTimeout(() => {
-            initializeCharts();
-        }, 100);
-    });
-}
-
-// ==========================================
-// DATE AND TIME
-// ==========================================
-
-function initializeDateTime() {
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-}
-
-function updateDateTime() {
-    const now = new Date();
-    
-    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    const dateStr = now.toLocaleDateString('ru-RU', dateOptions);
-    
-    const timeStr = now.toLocaleTimeString('ru-RU', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    });
-    
-    const dateEl = document.getElementById('currentDate');
-    const timeEl = document.getElementById('currentTime');
-    
-    if (dateEl) dateEl.textContent = dateStr;
-    if (timeEl) timeEl.textContent = timeStr;
-}
-
-// ==========================================
-// CHARTS
-// ==========================================
-
-function initializeCharts() {
-    // Mini charts on dashboard
-    drawAgentActivityChart();
-    drawMemoryGrowthChart();
-    
-    // Statistics section charts
-    drawAIActivityChart();
-    drawTasksChart();
-    drawTradingChart();
-    drawSystemChart();
-}
-
-function drawAgentActivityChart() {
-    const canvas = document.getElementById('agentChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Generate sample data (24 hours)
-    const data = Array.from({ length: 24 }, () => Math.random() * 40 + 20);
-    
-    // Draw line chart
-    ctx.strokeStyle = getThemeColor();
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    
-    data.forEach((value, index) => {
-        const x = (index / (data.length - 1)) * width;
-        const y = height - (value / 60) * height;
+        if (target.closest('[data-action="refresh"]') || 
+            (target.textContent && target.textContent.includes('Обновить'))) {
+            loadAllData();
+            showNotification('Данные обновлены', 'success');
+        }
         
-        if (index === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
+        if (target.closest('[data-action="analytics"]') ||
+            (target.textContent && target.textContent.includes('Аналитика'))) {
+            navigateToSection('stats');
         }
     });
-    
-    ctx.stroke();
 }
 
-function drawMemoryGrowthChart() {
-    const canvas = document.getElementById('memoryChart');
-    if (!canvas) return;
+// ==========================================
+// TASK MANAGEMENT
+// ==========================================
+
+function showCreateTaskDialog() {
+    const title = prompt('📝 Введите описание задачи:');
+    if (!title || title.trim() === '') return;
     
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Generate sample data (7 days)
-    const data = Array.from({ length: 7 }, (_, i) => 150 + i * 15 + Math.random() * 10);
-    
-    // Draw area chart
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, 'rgba(28, 212, 175, 0.5)');
-    gradient.addColorStop(1, 'rgba(28, 212, 175, 0.1)');
-    
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(0, height);
-    
-    data.forEach((value, index) => {
-        const x = (index / (data.length - 1)) * width;
-        const y = height - (value / 300) * height;
-        ctx.lineTo(x, y);
-    });
-    
-    ctx.lineTo(width, height);
-    ctx.closePath();
-    ctx.fill();
-    
-    // Draw line
-    ctx.strokeStyle = '#1cd4af';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    
-    data.forEach((value, index) => {
-        const x = (index / (data.length - 1)) * width;
-        const y = height - (value / 300) * height;
-        
-        if (index === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
-    });
-    
-    ctx.stroke();
+    const priority = prompt('Приоритет (1-3):', '2');
+    createTask(title.trim(), parseInt(priority) || 2);
 }
 
-function drawAIActivityChart() {
-    const canvas = document.getElementById('aiActivityChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Draw bar chart for token usage by type
-    const categories = ['Чат', 'Анализ', 'Код', 'Трейдинг', 'Другое'];
-    const data = [3500, 2800, 2100, 1600, 1200];
-    const colors = ['#6e56cf', '#a361ff', '#426ff6', '#1cd4af', '#8a8aff'];
-    
-    const barWidth = width / categories.length - 20;
-    const maxValue = Math.max(...data);
-    
-    data.forEach((value, index) => {
-        const barHeight = (value / maxValue) * (height - 40);
-        const x = index * (width / categories.length) + 10;
-        const y = height - barHeight - 20;
-        
-        // Draw bar
-        ctx.fillStyle = colors[index];
-        ctx.fillRect(x, y, barWidth, barHeight);
-        
-        // Draw label
-        ctx.fillStyle = getTextColor();
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(categories[index], x + barWidth / 2, height - 5);
-    });
-}
-
-function drawTasksChart() {
-    const canvas = document.getElementById('tasksChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Draw pie chart for task statuses
-    const data = [
-        { label: 'Завершено', value: 85, color: '#1cd44d' },
-        { label: 'Активно', value: 12, color: '#426ff6' },
-        { label: 'Ожидание', value: 3, color: '#f97316' }
-    ];
-    
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const radius = Math.min(width, height) / 2 - 30;
-    
-    let currentAngle = -Math.PI / 2;
-    const total = data.reduce((sum, item) => sum + item.value, 0);
-    
-    data.forEach(item => {
-        const sliceAngle = (item.value / total) * 2 * Math.PI;
-        
-        // Draw slice
-        ctx.fillStyle = item.color;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Draw label
-        const labelAngle = currentAngle + sliceAngle / 2;
-        const labelX = centerX + Math.cos(labelAngle) * (radius + 20);
-        const labelY = centerY + Math.sin(labelAngle) * (radius + 20);
-        
-        ctx.fillStyle = getTextColor();
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${item.value}%`, labelX, labelY);
-        
-        currentAngle += sliceAngle;
-    });
-}
-
-function drawTradingChart() {
-    const canvas = document.getElementById('tradingChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Generate candlestick-like data
-    const data = Array.from({ length: 20 }, () => ({
-        open: 100 + Math.random() * 50,
-        close: 100 + Math.random() * 50,
-        high: 120 + Math.random() * 40,
-        low: 80 + Math.random() * 30
-    }));
-    
-    const barWidth = width / data.length - 2;
-    
-    data.forEach((candle, index) => {
-        const x = index * (width / data.length) + barWidth / 2;
-        const isGreen = candle.close > candle.open;
-        
-        // Normalize values to fit chart
-        const scale = height / 200;
-        const highY = height - candle.high * scale;
-        const lowY = height - candle.low * scale;
-        const openY = height - candle.open * scale;
-        const closeY = height - candle.close * scale;
-        
-        // Draw wick
-        ctx.strokeStyle = isGreen ? '#1cd44d' : '#e11d48';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, highY);
-        ctx.lineTo(x, lowY);
-        ctx.stroke();
-        
-        // Draw body
-        ctx.fillStyle = isGreen ? '#1cd44d' : '#e11d48';
-        const bodyHeight = Math.abs(closeY - openY);
-        const bodyY = Math.min(openY, closeY);
-        ctx.fillRect(x - barWidth / 4, bodyY, barWidth / 2, bodyHeight);
-    });
-}
-
-function drawSystemChart() {
-    const canvas = document.getElementById('systemChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Generate sample data for multiple metrics
-    const metrics = [
-        { name: 'CPU', data: Array.from({ length: 30 }, () => 20 + Math.random() * 40), color: '#6e56cf' },
-        { name: 'RAM', data: Array.from({ length: 30 }, () => 40 + Math.random() * 30), color: '#a361ff' },
-        { name: 'Disk', data: Array.from({ length: 30 }, () => 30 + Math.random() * 20), color: '#426ff6' }
-    ];
-    
-    metrics.forEach(metric => {
-        ctx.strokeStyle = metric.color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        
-        metric.data.forEach((value, index) => {
-            const x = (index / (metric.data.length - 1)) * width;
-            const y = height - (value / 100) * height;
-            
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
+async function createTask(title, priority = 2) {
+    try {
+        const response = await fetch(API_ENDPOINTS.createTask, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, priority })
         });
         
-        ctx.stroke();
-    });
-    
-    // Draw legend
-    ctx.font = '12px Inter';
-    ctx.textAlign = 'left';
-    let legendX = 10;
-    
-    metrics.forEach(metric => {
-        ctx.fillStyle = metric.color;
-        ctx.fillRect(legendX, 10, 15, 3);
-        ctx.fillStyle = getTextColor();
-        ctx.fillText(metric.name, legendX + 20, 15);
-        legendX += 80;
-    });
-}
-
-function getThemeColor() {
-    return document.body.classList.contains('dark-theme') ? '#a361ff' : '#4a35a5';
-}
-
-function getTextColor() {
-    return document.body.classList.contains('dark-theme') ? '#ffffff' : '#121212';
+        const data = await response.json();
+        
+        if (data.status === 'created') {
+            showNotification('✅ Задача создана', 'success');
+            await loadTasks();
+            updateTasksList();
+        } else {
+            showNotification('❌ Ошибка создания задачи', 'error');
+        }
+    } catch (error) {
+        console.error('Error creating task:', error);
+        showNotification('❌ Ошибка подключения', 'error');
+    }
 }
 
 // ==========================================
@@ -441,97 +354,132 @@ function getTextColor() {
 function initializeChat() {
     const chatInput = document.querySelector('.chat-input');
     const chatSend = document.querySelector('.chat-send');
-    const chatMessages = document.getElementById('chatMessages');
     
-    if (!chatInput || !chatSend) return;
-    
-    // Auto-resize textarea
-    chatInput.addEventListener('input', () => {
-        chatInput.style.height = 'auto';
-        chatInput.style.height = chatInput.scrollHeight + 'px';
-    });
-    
-    // Send message
-    const sendMessage = () => {
-        const message = chatInput.value.trim();
-        if (!message) return;
-        
-        addMessage(message, 'user');
-        chatInput.value = '';
-        chatInput.style.height = 'auto';
-        
-        // Simulate AI response
-        setTimeout(() => {
-            showTypingIndicator();
-            setTimeout(() => {
-                hideTypingIndicator();
-                const responses = [
-                    'Анализирую ваш запрос...',
-                    'Данные обработаны успешно!',
-                    'Выполняю задачу. Прогресс: 45%',
-                    'Все системы работают в штатном режиме.',
-                    'Интересный вопрос! Дайте мне момент для анализа.'
-                ];
-                const response = responses[Math.floor(Math.random() * responses.length)];
-                addMessage(response, 'mirai');
-            }, 1500);
-        }, 500);
-    };
-    
-    chatSend.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+    if (chatInput && chatSend) {
+        chatSend.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
 }
 
-function addMessage(text, sender) {
-    const chatMessages = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
+async function sendChatMessage() {
+    const input = document.querySelector('.chat-input');
+    const messagesContainer = document.getElementById('chatMessages');
     
-    const avatarUrl = sender === 'mirai' 
-        ? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23a361ff'/%3E%3Ctext x='20' y='26' font-family='Arial' font-size='18' fill='white' text-anchor='middle'%3E未%3C/text%3E%3C/svg%3E"
-        : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%236e56cf'/%3E%3Ctext x='20' y='26' font-family='Arial' font-size='18' fill='white' text-anchor='middle'%3EU%3C/text%3E%3C/svg%3E";
+    if (!input || !messagesContainer) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addChatMessage(message, 'user');
+    input.value = '';
+    
+    const typingId = addChatMessage('Мирай печатает...', 'mirai', true);
+    
+    try {
+        const response = await fetch(API_ENDPOINTS.aiAsk, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: message, temperature: 0.7, max_tokens: 500 })
+        });
+        
+        const data = await response.json();
+        
+        removeChatMessage(typingId);
+        addChatMessage(data.answer || 'Извините, не могу ответить.', 'mirai');
+        
+    } catch (error) {
+        console.error('Chat error:', error);
+        removeChatMessage(typingId);
+        addChatMessage('❌ Ошибка подключения к AI', 'mirai');
+    }
+}
+
+function addChatMessage(text, sender, isTemporary = false) {
+    const messagesContainer = document.getElementById('chatMessages');
+    if (!messagesContainer) return null;
+    
+    const messageId = `msg-${Date.now()}-${Math.random()}`;
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${sender}`;
+    messageEl.id = messageId;
+    
+    if (isTemporary) messageEl.classList.add('typing');
     
     const now = new Date();
     const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     
-    messageDiv.innerHTML = `
-        ${sender === 'mirai' ? `<img src="${avatarUrl}" alt="Mirai" class="message-avatar">` : ''}
+    messageEl.innerHTML = `
         <div class="message-content">
             <div class="message-text">${text}</div>
             <div class="message-time">${timeStr}</div>
         </div>
-        ${sender === 'user' ? `<img src="${avatarUrl}" alt="User" class="message-avatar">` : ''}
     `;
     
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    messagesContainer.appendChild(messageEl);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    return messageId;
 }
 
-function showTypingIndicator() {
-    const chatMessages = document.getElementById('chatMessages');
-    const indicator = document.createElement('div');
-    indicator.className = 'message mirai typing-indicator';
-    indicator.id = 'typingIndicator';
-    indicator.innerHTML = `
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23a361ff'/%3E%3Ctext x='20' y='26' font-family='Arial' font-size='18' fill='white' text-anchor='middle'%3E未%3C/text%3E%3C/svg%3E" alt="Mirai" class="message-avatar">
-        <div class="message-content">
-            <div class="message-text">Мирай печатает...</div>
-        </div>
-    `;
-    chatMessages.appendChild(indicator);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+function removeChatMessage(messageId) {
+    const messageEl = document.getElementById(messageId);
+    if (messageEl) messageEl.remove();
 }
 
-function hideTypingIndicator() {
-    const indicator = document.getElementById('typingIndicator');
-    if (indicator) {
-        indicator.remove();
+// ==========================================
+// THEME TOGGLE
+// ==========================================
+
+function initializeThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.querySelector('.theme-icon');
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            
+            document.body.classList.toggle('dark-theme', state.theme === 'dark');
+            document.body.classList.toggle('light-theme', state.theme === 'light');
+            
+            if (themeIcon) {
+                themeIcon.textContent = state.theme === 'dark' ? '🌙' : '☀️';
+            }
+            
+            localStorage.setItem('theme', state.theme);
+            showNotification(`Тема: ${state.theme === 'dark' ? 'тёмная' : 'светлая'}`, 'info');
+        });
     }
+}
+
+// ==========================================
+// DATE & TIME
+// ==========================================
+
+function initializeDateTime() {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+}
+
+function updateDateTime() {
+    const datetimeEl = document.querySelector('.datetime');
+    if (!datetimeEl) return;
+    
+    const now = new Date();
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    
+    datetimeEl.textContent = now.toLocaleString('ru-RU', options);
 }
 
 // ==========================================
@@ -539,170 +487,84 @@ function hideTypingIndicator() {
 // ==========================================
 
 function initializeSettings() {
-    const settingsTabs = document.querySelectorAll('.settings-tab');
-    const settingsPanels = document.querySelectorAll('.settings-panel');
-    
-    settingsTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const targetPanel = tab.dataset.tab;
-            
-            // Update active tab
-            settingsTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            // Update active panel
-            settingsPanels.forEach(panel => {
-                panel.classList.remove('active');
-                if (panel.id === targetPanel) {
-                    panel.classList.add('active');
-                }
-            });
-        });
-    });
+    // Settings initialization
 }
 
 // ==========================================
-// STATISTICS UPDATE
-// ==========================================
-
-function updateStatistics() {
-    // Animate token counter
-    animateCounter('tokensUsed', state.user.tokensUsed);
-    animateCounter('tasksCompleted', state.user.tasksCompleted);
-    
-    // Update other stats
-    document.getElementById('activeTime').textContent = state.user.activeTime;
-    document.getElementById('memoryUsage').textContent = state.user.memoryUsage;
-    document.getElementById('uptime').textContent = '0д 0ч 12м';
-}
-
-function animateCounter(elementId, targetValue) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    const duration = 1000;
-    const startValue = 0;
-    const startTime = Date.now();
-    
-    function update() {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const currentValue = Math.floor(startValue + (targetValue - startValue) * progress);
-        element.textContent = currentValue.toLocaleString('ru-RU');
-        
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-    
-    update();
-}
-
-// ==========================================
-// AUTO-UPDATE
+// AUTO UPDATE
 // ==========================================
 
 function startAutoUpdate() {
-    // Update statistics every 30 seconds
-    setInterval(() => {
-        // Simulate token usage increase
-        state.user.tokensUsed += Math.floor(Math.random() * 10);
-        document.getElementById('tokensUsed').textContent = state.user.tokensUsed.toLocaleString('ru-RU');
-        
-        // Re-draw mini charts
-        drawAgentActivityChart();
-        drawMemoryGrowthChart();
-    }, 30000);
+    setInterval(async () => {
+        if (!state.isLoading) {
+            await loadHealth();
+            await loadStats();
+            updateStatistics();
+            updateDashboardCards();
+            updateUptime();
+        }
+    }, 5000);
     
-    // Add new log entries periodically
-    setInterval(() => {
-        addRandomLogEntry();
-    }, 15000);
+    setInterval(async () => {
+        if (!state.isLoading && state.currentSection === 'tasks') {
+            await loadTasks();
+            updateTasksList();
+        }
+    }, 10000);
 }
 
-function addRandomLogEntry() {
-    const logsContainer = document.querySelector('.logs-container');
-    if (!logsContainer || state.currentSection !== 'dashboard') return;
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+function showNotification(message, type = 'info') {
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
     
-    const modules = ['AI.Engine', 'Trading.Bot', 'API.Server', 'System', 'Memory'];
-    const messages = [
-        'Запрос обработан успешно',
-        'Соединение установлено',
-        'Данные обновлены',
-        'Задача выполнена',
-        'Система стабильна'
-    ];
-    const types = ['info', 'info', 'info', 'warning'];
-    
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('ru-RU');
-    
-    const logEntry = document.createElement('div');
-    logEntry.className = `log-entry ${types[Math.floor(Math.random() * types.length)]}`;
-    logEntry.innerHTML = `
-        <span class="log-time">${timeStr}</span>
-        <span class="log-module">${modules[Math.floor(Math.random() * modules.length)]}</span>
-        <span class="log-message">${messages[Math.floor(Math.random() * messages.length)]}</span>
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span>${icons[type]} ${message}</span>
     `;
     
-    logsContainer.insertBefore(logEntry, logsContainer.firstChild);
-    
-    // Keep only last 20 entries
-    while (logsContainer.children.length > 20) {
-        logsContainer.removeChild(logsContainer.lastChild);
+    let container = document.querySelector('.notifications-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'notifications-container';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+        document.body.appendChild(container);
     }
+    
+    container.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 // ==========================================
-// UTILITY FUNCTIONS
+// LOADING INDICATOR
 // ==========================================
 
-// Add ripple effect to buttons
-document.addEventListener('click', (e) => {
-    if (e.target.matches('button') || e.target.closest('button')) {
-        const button = e.target.matches('button') ? e.target : e.target.closest('button');
-        const ripple = document.createElement('span');
-        const rect = button.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-        
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        ripple.classList.add('ripple');
-        
-        button.style.position = 'relative';
-        button.style.overflow = 'hidden';
-        
-        button.appendChild(ripple);
-        
-        setTimeout(() => ripple.remove(), 600);
+function showLoadingIndicator() {
+    let loader = document.querySelector('.global-loader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.className = 'global-loader';
+        loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+        loader.innerHTML = '<div style="color:white;font-size:24px;">Загрузка...</div>';
+        document.body.appendChild(loader);
     }
-});
+    loader.style.display = 'flex';
+}
 
-// Add CSS for ripple effect
-const style = document.createElement('style');
-style.textContent = `
-    .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(0);
-        animation: ripple-animation 0.6s ease-out;
-        pointer-events: none;
-    }
-    
-    @keyframes ripple-animation {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+function hideLoadingIndicator() {
+    const loader = document.querySelector('.global-loader');
+    if (loader) loader.style.display = 'none';
+}
 
-console.log('🌟 Mirai AI System Initialized');
-console.log('未来 - Будущее начинается сейчас');
+console.log('📝 Mirai AI Full Integration loaded successfully');
