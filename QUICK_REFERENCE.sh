@@ -65,11 +65,7 @@ cat << 'EOF'
   > SELECT * FROM trading_decisions LIMIT 10;
   > .quit
 
-📱 TELEGRAM БОТ:
-──────────────────────────────────────────────────────────────
-  Токен: 8104619923:AAGS0IUt18-LoVbI_UTXk51xEfF4vbr2Sr4
-  Admin: 6428365358
-  
+
   Команды бота:
     /start   - Приветствие
     /status  - Статус агента
