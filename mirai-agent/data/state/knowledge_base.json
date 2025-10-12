@@ -9,6 +9,11 @@
       "name": "Svelte",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T07:49:35.993053"
+    },
+    {
+      "name": "Terraform",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T07:58:42.049423"
     }
   ],
   "skills": [],
