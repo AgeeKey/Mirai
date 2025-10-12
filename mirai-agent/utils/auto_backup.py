@@ -4,34 +4,30 @@ import logging
 from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    handlers=[logging.FileHandler('backup.log'),
-                              logging.StreamHandler()])
+logging.basicConfig(
+    filename='backup.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-def backup_files(source_folder, backup_folder):
+def backup_files(source_dir, backup_dir):
     try:
-        # Проверка существования папки назначения
-        if not os.path.exists(backup_folder):
-            os.makedirs(backup_folder)
-            logging.info(f'Создана папка для бэкапа: {backup_folder}')
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+            logging.info(f'Created backup directory: {backup_dir}')
 
-        # Получение текущего времени для уникальности бэкапа
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_subfolder = os.path.join(backup_folder, f'backup_{timestamp}')
-        os.makedirs(backup_subfolder)
+        for filename in os.listdir(source_dir):
+            source_file = os.path.join(source_dir, filename)
+            backup_file = os.path.join(backup_dir, filename)
+            if os.path.isfile(source_file):
+                shutil.copy2(source_file, backup_file)
+                logging.info(f'Copied: {source_file} to {backup_file}')  
 
-        # Копирование файлов
-        for filename in os.listdir(source_folder):
-            full_file_name = os.path.join(source_folder, filename)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, backup_subfolder)
-                logging.info(f'Файл {filename} успешно скопирован в {backup_subfolder}')  
-        logging.info('Бэкап завершен успешно.')
+        logging.info('Backup completed successfully.')
     except Exception as e:
-        logging.error(f'Произошла ошибка: {e}') 
+        logging.error(f'Error during backup: {e}')
 
 if __name__ == '__main__':
-    source = 'important_files/'  # Папка с важными файлами
-    backup = 'backups/'  # Папка для сохранения бэкапов
-    backup_files(source, backup)
+    source_directory = 'path/to/important/files'  # Измените на реальный путь
+    backup_directory = 'path/to/backup'  # Измените на реальный путь
+    backup_files(source_directory, backup_directory)
