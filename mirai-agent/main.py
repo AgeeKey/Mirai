@@ -6,3 +6,14 @@
 # Возвращаемое значение: результат выполнения асинхронной задачи
 
 # Рекомендуется добавить обработку ошибок и логирование для лучшей отладки.
+
+# Пример обработки ошибок:
+# try:
+#     async_task_result = await execute_async_task(param1, param2)
+# except Exception as e:
+#     print(f"Произошла ошибка: {e}")
+
+# Пример логирования:
+# import logging
+# logging.basicConfig(level=logging.INFO)
+# logging.info("Запуск асинхронной задачи...")
