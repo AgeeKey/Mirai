@@ -1,26 +1,32 @@
 import os
 import shutil
 import logging
-from datetime import datetime
+import time
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
-# Путь к важным файлам и директории бэкапа
-important_files = ['/path/to/important/file1', '/path/to/important/file2']  # Замените на ваши файлы
-backup_directory = '/path/to/backup/directory/'  # Замените на путь к директории бэкапа
+def backup_files(source_dir, target_dir):
+    try:
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+            logging.info(f'Создана директория для бэкапа: {target_dir}')
 
-def create_backup():
-    if not os.path.exists(backup_directory):
-        os.makedirs(backup_directory)
-        logging.info(f'Создана директория резервного копирования: {backup_directory}')
+        for item in os.listdir(source_dir):
+            s = os.path.join(source_dir, item)
+            d = os.path.join(target_dir, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, False, None)
+                logging.info(f'Бэкап директории {s} в {d}')
+            else:
+                shutil.copy2(s, d)
+                logging.info(f'Бэкап файла {s} в {d}')
 
-    for file in important_files:
-        try:
-            shutil.copy(file, backup_directory)
-            logging.info(f'Файл {file} успешно скопирован в {backup_directory}')
-        except Exception as e:
-            logging.error(f'Ошибка при копировании файла {file}: {e}')  
+    except Exception as e:
+        logging.error(f'Ошибка при бэкапе: {str(e)}')
 
 if __name__ == '__main__':
-    create_backup()
+    source_directory = 'важные_файлы'  # Укажите ваш источник
+    target_directory = f'бэкапы/backup_{time.strftime('%Y%m%d_%H%M%S')}'
+    backup_files(source_directory, target_directory)
+    logging.info('Бэкап завершён успешно.')
