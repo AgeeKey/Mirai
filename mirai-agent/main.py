@@ -2,28 +2,28 @@
 
 # Пример использования функции выполнения асинхронных задач
 # async_task_result = await execute_async_task(param1, param2)
-# Объяснение параметров: 
+# Объяснение параметров:  
 # param1 - описание параметра 1
 # param2 - описание параметра 2
 # Возвращаемое значение: результат выполнения асинхронной задачи
 
-# Рекомендуется добавить обработку ошибок и логирование для лучшей отладки.
+# Рекомендуется добавить обработку ошибок и логирование для лучше...
 
-# Пример обработки ошибок:
-# try:
-#     async_task_result = await execute_async_task(param1, param2)
-# except Exception as e:
-#     print(f"Произошла ошибка: {e}")
+# Обработка ошибок
+try:
+    async_task_result = await execute_async_task(param1, param2)
+except Exception as e:
+    print(f"Произошла ошибка: {e}")  
 
-# Пример логирования:
-# import logging
-# logging.basicConfig(level=logging.INFO)
-# logging.info("Запуск асинхронной задачи...")
+# Логирование
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Запуск асинхронной задачи...")
 
 # Дополнительные комментарии о функции:
 # Эта функция предназначена для выполнения асинхронных задач и обработки результатов
 # Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
 # Добавленный пример использования функции:
-async_task_result = await execute_async_task(param1='value1', param2='value2')
-# Здесь вы можете указать значения для param1 и param2
+async_task_result = await execute_async_task(param1='value1', param2='value2')  
+# Обратите внимание на порядок передачи параметров.
