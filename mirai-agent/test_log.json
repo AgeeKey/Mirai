@@ -1,0 +1,2 @@
+{"time": "2025-10-12 03:11:38,016", "level": "INFO", "message": "This is a test info message with ****", "name": "test_logger"}
+{"time": "2025-10-12 03:11:38,016", "level": "ERROR", "message": "This is a test error message with ****", "name": "test_logger"}

@@ -1,0 +1,15 @@
+{
+    "task_count": 2,
+    "execution_time": [
+        0.5,
+        0.5
+    ],
+    "error_count": 2,
+    "resource_usage": [
+        {
+            "timestamp": "2025-10-12T03:12:49.104063",
+            "cpu": 0.0,
+            "ram": 53.4
+        }
+    ]
+}
