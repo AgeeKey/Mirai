@@ -1,7 +1,7 @@
 # Код для выполнения асинхронных задач
 
 # Пример использования функции выполнения асинхронных задач
-# async_task_result = await execute_async_task(param1, param2)
+async_task_result = await execute_async_task(param1, param2)
 # Объяснение параметров:
 # param1 - описание параметра 1
 # param2 - описание параметра 2
@@ -26,6 +26,4 @@ logging.info('Запуск асинхронной задачи...')
 
 # Пример использования функции:
 # Убедитесь, что параметр `param1` и `param2` переданы корректно
-# async_task_result = await execute_async_task(correct_param1, correct_param2)
-
-# Примечание: Если вы не уверены, как использовать эту функцию, обратитесь к документации.
+async_task_result = await execute_async_task(param1, param2)
