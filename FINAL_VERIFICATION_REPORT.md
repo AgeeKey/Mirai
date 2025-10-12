@@ -74,7 +74,7 @@ INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1
 - **Тип:** `getUpdates` (polling)
 - **Частота:** каждые 10 секунд
 
-**Токен:** `8104619923:AAGS0IUt18-LoVbI_UTXk51xEfF4vbr2Sr4`  
+**Токен:** `YOUR_TELEGRAM_BOT_TOKEN`  
 **Admin ID:** `6428365358`
 
 **Вердикт:** Бот активен и слушает команды ✅

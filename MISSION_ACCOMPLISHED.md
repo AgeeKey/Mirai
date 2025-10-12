@@ -105,7 +105,7 @@ curl http://localhost:8000/health
 ### Telegram бот:
 
 1. Открой Telegram
-2. Найди бота по токену: `8104619923:AAGS0IUt18-LoVbI_UTXk51xEfF4vbr2Sr4`
+2. Найди бота по токену: `YOUR_TELEGRAM_BOT_TOKEN`
 3. Отправь `/start`
 4. Используй команды: `/status`, `/tasks`, `/stats`
 

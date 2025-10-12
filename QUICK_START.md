@@ -39,7 +39,7 @@
    - Введи username (например: `mirai_ai_bot`)
 5. Получишь токен (начинается с цифр)
 
-**Пример:** `8104619923:AAGS0IUt18-LoVbI_UTXk51xEfF4vbr2Sr4`
+**Пример:** `1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk`
 
 ### 1.3 Telegram Chat ID (твой ID)
 
