@@ -69,6 +69,11 @@
       "name": "Elasticsearch",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T10:20:29.484082"
+    },
+    {
+      "name": "Cloudflare",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T10:42:38.198343"
     }
   ],
   "skills": [],
