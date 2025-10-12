@@ -42,6 +42,7 @@ core/self_evolution.py
 ```
 
 **Методы:**
+
 - `add_technology(tech, proficiency)` - добавить технологию
 - `add_skill(skill, level)` - добавить навык
 - `log_task_completion(task, success, details)` - записать выполнение
@@ -177,7 +178,7 @@ class MiraiAutonomous:
     def __init__(self):
         self.evolution = SelfEvolutionSystem(self.mirai)
         self.evolution_mode = True
-    
+
     def autonomous_cycle(self):
         # Каждые 3 цикла - саморазвитие
         if self.evolution_mode and self.cycle_count % 3 == 0:
@@ -189,11 +190,11 @@ class MiraiAutonomous:
 
 **Управление саморазвитием через Telegram:**
 
-| Команда | Описание |
-|---------|----------|
-| `/status` или `/статус` | Полный статус системы: база знаний, проекты, метрики |
-| `/evolve` или `/развивайся` | Запустить цикл саморазвития вручную |
-| `/toggle_evolution` или `/переключить` | Включить/выключить автоматическое саморазвитие |
+| Команда                                | Описание                                             |
+| -------------------------------------- | ---------------------------------------------------- |
+| `/status` или `/статус`                | Полный статус системы: база знаний, проекты, метрики |
+| `/evolve` или `/развивайся`            | Запустить цикл саморазвития вручную                  |
+| `/toggle_evolution` или `/переключить` | Включить/выключить автоматическое саморазвитие       |
 
 **Пример статуса:**
 
@@ -222,10 +223,11 @@ class MiraiAutonomous:
 ### Пример полного цикла саморазвития:
 
 **Цикл #1:**
+
 1. **Анализ:** МИРАЙ видит что не знает ни одной backend технологии
 2. **Цель:** Генерирует цель "Изучить FastAPI"
 3. **Действие:** Создаёт проект с 4 шагами
-4. **Выполнение:** 
+4. **Выполнение:**
    - Ищет документацию FastAPI (search_web)
    - Создаёт `learning/fastapi_test.py`
    - Генерирует пример кода
@@ -233,12 +235,14 @@ class MiraiAutonomous:
 5. **Сохранение:** Добавляет FastAPI в базу знаний
 
 **Цикл #2:**
+
 1. **Анализ:** FastAPI изучена, frontend покрытие 0%
 2. **Цель:** "Изучить React"
 3. **Работа:** Продолжает предыдущие проекты + начинает новый
 4. **Мультизадачность:** Работает над 3 проектами параллельно
 
 **Цикл #3:**
+
 1. **Самомодификация:** 20% шанс - сработал!
 2. **Анализ кода:** Просит agent.think() предложить улучшение
 3. **Улучшение:** Добавляет новый инструмент или улучшает существующий
@@ -248,7 +252,7 @@ class MiraiAutonomous:
 **10 направлений развития, 50+ технологий:**
 
 - **Backend:** FastAPI, Django, Flask, GraphQL, gRPC
-- **Frontend:** React, Vue, Svelte, Next.js, TypeScript  
+- **Frontend:** React, Vue, Svelte, Next.js, TypeScript
 - **DevOps:** Kubernetes, Docker, Terraform, Ansible, CI/CD
 - **ML:** TensorFlow, PyTorch, Scikit-learn, Hugging Face, LangChain
 - **Databases:** PostgreSQL, MongoDB, Redis, Elasticsearch, Neo4j
@@ -268,6 +272,7 @@ python3 test_self_evolution.py
 ```
 
 **Что тестирует:**
+
 1. Инициализацию всех компонентов
 2. Генерацию целей
 3. Полный цикл саморазвития

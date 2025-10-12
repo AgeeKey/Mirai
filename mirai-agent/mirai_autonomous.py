@@ -276,7 +276,7 @@ class MiraiAutonomous:
                     f"🔧 Самомодификаций: {status['modifications']}"
                 )
                 continue
-            
+
             elif text.lower() in ["/evolve", "/развивайся"]:
                 logger.info("🧬 Запущен цикл саморазвития по команде!")
                 evolution_result = self.evolution.evolution_cycle()
@@ -288,7 +288,7 @@ class MiraiAutonomous:
                     f"📊 Прогресс:\n{chr(10).join('  • ' + str(p) for p in evolution_result.get('projects_progress', []))}"
                 )
                 continue
-            
+
             elif text.lower() in ["/toggle_evolution", "/переключить"]:
                 self.evolution_mode = not self.evolution_mode
                 self.telegram.send_message(
@@ -331,7 +331,7 @@ class MiraiAutonomous:
             if self.evolution_mode and self.cycle_count % 3 == 0:
                 logger.info("🧬 ЦИКЛ САМОРАЗВИТИЯ!")
                 evolution_result = self.evolution.evolution_cycle()
-                
+
                 # Отчёт хозяину о саморазвитии
                 status = self.evolution.get_status()
                 self.telegram.send_message(
