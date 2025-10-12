@@ -7,24 +7,22 @@ from datetime import datetime
 logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def backup_files(source_dir, backup_dir):
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+        logging.info(f'Создан каталог для бэкапа: {backup_dir}')
+
+    # Перебор всех файлов в исходной директории
     try:
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)  # Создать каталог, если он не существует
-        
-        # Копирование файлов
         for filename in os.listdir(source_dir):
             full_file_name = os.path.join(source_dir, filename)
             if os.path.isfile(full_file_name):
                 shutil.copy(full_file_name, backup_dir)
-                logging.info(f'Файл {filename} успешно сохранен в {backup_dir}')
-
-        logging.info('Бэкап завершен успешно.')
+                logging.info(f'Файл {full_file_name} успешно скопирован в {backup_dir}')
     except Exception as e:
-        logging.error(f'Ошибка во время бэкапа: {e}')
+        logging.error(f'Ошибка при бэкапе: {e}')
 
 if __name__ == '__main__':
-    # Задайте свои каталоги
-    source_directory = 'важные_файлы'
-    backup_directory = 'бэкапы'
-    # Запуск бэкапа
+    # Задаем директории
+    source_directory = 'path/to/important/files'
+    backup_directory = 'path/to/backup/directory'
     backup_files(source_directory, backup_directory)

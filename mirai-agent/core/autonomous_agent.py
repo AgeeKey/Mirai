@@ -36,13 +36,16 @@ class AutonomousAgent:
         try:
             from core.multi_language_executor import MultiLanguageExecutor
             from core.database_manager import DatabaseManager
+            from core.github_integration import GitHubIntegration
 
             self.multi_lang = MultiLanguageExecutor()
             self.db_manager = DatabaseManager()
+            self.github = GitHubIntegration()
             self.has_advanced_features = True
         except ImportError:
             self.multi_lang = None
             self.db_manager = None
+            self.github = None
             self.has_advanced_features = False
         self.tasks = []  # Список задач
         self.working_dir = "/root/mirai/mirai-agent"
@@ -181,6 +184,27 @@ class AutonomousAgent:
                             },
                         },
                         "required": ["db_type", "operation"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "github_action",
+                    "description": "Выполнить действие с GitHub: list_repos, create_repo, create_issue, search_repos, get_user_info",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "description": "Действие: list_repos, create_repo, create_issue, search_repos, get_user_info",
+                            },
+                            "params": {
+                                "type": "object",
+                                "description": "Параметры действия (зависят от action)",
+                            },
+                        },
+                        "required": ["action"],
                     },
                 },
             },
@@ -423,6 +447,54 @@ class AutonomousAgent:
         except Exception as e:
             return f"❌ Ошибка запроса к {db_type}: {str(e)}"
 
+    def github_action(self, action: str, params: dict = None) -> str:
+        """Выполнить действие с GitHub"""
+        if not self.has_advanced_features or not self.github:
+            return "❌ GitHub интеграция не доступна."
+
+        if not self.github.is_authenticated():
+            return "❌ GitHub не авторизован. Добавьте GITHUB_TOKEN в configs/api_keys.json"
+
+        try:
+            params = params or {}
+
+            if action == "get_user_info":
+                result = self.github.get_user_info()
+                return f"✅ GitHub пользователь:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
+            elif action == "list_repos":
+                username = params.get("username")
+                limit = params.get("limit", 10)
+                result = self.github.list_repos(username, limit)
+                return f"✅ Репозитории:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
+            elif action == "create_repo":
+                name = params.get("name", "")
+                description = params.get("description", "")
+                private = params.get("private", False)
+                result = self.github.create_repo(name, description, private)
+                return f"✅ Репозиторий создан:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
+            elif action == "create_issue":
+                owner = params.get("owner", "")
+                repo = params.get("repo", "")
+                title = params.get("title", "")
+                body = params.get("body", "")
+                result = self.github.create_issue(owner, repo, title, body)
+                return f"✅ Issue создан:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
+            elif action == "search_repos":
+                query = params.get("query", "")
+                limit = params.get("limit", 10)
+                result = self.github.search_repositories(query, limit)
+                return f"✅ Поиск репозиториев:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
+            else:
+                return f"❌ Действие '{action}' не поддерживается. Доступны: get_user_info, list_repos, create_repo, create_issue, search_repos"
+
+        except Exception as e:
+            return f"❌ Ошибка GitHub: {str(e)}"
+
     def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Выполнить инструмент"""
         tools_map = {
@@ -434,6 +506,7 @@ class AutonomousAgent:
             "create_task": self.create_task,
             "execute_code": self.execute_code,
             "database_query": self.database_query,
+            "github_action": self.github_action,
         }
 
         if tool_name in tools_map:
@@ -449,19 +522,21 @@ class AutonomousAgent:
                 "content": """Ты MIRAI - автономный AI агент с расширенными возможностями.
 
 Твои возможности:
-- Выполнять код на разных языках (execute_code): Python, JavaScript, C++, Go, Rust, Bash
+- Выполнять код на разных языках (execute_code): Python, JavaScript, TypeScript, C, C++, Go, Rust, Bash
 - Выполнять Python код (execute_python) - устаревший метод
 - Искать информацию в интернете (search_web)
 - Читать и писать файлы (read_file, write_file)
 - Выполнять команды (run_command)
-- Работать с базами данных (database_query): SQLite, PostgreSQL, MongoDB, Redis
+- Работать с базами данных (database_query): SQLite, PostgreSQL, Redis, MongoDB
+- Работать с GitHub (github_action): list_repos, create_repo, create_issue, search_repos, get_user_info
 - Создавать задачи (create_task)
 
 Ты можешь:
-✅ Писать и выполнять код на 8+ языках
+✅ Писать и выполнять код на 8 языках
 ✅ Находить информацию в интернете
 ✅ Создавать и модифицировать файлы
 ✅ Работать с разными базами данных
+✅ Управлять GitHub репозиториями
 ✅ Улучшать сам себя
 ✅ Принимать автономные решения
 
