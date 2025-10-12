@@ -109,6 +109,11 @@
       "name": "JWT",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T12:10:29.954709"
+    },
+    {
+      "name": "Smart Contracts",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T12:32:16.753100"
     }
   ],
   "skills": [],
