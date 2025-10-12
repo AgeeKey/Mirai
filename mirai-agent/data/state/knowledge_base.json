@@ -209,6 +209,11 @@
       "name": "TypeScript",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T16:44:59.625421"
+    },
+    {
+      "name": "Kubernetes",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T17:06:53.914230"
     }
   ],
   "skills": [],
