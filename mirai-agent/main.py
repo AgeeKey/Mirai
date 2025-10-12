@@ -10,10 +10,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Логирование и завершение программы
-logger.info("🛑 Полу... shutting down")
-sys.exit(0)
-
 # Установка обработчика сигналов
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -32,7 +28,4 @@ async def main():
     # 2. Логирование выполнения задач
 
     # Пример: Инициализация логирования
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-if __name__ == '__main__':
-    # Запускаем основную фун
+    logging.basicConfig(level=logging.INFO)
