@@ -1,18 +1,22 @@
 import psutil
-import time
 
-def monitor_system():
-    try:
-        while True:
-            cpu_usage = psutil.cpu_percent(interval=1)
-            ram_usage = psutil.virtual_memory().percent
-            disk_usage = psutil.disk_usage('/').percent
-            print(f"CPU Usage: {cpu_usage}%")
-            print(f"RAM Usage: {ram_usage}%")
-            print(f"Disk Usage: {disk_usage}%")
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Monitoring stopped.")
+class SystemMonitor:
+    def get_cpu_usage(self):
+        return psutil.cpu_percent(interval=1)
+
+    def get_memory_usage(self):
+        memory = psutil.virtual_memory()
+        return memory.percent
+
+    def get_disk_usage(self):
+        disk = psutil.disk_usage('/')
+        return disk.percent
 
 if __name__ == '__main__':
-    monitor_system()
+    monitor = SystemMonitor()
+    cpu = monitor.get_cpu_usage()
+    memory = monitor.get_memory_usage()
+    disk = monitor.get_disk_usage()
+    print(f'CPU Usage: {cpu}%')
+    print(f'Memory Usage: {memory}%')
+    print(f'Disk Usage: {disk}%')
