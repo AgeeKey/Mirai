@@ -26,5 +26,6 @@ logging.info('Запуск асинхронной задачи...')
 # 1. Эта функция предназначена для выполнения асинхронных задач и обработки результатов
 # 2. Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
-# Пример использованием:
-# async_task_result = await execute_async_task(value1, value2) # Замените value1 и value2 на соответствующие значения.
+# Пример использования функции
+# async_task_result = await execute_async_task('example_param1', 'example_param2')
+# logging.info(f'Результат: {async_task_result}')
