@@ -1,31 +1,22 @@
 import psutil
 import time
 
-class SystemMonitor:
-    def __init__(self, interval=1):
-        self.interval = interval
 
-    def get_cpu_usage(self):
-        return psutil.cpu_percent(interval=self.interval)
+def display_system_info():
+    # Получение информации о CPU
+    cpu_usage = psutil.cpu_percent(interval=1)
+    print(f"CPU Usage: {cpu_usage}%")
+    
+    # Получение информации о RAM
+    ram = psutil.virtual_memory()
+    print(f"RAM Usage: {ram.percent}% ({ram.used / (1024 ** 3):.2f} GB используемой из {ram.total / (1024 ** 3):.2f} GB)")
+    
+    # Получение информации о диске
+    disk = psutil.disk_usage('/')
+    print(f"Disk Usage: {disk.percent}% ({disk.used / (1024 ** 3):.2f} GB используемой из {disk.total / (1024 ** 3):.2f} GB)")
 
-    def get_memory_usage(self):
-        memory = psutil.virtual_memory()
-        return memory.percent
-
-    def get_disk_usage(self):
-        disk = psutil.disk_usage('/')
-        return disk.percent
-
-    def start_monitoring(self, duration=10):
-        end_time = time.time() + duration
-        while time.time() < end_time:
-            cpu = self.get_cpu_usage()
-            memory = self.get_memory_usage()
-            disk = self.get_disk_usage()
-            print(f'CPU Usage: {cpu}%, Memory Usage: {memory}%, Disk Usage: {disk}%')
-
-            time.sleep(self.interval)
 
 if __name__ == '__main__':
-    monitor = SystemMonitor(interval=1)
-    monitor.start_monitoring(duration=10)
+    while True:
+        display_system_info()
+        time.sleep(5)  # Обновление каждые 5 секунд

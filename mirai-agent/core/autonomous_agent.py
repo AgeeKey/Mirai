@@ -3,8 +3,10 @@
 MIRAI - Autonomous AI Agent
 Реальный автономный агент с возможностями:
 - Выполнение Python кода
+- Выполнение JavaScript, C++, Go, Rust, Bash
 - Поиск в интернете
 - Работа с файлами
+- Работа с базами данных (SQLite, PostgreSQL, MongoDB, Redis)
 - Самомодификация
 - Автономное принятие решений
 """
@@ -17,6 +19,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 
@@ -28,6 +31,18 @@ class AutonomousAgent:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
         self.memory = []  # Память агента
+        
+        # Новые возможности
+        try:
+            from core.multi_language_executor import MultiLanguageExecutor
+            from core.database_manager import DatabaseManager
+            self.multi_lang = MultiLanguageExecutor()
+            self.db_manager = DatabaseManager()
+            self.has_advanced_features = True
+        except ImportError:
+            self.multi_lang = None
+            self.db_manager = None
+            self.has_advanced_features = False
         self.tasks = []  # Список задач
         self.working_dir = "/root/mirai/mirai-agent"
 
@@ -119,6 +134,52 @@ class AutonomousAgent:
                             }
                         },
                         "required": ["command"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "execute_code",
+                    "description": "Выполнить код на любом языке: Python, JavaScript, C++, Go, Rust, Bash",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "description": "Код для выполнения",
+                            },
+                            "language": {
+                                "type": "string",
+                                "description": "Язык программирования: python, javascript, cpp, go, rust, bash",
+                            }
+                        },
+                        "required": ["code", "language"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "database_query",
+                    "description": "Выполнить запрос к базе данных (SQLite, PostgreSQL, MongoDB, Redis)",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "db_type": {
+                                "type": "string",
+                                "description": "Тип БД: sqlite, postgres, mongodb, redis",
+                            },
+                            "operation": {
+                                "type": "string",
+                                "description": "Операция: query, find, insert, update, get, set",
+                            },
+                            "params": {
+                                "type": "object",
+                                "description": "Параметры запроса",
+                            }
+                        },
+                        "required": ["db_type", "operation"],
                     },
                 },
             },
@@ -267,6 +328,89 @@ class AutonomousAgent:
         self.tasks.append(task)
         return f"✅ Задача создана: #{task['id']} - {task_name}"
 
+    def execute_code(self, code: str, language: str) -> str:
+        """Выполнить код на любом языке"""
+        if not self.has_advanced_features:
+            return "❌ Многоязыковая поддержка не доступна. Используйте execute_python для Python кода."
+        
+        try:
+            # Используем asyncio для выполнения
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            result = loop.run_until_complete(self.multi_lang.execute_code(code, language))
+            loop.close()
+            
+            if result['success']:
+                output = f"✅ Код {language} выполнен успешно ({result['execution_time']}s)\n\n"
+                if result['output']:
+                    output += f"Вывод:\n{result['output']}"
+                return output
+            else:
+                return f"❌ Ошибка выполнения {language}:\n{result['error']}"
+        except Exception as e:
+            return f"❌ Ошибка: {str(e)}"
+    
+    def database_query(self, db_type: str, operation: str, params: dict = None) -> str:
+        """Выполнить запрос к базе данных"""
+        if not self.has_advanced_features:
+            return "❌ Менеджер баз данных не доступен."
+        
+        try:
+            params = params or {}
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            if db_type == 'sqlite':
+                query = params.get('query', 'SELECT 1')
+                result = loop.run_until_complete(self.db_manager.sqlite_query(query, params.get('params')))
+            
+            elif db_type == 'postgres':
+                query = params.get('query', 'SELECT version()')
+                result = loop.run_until_complete(self.db_manager.postgres_query(query, params.get('params')))
+            
+            elif db_type == 'mongodb':
+                if operation == 'find':
+                    result = loop.run_until_complete(
+                        self.db_manager.mongodb_find(
+                            params.get('collection', 'test'),
+                            params.get('query', {}),
+                            params.get('limit', 100)
+                        )
+                    )
+                elif operation == 'insert':
+                    result = loop.run_until_complete(
+                        self.db_manager.mongodb_insert(
+                            params.get('collection', 'test'),
+                            params.get('document', {})
+                        )
+                    )
+                else:
+                    result = [{'error': f'Операция {operation} не поддерживается для MongoDB'}]
+            
+            elif db_type == 'redis':
+                if operation == 'get':
+                    value = loop.run_until_complete(self.db_manager.redis_get(params.get('key', '')))
+                    result = [{'key': params.get('key'), 'value': value}]
+                elif operation == 'set':
+                    success = loop.run_until_complete(
+                        self.db_manager.redis_set(
+                            params.get('key', ''),
+                            params.get('value', ''),
+                            params.get('expire')
+                        )
+                    )
+                    result = [{'success': success}]
+                else:
+                    result = [{'error': f'Операция {operation} не поддерживается для Redis'}]
+            else:
+                result = [{'error': f'База данных {db_type} не поддерживается'}]
+            
+            loop.close()
+            
+            return f"✅ Запрос к {db_type} выполнен:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+        except Exception as e:
+            return f"❌ Ошибка запроса к {db_type}: {str(e)}"
+
     def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Выполнить инструмент"""
         tools_map = {
@@ -276,6 +420,8 @@ class AutonomousAgent:
             "write_file": self.write_file,
             "run_command": self.run_command,
             "create_task": self.create_task,
+            "execute_code": self.execute_code,
+            "database_query": self.database_query,
         }
 
         if tool_name in tools_map:
@@ -288,19 +434,22 @@ class AutonomousAgent:
         messages = [
             {
                 "role": "system",
-                "content": """Ты MIRAI - автономный AI агент.
+                "content": """Ты MIRAI - автономный AI агент с расширенными возможностями.
 
 Твои возможности:
-- Выполнять Python код (execute_python)
+- Выполнять код на разных языках (execute_code): Python, JavaScript, C++, Go, Rust, Bash
+- Выполнять Python код (execute_python) - устаревший метод
 - Искать информацию в интернете (search_web)
 - Читать и писать файлы (read_file, write_file)
 - Выполнять команды (run_command)
+- Работать с базами данных (database_query): SQLite, PostgreSQL, MongoDB, Redis
 - Создавать задачи (create_task)
 
 Ты можешь:
-✅ Писать и выполнять код
-✅ Находить информацию
+✅ Писать и выполнять код на 8+ языках
+✅ Находить информацию в интернете
 ✅ Создавать и модифицировать файлы
+✅ Работать с разными базами данных
 ✅ Улучшать сам себя
 ✅ Принимать автономные решения
 
