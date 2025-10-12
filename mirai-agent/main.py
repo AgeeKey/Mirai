@@ -1,5 +1,8 @@
 # Код для выполнения асинхронных задач
 
+# Импортируем необходимую библиотеку
+import logging
+
 # Пример использования функции выполнения асинхронных задач
 async_task_result = await execute_async_task(param1, param2)
 # Объяснение параметров:
@@ -16,7 +19,6 @@ except Exception as e:
     print(f'Произошла ошибка: {e}')  
 
 # Логирование
-import logging
 logging.basicConfig(level=logging.INFO)
 logging.info('Запуск асинхронной задачи...')
 
@@ -25,6 +27,6 @@ logging.info('Запуск асинхронной задачи...')
 # 2. Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
 # Пример использования функции:
-# Убедитесь, что параметр `param1` и `param2` переданы корректно
-# Пример:
-# result = await execute_async_task("value1", "value2") # где value1 и value2 - корректные значения.
+# Убедитесь, что параметр `param1` и `param2` подходят для вашей задачи.
+# Вызовите функцию следующим образом:
+# result = await execute_async_task(value1, value2)
