@@ -25,4 +25,5 @@
 # Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
 # Добавленный пример использования функции:
-# async_task_result = await execute_async_task(param1='value1', param2='value2') # Вызов функции с параметрами.
+async_task_result = await execute_async_task(param1='value1', param2='value2')
+# Здесь вы можете указать значения для param1 и param2
