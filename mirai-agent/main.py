@@ -26,4 +26,4 @@ logging.info("Запуск асинхронной задачи...")
 
 # Пример использования функции:
 # Убедитесь, что параметр `param1` и `param2` переданы корректно
-# async_task_result = await execute_async_task(param1, param2)
+# async_task_result = await execute_async_task(param1, param2) # Не забудьте заменить param1 и param2 на ваши значения.
