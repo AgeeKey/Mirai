@@ -4,7 +4,7 @@
 import logging
 
 # Пример использования функции выполнения асинхронных задач
-async_task_result = await execute_async_task(param1, param2)
+# async_task_result = await execute_async_task(param1, param2)
 # Объяснение параметров:
 # param1 - описание параметра 1
 # param2 - описание параметра 2
@@ -26,6 +26,5 @@ logging.info('Запуск асинхронной задачи...')
 # 1. Эта функция предназначена для выполнения асинхронных задач и обработки результатов
 # 2. Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
-# Пример использования:
-# result = await execute_async_task('значение1', 'значение2')
-# print(result) # Выводим результат на экран
+# Пример использованием:
+# async_task_result = await execute_async_task(value1, value2) # Замените value1 и value2 на соответствующие значения.
