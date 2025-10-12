@@ -43,12 +43,14 @@ class TelegramBot:
             url = f"{self.base_url}/sendMessage"
             data = {"chat_id": self.admin_chat_id, "text": text, "parse_mode": "HTML"}
             response = requests.post(url, json=data, timeout=10)
-            
+
             if response.status_code == 200:
                 logger.info("✅ Сообщение отправлено в Telegram!")
                 return True
             else:
-                logger.error(f"❌ Telegram API вернул код {response.status_code}: {response.text}")
+                logger.error(
+                    f"❌ Telegram API вернул код {response.status_code}: {response.text}"
+                )
                 return False
         except Exception as e:
             logger.error(f"❌ Ошибка отправки в Telegram: {e}", exc_info=True)
@@ -82,11 +84,13 @@ class TelegramBot:
                             from_user = update["message"].get("from", {})
                             is_bot = from_user.get("is_bot", False)
                             text = update["message"]["text"]
-                            
+
                             # Фильтруем сообщения от МИРАЙ (начинаются с эмодзи бота)
                             bot_prefixes = ["🌸", "✅", "⚠️", "🙋‍♀️", "🤔"]
-                            is_from_mirai = any(text.startswith(prefix) for prefix in bot_prefixes)
-                            
+                            is_from_mirai = any(
+                                text.startswith(prefix) for prefix in bot_prefixes
+                            )
+
                             logger.info(
                                 f"  Chat ID: {chat_id}, Admin: {self.admin_chat_id}, is_bot: {is_bot}, from_mirai: {is_from_mirai}"
                             )
@@ -103,7 +107,9 @@ class TelegramBot:
                                     f"  ✅ Сообщение от админа: {update['message']['text']}"
                                 )
                             elif is_from_mirai:
-                                logger.info(f"  ⏭️ Пропускаю своё сообщение: {text[:50]}...")
+                                logger.info(
+                                    f"  ⏭️ Пропускаю своё сообщение: {text[:50]}..."
+                                )
                             else:
                                 logger.warning(
                                     f"  ⚠️ Сообщение НЕ от админа (chat_id={chat_id})"
@@ -200,7 +206,8 @@ class MiraiAutonomous:
 НУЖЕН_ЧЕЛОВЕК: [да/нет и почему]
 """
 
-        response = self.mirai.think(context, max_iterations=1)
+        # ВАЖНО: max_iterations=5 чтобы МИРАЙ могла использовать инструменты!
+        response = self.mirai.think(context, max_iterations=5)
         logger.info(f"🌸 МИРАЙ решила:\n{response}")
 
         return response
@@ -238,9 +245,9 @@ class MiraiAutonomous:
             text = msg["text"]
             logger.info(f"💬 Получено от хозяина: {text}")
 
-            # МИРАЙ обрабатывает инструкцию
+            # МИРАЙ обрабатывает инструкцию (max_iterations=5 для использования инструментов)
             response = self.mirai.think(
-                f"Хозяин написал: '{text}'. Что мне делать?", max_iterations=1
+                f"Хозяин написал: '{text}'. Что мне делать?", max_iterations=5
             )
 
             logger.info(f"🌸 МИРАЙ поняла: {response}")
@@ -250,7 +257,7 @@ class MiraiAutonomous:
             success = self.telegram.send_message(
                 f"✅ <b>Поняла!</b>\n\n{response}\n\n🔧 Начинаю выполнение..."
             )
-            
+
             if success:
                 logger.info("✅ Ответ отправлен!")
             else:

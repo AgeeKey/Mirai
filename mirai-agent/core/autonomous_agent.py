@@ -15,6 +15,7 @@ import os
 import json
 import subprocess
 import requests
+import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from openai import OpenAI
@@ -22,6 +23,8 @@ from dotenv import load_dotenv
 import asyncio
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class AutonomousAgent:
@@ -555,7 +558,7 @@ class AutonomousAgent:
         ]
 
         for iteration in range(max_iterations):
-            print(f"\n🤔 Итерация {iteration + 1}/{max_iterations}")
+            logger.info(f"🤔 Итерация {iteration + 1}/{max_iterations}")
 
             try:
                 # Запрос к GPT-4 с инструментами
@@ -572,7 +575,7 @@ class AutonomousAgent:
                 # Если нет вызовов инструментов - агент закончил
                 if not response_message.tool_calls:
                     final_response = response_message.content
-                    print(f"\n✅ Агент завершил работу")
+                    logger.info(f"✅ Агент завершил работу")
                     return final_response
 
                 # Выполняем вызовы инструментов
@@ -580,13 +583,13 @@ class AutonomousAgent:
                     function_name = tool_call.function.name
                     function_args = json.loads(tool_call.function.arguments)
 
-                    print(f"🔧 Вызов инструмента: {function_name}")
-                    print(f"   Аргументы: {function_args}")
+                    logger.info(f"🔧 Вызов инструмента: {function_name}")
+                    logger.info(f"   Аргументы: {function_args}")
 
                     # Выполняем инструмент
                     function_response = self.execute_tool(function_name, function_args)
 
-                    print(f"📤 Результат: {function_response[:200]}...")
+                    logger.info(f"📤 Результат: {function_response[:200]}...")
 
                     # Добавляем результат в сообщения
                     messages.append(
@@ -600,7 +603,7 @@ class AutonomousAgent:
 
             except Exception as e:
                 error_msg = f"❌ Ошибка на итерации {iteration + 1}: {str(e)}"
-                print(error_msg)
+                logger.error(error_msg, exc_info=True)
                 return error_msg
 
         return "⚠️ Достигнут лимит итераций. Агент остановлен."
