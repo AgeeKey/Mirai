@@ -16,7 +16,7 @@ async_task_result = await execute_async_task(param1, param2)
 try:
     async_task_result = await execute_async_task(param1, param2)
 except Exception as e:
-    print(f'Произошла ошибка: {e}')  
+    logging.error(f'Произошла ошибка: {e}')  # Изменен вывод ошибки на логирование
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +27,4 @@ logging.info('Запуск асинхронной задачи...')
 # 2. Будьте внимательны с параметрами, они играют ключевую роль в успешном выполнении.
 
 # Пример использования функции:
-# Убедитесь, что параметр `param1` и `param2` подходят для вашей задачи.
-# Вызовите функцию следующим образом:
-# result = await execute_async_task(value1, value2)
+# Убедитесь, что параметр `param1` и `param2` корректно заданы перед вызовом функции.
