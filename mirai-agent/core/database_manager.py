@@ -17,7 +17,7 @@ class DatabaseManager:
         self.connections = {}
         self.db_configs = {
             'sqlite': {'path': '/root/mirai/mirai-agent/data/mirai.db'},
-            'postgres': {'host': 'localhost', 'port': 5432, 'database': 'mirai', 'user': 'mirai', 'password': ''},
+            'postgres': {'host': 'localhost', 'port': 5432, 'database': 'mirai', 'user': 'mirai', 'password': 'mirai2025'},
             'mongodb': {'host': 'localhost', 'port': 27017, 'database': 'mirai'},
             'redis': {'host': 'localhost', 'port': 6379, 'db': 0}
         }

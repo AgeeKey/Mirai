@@ -1,26 +1,32 @@
 import os
 import shutil
 import logging
-from datetime import datetime
+import datetime
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO, filename='backup.log', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
 def backup_files(source_dirs, backup_dir):
+    # Создаем бэкап директорию, если она не существует
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)
         logging.info(f'Создана директория для бэкапа: {backup_dir}')
 
+    # Проходим по всем исходным директориям
     for source_dir in source_dirs:
         if os.path.exists(source_dir):
-            dest_dir = os.path.join(backup_dir, os.path.basename(source_dir) + '_' + datetime.now().strftime('%Y%m%d_%H%M%S'))
-            shutil.copytree(source_dir, dest_dir)
-            logging.info(f'Бэкап из {source_dir} был создан в {dest_dir}')
+            # Создаем имя для бэкапного каталога
+            dir_name = os.path.basename(os.path.normpath(source_dir))
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_path = os.path.join(backup_dir, f'{dir_name}_{timestamp}')
+            # Копируем содержимое
+            shutil.copytree(source_dir, backup_path)
+            logging.info(f'Бэкап выполнен для: {source_dir} в {backup_path}')
         else:
             logging.warning(f'Исходная директория не найдена: {source_dir}')
 
 if __name__ == '__main__':
-    # Замените на пути к вашим важным файлам
-    source_directories = ['/path/to/important_file_1', '/path/to/important_file_2']
-    backup_directory = '/path/to/backup_directory'
+    # Примеры директорий для бэкапа
+    source_directories = ['/путь/к/вашему/важному/каталогу1', '/путь/к/вашему/важному/каталогу2']
+    backup_directory = '/путь/к/директории/бэкапа'
     backup_files(source_directories, backup_directory)
