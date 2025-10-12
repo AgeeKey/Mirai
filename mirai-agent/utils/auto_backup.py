@@ -1,30 +1,32 @@
 import os
 import shutil
 import logging
-import datetime
+from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(
+    filename='backup_log.log',
+    level=logging.INFO,
+    format='%(asctime)s:%(levelname)s:%(message)s'
+)
 
-# Функция для выполнения бэкапа
-
-def backup_files(source_dirs, backup_dir):
-    for src in source_dirs:
-        if os.path.exists(src):
-            try:
-                # Получение имени директории
-                dir_name = os.path.basename(src)
-                destination = os.path.join(backup_dir, f"{dir_name}_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
-                shutil.copytree(src, destination)
-                logging.info(f"Бэкап для {src} выполнен успешно в {destination}")
-            except Exception as e:
-                logging.error(f"Ошибка при бэкапе {src}: {e}")
+def backup_files(source_dir, backup_dir):
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+        logging.info(f'Создан каталог для бэкапа: {backup_dir}')
+    
+    for item in os.listdir(source_dir):
+        s = os.path.join(source_dir, item)
+        d = os.path.join(backup_dir, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, False, None)
+            logging.info(f'Бэкап каталога: {s} в {d}')
         else:
-            logging.warning(f"Исходная директория {src} не существует")
+            shutil.copy2(s, d)
+            logging.info(f'Бэкап файла: {s} в {d}')
 
-
-# Пример использования
-if __name__ == "__main__":
-    source_directories = ['/path/to/important/files', '/another/path/to/important/data']  # Измените на ваши директории
-    backup_directory = '/path/to/backup/location'  # Измените на место для хранения бэкапов
-    backup_files(source_directories, backup_directory)
+if __name__ == '__main__':
+    source_directory = 'path/to/important/files'
+    backup_directory = f'path/to/backup/directory/backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
+    backup_files(source_directory, backup_directory)
+    logging.info('Бэкап завершен!')
