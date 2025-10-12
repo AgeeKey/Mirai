@@ -89,6 +89,11 @@
       "name": "Cloudflare",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T11:15:42.171359"
+    },
+    {
+      "name": "JWT",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T11:37:22.640768"
     }
   ],
   "skills": [],
