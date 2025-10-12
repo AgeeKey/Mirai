@@ -4,25 +4,28 @@ import logging
 from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def backup_files(source_dir, backup_dir):
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-        logging.info(f'Создан каталог для бэкапа: {backup_dir}')
+# Путь к важным файлам и папке бэкапа
+important_files = ['/path/to/important/file1.txt', '/path/to/important/file2.txt']
+backup_folder = '/path/to/backup'
 
-    # Перебор всех файлов в исходной директории
-    try:
-        for filename in os.listdir(source_dir):
-            full_file_name = os.path.join(source_dir, filename)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, backup_dir)
-                logging.info(f'Файл {full_file_name} успешно скопирован в {backup_dir}')
-    except Exception as e:
-        logging.error(f'Ошибка при бэкапе: {e}')
+def create_backup():
+    if not os.path.exists(backup_folder):
+        os.makedirs(backup_folder)
+        logging.info('Создана папка для бэкапа: {}'.format(backup_folder))
+
+    for file in important_files:
+        try:
+            if os.path.exists(file):
+                shutil.copy(file, backup_folder)
+                logging.info('Файл {} успешно скопирован в {}'.format(file, backup_folder))
+            else:
+                logging.warning('Файл {} не найден'.format(file))
+        except Exception as e:
+            logging.error('Ошибка при копировании {}: {}'.format(file, e))
 
 if __name__ == '__main__':
-    # Задаем директории
-    source_directory = 'path/to/important/files'
-    backup_directory = 'path/to/backup/directory'
-    backup_files(source_directory, backup_directory)
+    logging.info('Начинаем процесс бэкапа')
+    create_backup()
+    logging.info('Процесс бэкапа завершен')
