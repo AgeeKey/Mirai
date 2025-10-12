@@ -1,33 +1,28 @@
 import os
-import datetime
 import shutil
 import logging
+from datetime import datetime
 
 # Настройка логирования
 logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
+# Функция для создания бэкапа
 def backup_files(source_dirs, backup_dir):
-    try:
-        # Создаем резервную папку для сегодняшней даты
-        today = datetime.date.today().isoformat()
-        daily_backup_dir = os.path.join(backup_dir, today)
-        os.makedirs(daily_backup_dir, exist_ok=True)
-        logging.info(f'Создана папка для резервного копирования: {daily_backup_dir}')
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+        logging.info(f'Создан каталог бэкапа: {backup_dir}')
 
-        for source_dir in source_dirs:
-            if os.path.exists(source_dir):
-                # Копируем файлы
-                destination = os.path.join(daily_backup_dir, os.path.basename(source_dir))
-                shutil.copytree(source_dir, destination)
-                logging.info(f'Резервная копия папки {source_dir} сохранена в {destination}')
-            else:
-                logging.warning(f'Исходная папка не найдена: {source_dir}')
-
-    except Exception as e:
-        logging.error(f'Ошибка при выполнении резервного копирования: {e}')
+    for source_dir in source_dirs:
+        if os.path.exists(source_dir):
+            try:
+                shutil.copytree(source_dir, os.path.join(backup_dir, os.path.basename(source_dir)), dirs_exist_ok=True)
+                logging.info(f'Успешный бэкап {source_dir} в {backup_dir}')
+            except Exception as e:
+                logging.error(f'Ошибка при бэкапе {source_dir}: {e}')
+        else:
+            logging.warning(f'Исходный каталог не найден: {source_dir}')
 
 if __name__ == '__main__':
-    # Пример использования
-    source_directories = ['/path/to/important/files1', '/path/to/important/files2']  # Замените на свои пути
-    backup_directory = '/path/to/backup/location'  # Путь для хранения резервных копий
+    source_directories = ['/path/to/important/files1', '/path/to/important/files2']  # Указать важные файлы
+    backup_directory = f'backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}'  # Уникальный каталог бэкапа по времени
     backup_files(source_directories, backup_directory)

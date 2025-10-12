@@ -4,16 +4,18 @@ import time
 def monitor_system(interval=1):
     try:
         while True:
-            # Получение данных
-            cpu_usage = psutil.cpu_percent(interval=1)
-            ram_info = psutil.virtual_memory()
-            disk_info = psutil.disk_usage('/')[0]
-
-            # Вывод данных
+            # Получение текущей информации о системе
+            cpu_usage = psutil.cpu_percent()
+            ram_usage = psutil.virtual_memory().percent
+            disk_usage = psutil.disk_usage('/').percent
+            
+            # Вывод информации
             print(f'CPU Usage: {cpu_usage}%')
-            print(f'RAM Usage: {ram_info.percent}% ({ram_info.used / (1024 ** 2)} MB / {ram_info.total / (1024 ** 2)} MB)')
-            print(f'Disk Usage: {disk_info}%')
+            print(f'RAM Usage: {ram_usage}%')
+            print(f'Disk Usage: {disk_usage}%')
             print('-' * 30)
+            
+            # Задержка между проверками
             time.sleep(interval)
     except KeyboardInterrupt:
         print('Monitoring stopped.')
