@@ -31,11 +31,12 @@ class AutonomousAgent:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
         self.memory = []  # Память агента
-        
+
         # Новые возможности
         try:
             from core.multi_language_executor import MultiLanguageExecutor
             from core.database_manager import DatabaseManager
+
             self.multi_lang = MultiLanguageExecutor()
             self.db_manager = DatabaseManager()
             self.has_advanced_features = True
@@ -152,7 +153,7 @@ class AutonomousAgent:
                             "language": {
                                 "type": "string",
                                 "description": "Язык программирования: python, javascript, cpp, go, rust, bash",
-                            }
+                            },
                         },
                         "required": ["code", "language"],
                     },
@@ -177,7 +178,7 @@ class AutonomousAgent:
                             "params": {
                                 "type": "object",
                                 "description": "Параметры запроса",
-                            }
+                            },
                         },
                         "required": ["db_type", "operation"],
                     },
@@ -332,81 +333,92 @@ class AutonomousAgent:
         """Выполнить код на любом языке"""
         if not self.has_advanced_features:
             return "❌ Многоязыковая поддержка не доступна. Используйте execute_python для Python кода."
-        
+
         try:
             # Используем asyncio для выполнения
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            result = loop.run_until_complete(self.multi_lang.execute_code(code, language))
+            result = loop.run_until_complete(
+                self.multi_lang.execute_code(code, language)
+            )
             loop.close()
-            
-            if result['success']:
+
+            if result["success"]:
                 output = f"✅ Код {language} выполнен успешно ({result['execution_time']}s)\n\n"
-                if result['output']:
+                if result["output"]:
                     output += f"Вывод:\n{result['output']}"
                 return output
             else:
                 return f"❌ Ошибка выполнения {language}:\n{result['error']}"
         except Exception as e:
             return f"❌ Ошибка: {str(e)}"
-    
+
     def database_query(self, db_type: str, operation: str, params: dict = None) -> str:
         """Выполнить запрос к базе данных"""
         if not self.has_advanced_features:
             return "❌ Менеджер баз данных не доступен."
-        
+
         try:
             params = params or {}
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            
-            if db_type == 'sqlite':
-                query = params.get('query', 'SELECT 1')
-                result = loop.run_until_complete(self.db_manager.sqlite_query(query, params.get('params')))
-            
-            elif db_type == 'postgres':
-                query = params.get('query', 'SELECT version()')
-                result = loop.run_until_complete(self.db_manager.postgres_query(query, params.get('params')))
-            
-            elif db_type == 'mongodb':
-                if operation == 'find':
+
+            if db_type == "sqlite":
+                query = params.get("query", "SELECT 1")
+                result = loop.run_until_complete(
+                    self.db_manager.sqlite_query(query, params.get("params"))
+                )
+
+            elif db_type == "postgres":
+                query = params.get("query", "SELECT version()")
+                result = loop.run_until_complete(
+                    self.db_manager.postgres_query(query, params.get("params"))
+                )
+
+            elif db_type == "mongodb":
+                if operation == "find":
                     result = loop.run_until_complete(
                         self.db_manager.mongodb_find(
-                            params.get('collection', 'test'),
-                            params.get('query', {}),
-                            params.get('limit', 100)
+                            params.get("collection", "test"),
+                            params.get("query", {}),
+                            params.get("limit", 100),
                         )
                     )
-                elif operation == 'insert':
+                elif operation == "insert":
                     result = loop.run_until_complete(
                         self.db_manager.mongodb_insert(
-                            params.get('collection', 'test'),
-                            params.get('document', {})
+                            params.get("collection", "test"), params.get("document", {})
                         )
                     )
                 else:
-                    result = [{'error': f'Операция {operation} не поддерживается для MongoDB'}]
-            
-            elif db_type == 'redis':
-                if operation == 'get':
-                    value = loop.run_until_complete(self.db_manager.redis_get(params.get('key', '')))
-                    result = [{'key': params.get('key'), 'value': value}]
-                elif operation == 'set':
+                    result = [
+                        {"error": f"Операция {operation} не поддерживается для MongoDB"}
+                    ]
+
+            elif db_type == "redis":
+                if operation == "get":
+                    value = loop.run_until_complete(
+                        self.db_manager.redis_get(params.get("key", ""))
+                    )
+                    result = [{"key": params.get("key"), "value": value}]
+                elif operation == "set":
                     success = loop.run_until_complete(
                         self.db_manager.redis_set(
-                            params.get('key', ''),
-                            params.get('value', ''),
-                            params.get('expire')
+                            params.get("key", ""),
+                            params.get("value", ""),
+                            params.get("expire"),
                         )
                     )
-                    result = [{'success': success}]
+                    result = [{"success": success}]
                 else:
-                    result = [{'error': f'Операция {operation} не поддерживается для Redis'}]
+                    result = [
+                        {"error": f"Операция {operation} не поддерживается для Redis"}
+                    ]
             else:
-                result = [{'error': f'База данных {db_type} не поддерживается'}]
-            
+                result = [{"error": f"База данных {db_type} не поддерживается"}]
+
             loop.close()
-            
+
             return f"✅ Запрос к {db_type} выполнен:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
         except Exception as e:
             return f"❌ Ошибка запроса к {db_type}: {str(e)}"

@@ -1,31 +1,30 @@
 import os
 import shutil
-import time
 import logging
+from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Путь к важным файлам и директории для бэкапа
-important_files = ['/path/to/important/file1', '/path/to/important/file2']
-destination_folder = '/path/to/backup/folder/'
+def backup_files(source_dir, backup_dir):
+    try:
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)  # Создать каталог, если он не существует
+        
+        # Копирование файлов
+        for filename in os.listdir(source_dir):
+            full_file_name = os.path.join(source_dir, filename)
+            if os.path.isfile(full_file_name):
+                shutil.copy(full_file_name, backup_dir)
+                logging.info(f'Файл {filename} успешно сохранен в {backup_dir}')
 
-# Функция для создания бэкапа
-def backup_files(files, destination):
-    if not os.path.exists(destination):
-        os.makedirs(destination)
-        logging.info(f'Создана директория для бэкапа: {destination}')
-    for file in files:
-        if os.path.exists(file):
-            shutil.copy(file, destination)
-            logging.info(f'Файл {file} скопирован в {destination}')
-        else:
-            logging.warning(f'Файл {file} не найден')
+        logging.info('Бэкап завершен успешно.')
+    except Exception as e:
+        logging.error(f'Ошибка во время бэкапа: {e}')
 
-# Основная функция
 if __name__ == '__main__':
-    while True:
-        logging.info('Запуск бэкапа...')
-        backup_files(important_files, destination_folder)
-        logging.info('Бэкап завершен. Ожидание перед следующим запуском...')
-        time.sleep(86400)  # Ожидание 24 часа
+    # Задайте свои каталоги
+    source_directory = 'важные_файлы'
+    backup_directory = 'бэкапы'
+    # Запуск бэкапа
+    backup_files(source_directory, backup_directory)
