@@ -1,34 +1,40 @@
 import os
 import shutil
-import logging
 import datetime
+import logging
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, filename='backup.log', format='%(asctime)s - %(levelname)s - %(message)s')
 
 def backup_files(source_dir, backup_dir):
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+        logging.info(f'Создан_backup_каталог: {backup_dir}')
+    
     try:
-        # Создание директории бэкапа, если ее нет
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-            logging.info(f'Создана директория для бэкапа: {backup_dir}')
-
+        # Получаем текущее время для создания уникальной папки
+timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_subdir = os.path.join(backup_dir, f'backup_{timestamp}')
+        os.makedirs(backup_subdir)
+        logging.info(f'Создан_каталог_резервной_копии: {backup_subdir}')
+        
         # Копирование файлов
         for item in os.listdir(source_dir):
-            s = os.path.join(source_dir, item)
-            d = os.path.join(backup_dir, item)
-            if os.path.isdir(s):
-                shutil.copytree(s, d, False, None)
-                logging.info(f'Скопирована директория: {s} в {d}')
-            else:
-                shutil.copy2(s, d)
-                logging.info(f'Скопирован файл: {s} в {d}')
-
-        logging.info('Бэкап завершен успешно')
+            source_item = os.path.join(source_dir, item)
+            destination_item = os.path.join(backup_subdir, item)
+            if os.path.isfile(source_item):
+                shutil.copy2(source_item, destination_item)
+                logging.info(f'Скопирован файл: {source_item} -> {destination_item}')
+            elif os.path.isdir(source_item):
+                shutil.copytree(source_item, destination_item)
+                logging.info(f'Скопирована папка: {source_item} -> {destination_item}')
+        
+        logging.info('Резервное копирование завершено успешно.')
     except Exception as e:
-        logging.error(f'Ошибка при создании бэкапа: {e}')
+        logging.error(f'Ошибка при резервном копировании: {e}')
 
+# Пример использования
 if __name__ == '__main__':
-    source_directory = '/path/to/your/important/files'
-    backup_directory = '/path/to/your/backup/location'
+    source_directory = '/path/to/important/files'
+    backup_directory = '/path/to/backup/location'
     backup_files(source_directory, backup_directory)
