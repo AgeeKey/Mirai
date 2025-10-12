@@ -1,0 +1,18 @@
+[Unit]
+Description=MIRAI Autonomous AI Agent 24/7
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mirai/mirai-agent
+Environment="PATH=/root/mirai/mirai-agent/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EnvironmentFile=/root/mirai/mirai-agent/.env
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai-agent/autonomous_mode.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/tmp/mirai_autonomous.log
+StandardError=append:/tmp/mirai_autonomous.log
+
+[Install]
+WantedBy=multi-user.target
