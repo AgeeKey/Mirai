@@ -1,31 +1,34 @@
 import os
 import shutil
 import logging
-from datetime import datetime
+import datetime
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Путь к важным файлам и папке бэкапа
-important_files = ['/path/to/important/file1.txt', '/path/to/important/file2.txt']
-backup_folder = '/path/to/backup'
+def backup_files(source_dir, backup_dir):
+    try:
+        # Создание директории бэкапа, если ее нет
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+            logging.info(f'Создана директория для бэкапа: {backup_dir}')
 
-def create_backup():
-    if not os.path.exists(backup_folder):
-        os.makedirs(backup_folder)
-        logging.info('Создана папка для бэкапа: {}'.format(backup_folder))
-
-    for file in important_files:
-        try:
-            if os.path.exists(file):
-                shutil.copy(file, backup_folder)
-                logging.info('Файл {} успешно скопирован в {}'.format(file, backup_folder))
+        # Копирование файлов
+        for item in os.listdir(source_dir):
+            s = os.path.join(source_dir, item)
+            d = os.path.join(backup_dir, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, False, None)
+                logging.info(f'Скопирована директория: {s} в {d}')
             else:
-                logging.warning('Файл {} не найден'.format(file))
-        except Exception as e:
-            logging.error('Ошибка при копировании {}: {}'.format(file, e))
+                shutil.copy2(s, d)
+                logging.info(f'Скопирован файл: {s} в {d}')
+
+        logging.info('Бэкап завершен успешно')
+    except Exception as e:
+        logging.error(f'Ошибка при создании бэкапа: {e}')
 
 if __name__ == '__main__':
-    logging.info('Начинаем процесс бэкапа')
-    create_backup()
-    logging.info('Процесс бэкапа завершен')
+    source_directory = '/path/to/your/important/files'
+    backup_directory = '/path/to/your/backup/location'
+    backup_files(source_directory, backup_directory)
