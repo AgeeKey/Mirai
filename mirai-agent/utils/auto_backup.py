@@ -1,32 +1,31 @@
 import os
 import shutil
-import logging
 import datetime
-
-# Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s %(message)s')
-
-def backup_files(source_dirs, backup_dir):
-    # Создаем бэкап директорию, если она не существует
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-        logging.info(f'Создана директория для бэкапа: {backup_dir}')
-
-    # Проходим по всем исходным директориям
+def create_backup(source_dirs, backup_dir):
+    # Получаем текущую дату и время для имени папки бэкапа
+    now = datetime.datetime.now()
+    backup_folder_name = now.strftime('%Y%m%d_%H%M%S')
+    backup_path = os.path.join(backup_dir, backup_folder_name)
+    os.makedirs(backup_path, exist_ok=True)
+    log_entries = []
+    
     for source_dir in source_dirs:
         if os.path.exists(source_dir):
-            # Создаем имя для бэкапного каталога
-            dir_name = os.path.basename(os.path.normpath(source_dir))
-            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-            backup_path = os.path.join(backup_dir, f'{dir_name}_{timestamp}')
-            # Копируем содержимое
-            shutil.copytree(source_dir, backup_path)
-            logging.info(f'Бэкап выполнен для: {source_dir} в {backup_path}')
+            # Копируем содержимое файловой директории в директорию бэкапа
+            dest_dir = os.path.join(backup_path, os.path.basename(source_dir))
+            shutil.copytree(source_dir, dest_dir)
+            log_entry = f'Содержимое {source_dir} успешно скопировано в {dest_dir}'
+            log_entries.append(log_entry)
         else:
-            logging.warning(f'Исходная директория не найдена: {source_dir}')
+            log_entry = f'Ошибка: {source_dir} не найден'
+            log_entries.append(log_entry)
+    
+    # Записываем лог
+    with open(os.path.join(backup_path, 'backup_log.txt'), 'w') as log_file:
+        log_file.write('\n'.join(log_entries))
+    print(f'Бэкап успешно создан в {backup_path}')
 
-if __name__ == '__main__':
-    # Примеры директорий для бэкапа
-    source_directories = ['/путь/к/вашему/важному/каталогу1', '/путь/к/вашему/важному/каталогу2']
-    backup_directory = '/путь/к/директории/бэкапа'
-    backup_files(source_directories, backup_directory)
+# Пример использования
+source_directories = ['/путь/к/вашему/важному/директории1', '/путь/к/вашему/важному/директории2']
+backup_directory = '/путь/к/директории/бэкапа'
+create_backup(source_directories, backup_directory)
