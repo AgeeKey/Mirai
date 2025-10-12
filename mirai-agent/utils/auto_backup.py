@@ -4,30 +4,23 @@ import logging
 from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(
-    filename='backup.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def backup_files(source_dir, backup_dir):
+# Путь к важным файлам и месту назначения бэкапа
+important_files = ['/path/to/important/file1', '/path/to/important/file2']  # Укажите важные файлы
+backup_destination = '/path/to/backup/directory/'  # Укажите директорию для бэкапа
+
+def create_backup():
     try:
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-            logging.info(f'Created backup directory: {backup_dir}')
-
-        for filename in os.listdir(source_dir):
-            source_file = os.path.join(source_dir, filename)
-            backup_file = os.path.join(backup_dir, filename)
-            if os.path.isfile(source_file):
-                shutil.copy2(source_file, backup_file)
-                logging.info(f'Copied: {source_file} to {backup_file}')  
-
-        logging.info('Backup completed successfully.')
+        os.makedirs(backup_destination, exist_ok=True)
+        for file in important_files:
+            if os.path.isfile(file):
+                shutil.copy(file, backup_destination)
+                logging.info(f'Бэкап {file} создан успешно.')
+            else:
+                logging.warning(f'Файл не найден: {file}')
     except Exception as e:
-        logging.error(f'Error during backup: {e}')
+        logging.error(f'Ошибка при создании бэкапа: {e}')
 
 if __name__ == '__main__':
-    source_directory = 'path/to/important/files'  # Измените на реальный путь
-    backup_directory = 'path/to/backup'  # Измените на реальный путь
-    backup_files(source_directory, backup_directory)
+    create_backup()
