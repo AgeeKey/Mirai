@@ -14,6 +14,7 @@ from typing import Dict, List, Optional
 import requests
 from core.autonomous_agent import AutonomousAgent
 from core.cicd_monitor import CICDMonitor
+from core.self_evolution import SelfEvolutionSystem
 
 # Настройка логирования
 logging.basicConfig(
@@ -137,6 +138,10 @@ class MiraiAutonomous:
         # МИРАЙ мозг
         self.mirai = AutonomousAgent()
 
+        # 🌸 СИСТЕМА САМОРАЗВИТИЯ
+        self.evolution = SelfEvolutionSystem(self.mirai)
+        logger.info("✨ Система саморазвития подключена!")
+
         # CI/CD монитор
         self.monitor = CICDMonitor(
             github_token=config["GITHUB_TOKEN"],
@@ -155,6 +160,7 @@ class MiraiAutonomous:
         self.current_task = None
         self.waiting_for_human = False
         self.tasks_completed = []
+        self.evolution_mode = True  # Включена ли система саморазвития
 
         # Приветствие хозяину
         self.telegram.send_message(
@@ -163,8 +169,10 @@ class MiraiAutonomous:
             "• Сама ставить задачи и решать их\n"
             "• Мониторить CI/CD\n"
             "• Писать тебе, если нужна помощь\n"
-            "• Слушать твои инструкции\n\n"
+            "• Слушать твои инструкции\n"
+            "• 🧬 <b>САМОРАЗВИВАТЬСЯ</b> - изучать новое, улучшать себя!\n\n"
             "📝 Логи: /tmp/mirai_autonomous.log\n"
+            "🧠 База знаний: data/state/knowledge_base.json\n"
             "🚀 Начинаю работу..."
         )
 
@@ -249,6 +257,45 @@ class MiraiAutonomous:
             text = msg["text"]
             logger.info(f"💬 Получено от хозяина: {text}")
 
+            # Специальные команды
+            if text.lower() in ["/status", "/статус"]:
+                status = self.evolution.get_status()
+                self.telegram.send_message(
+                    f"🌸 <b>Статус МИРАЙ</b>\n\n"
+                    f"🔄 Цикл: #{self.cycle_count}\n"
+                    f"✅ Выполнено: {len(self.tasks_completed)}\n"
+                    f"🧬 Саморазвитие: {'✅ включено' if self.evolution_mode else '❌ выключено'}\n\n"
+                    f"📚 <b>База знаний:</b>\n"
+                    f"  • Технологий: {status['knowledge']['technologies']}\n"
+                    f"  • Навыков: {status['knowledge']['skills']}\n"
+                    f"  • Завершено: {status['knowledge']['completed_tasks']}\n"
+                    f"  • Провалов: {status['knowledge']['failed_tasks']}\n\n"
+                    f"🎯 <b>Проекты:</b>\n"
+                    f"  • Активных: {status['projects']['active']}\n"
+                    f"  • Завершено: {status['projects']['completed']}\n\n"
+                    f"🔧 Самомодификаций: {status['modifications']}"
+                )
+                continue
+            
+            elif text.lower() in ["/evolve", "/развивайся"]:
+                logger.info("🧬 Запущен цикл саморазвития по команде!")
+                evolution_result = self.evolution.evolution_cycle()
+                self.telegram.send_message(
+                    f"🧬 <b>Цикл саморазвития выполнен!</b>\n\n"
+                    f"💡 Новых целей: {evolution_result.get('goals_generated', 0)}\n"
+                    f"📖 Изучено: {evolution_result.get('learning_completed', 0)}\n"
+                    f"⚙️ Улучшений: {evolution_result.get('improvements_made', 0)}\n\n"
+                    f"📊 Прогресс:\n{chr(10).join('  • ' + str(p) for p in evolution_result.get('projects_progress', []))}"
+                )
+                continue
+            
+            elif text.lower() in ["/toggle_evolution", "/переключить"]:
+                self.evolution_mode = not self.evolution_mode
+                self.telegram.send_message(
+                    f"🧬 Саморазвитие: {'✅ ВКЛЮЧЕНО' if self.evolution_mode else '❌ ВЫКЛЮЧЕНО'}"
+                )
+                continue
+
             # МИРАЙ обрабатывает инструкцию (max_iterations=5 для использования инструментов)
             response = self.mirai.think(
                 f"Хозяин написал: '{text}'. Что мне делать?", max_iterations=5
@@ -280,6 +327,27 @@ class MiraiAutonomous:
         logger.info("=" * 70)
 
         try:
+            # 0. 🧬 САМОРАЗВИТИЕ (каждые 3 цикла)
+            if self.evolution_mode and self.cycle_count % 3 == 0:
+                logger.info("🧬 ЦИКЛ САМОРАЗВИТИЯ!")
+                evolution_result = self.evolution.evolution_cycle()
+                
+                # Отчёт хозяину о саморазвитии
+                status = self.evolution.get_status()
+                self.telegram.send_message(
+                    f"🧬 <b>Отчёт о саморазвитии (цикл #{self.cycle_count})</b>\n\n"
+                    f"📚 База знаний:\n"
+                    f"  • Технологий: {status['knowledge']['technologies']}\n"
+                    f"  • Навыков: {status['knowledge']['skills']}\n"
+                    f"  • Завершено задач: {status['knowledge']['completed_tasks']}\n\n"
+                    f"🎯 Активных проектов: {status['projects']['active']}\n"
+                    f"✅ Завершено проектов: {status['projects']['completed']}\n"
+                    f"🔧 Самомодификаций: {status['modifications']}\n\n"
+                    f"💡 Новых целей: {evolution_result.get('goals_generated', 0)}\n"
+                    f"📖 Изучено: {evolution_result.get('learning_completed', 0)}\n"
+                    f"⚙️ Улучшений: {evolution_result.get('improvements_made', 0)}"
+                )
+
             # 1. Проверяем сообщения от хозяина
             self.check_human_messages()
 
