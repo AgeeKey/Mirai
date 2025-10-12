@@ -1,28 +1,33 @@
 import os
+import datetime
 import shutil
 import logging
-import datetime
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
-def backup_files(source_dir, backup_dir):
+def backup_files(source_dirs, backup_dir):
     try:
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-            logging.info(f'Создан каталог для бэкапа: {backup_dir}')
+        # Создаем резервную папку для сегодняшней даты
+        today = datetime.date.today().isoformat()
+        daily_backup_dir = os.path.join(backup_dir, today)
+        os.makedirs(daily_backup_dir, exist_ok=True)
+        logging.info(f'Создана папка для резервного копирования: {daily_backup_dir}')
 
-        # Копирование файлов
-        for filename in os.listdir(source_dir):
-            full_file_name = os.path.join(source_dir, filename)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, backup_dir)
-                logging.info(f'Копирован файл: {full_file_name} в {backup_dir}')
-        logging.info('Бэкап завершён успешно.')
+        for source_dir in source_dirs:
+            if os.path.exists(source_dir):
+                # Копируем файлы
+                destination = os.path.join(daily_backup_dir, os.path.basename(source_dir))
+                shutil.copytree(source_dir, destination)
+                logging.info(f'Резервная копия папки {source_dir} сохранена в {destination}')
+            else:
+                logging.warning(f'Исходная папка не найдена: {source_dir}')
+
     except Exception as e:
-        logging.error(f'Ошибка при выполнении бэкапа: {str(e)}')
+        logging.error(f'Ошибка при выполнении резервного копирования: {e}')
 
 if __name__ == '__main__':
-    source_directory = 'path/to/your/important/files'
-    backup_directory = 'path/to/your/backup'
-    backup_files(source_directory, backup_directory)
+    # Пример использования
+    source_directories = ['/path/to/important/files1', '/path/to/important/files2']  # Замените на свои пути
+    backup_directory = '/path/to/backup/location'  # Путь для хранения резервных копий
+    backup_files(source_directories, backup_directory)
