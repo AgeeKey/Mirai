@@ -1,31 +1,35 @@
 import os
 import shutil
-import datetime
 import logging
+import time
+from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-def backup_files(source_dirs, backup_dir):
-    """Создает резервные копии файлов из указанных директорий."""
-    current_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_subdir = os.path.join(backup_dir, f'backup_{current_time}')
-    
-    try:
-        os.makedirs(backup_subdir)
-        logging.info(f'Создана директория для бэкапа: {backup_subdir}')
-        for source_dir in source_dirs:
-            if os.path.exists(source_dir):
-                # Копируем директорию
-                shutil.copytree(source_dir, os.path.join(backup_subdir, os.path.basename(source_dir)))
-                logging.info(f'Бэкап директории {source_dir} успешно завершен.')
-            else:
-                logging.warning(f'Директория источника не найдена: {source_dir}')
-    except Exception as e:
-        logging.error(f'Ошибка при выполнении бэкапа: {e}')
+# Путь к важным файлам и директории бэкапа
+important_files = ['/path/to/your/important_file1', '/path/to/your/important_file2']
+backup_directory = '/path/to/your/backup_directory'
+
+# Функция для создания бэкапа
+def create_backup():
+    if not os.path.exists(backup_directory):
+        os.makedirs(backup_directory)
+        logging.info(f'Создана директория бэкапа: {backup_directory}')
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_folder = os.path.join(backup_directory, f'backup_{timestamp}')
+    os.makedirs(backup_folder)
+    logging.info(f'Создана новая папка бэкапа: {backup_folder}')
+
+    for file in important_files:
+        if os.path.exists(file):
+            shutil.copy(file, backup_folder)
+            logging.info(f'Файл {file} скопирован в {backup_folder}')
+        else:
+            logging.warning(f'Файл не найден: {file}')
 
 if __name__ == '__main__':
-    # Пример использования
-    source_directories = ['/path/to/important/files1', '/path/to/important/files2']
-    backup_directory = '/path/to/backup'
-    backup_files(source_directories, backup_directory)
+    create_backup()
+    logging.info('Бэкап завершен.')
