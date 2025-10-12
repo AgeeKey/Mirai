@@ -28,7 +28,16 @@ class AutonomousAgent:
     """Автономный AI агент с реальными возможностями"""
 
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Загружаем API ключ из configs/api_keys.json
+        import json
+        from pathlib import Path
+
+        config_path = Path(__file__).parent.parent / "configs" / "api_keys.json"
+        with open(config_path) as f:
+            config = json.load(f)
+
+        api_key = config.get("openai") or os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
         self.memory = []  # Память агента
 

@@ -1,40 +1,26 @@
 import os
 import shutil
-import datetime
 import logging
+from datetime import datetime
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO, filename='backup.log', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='backup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def backup_files(source_dir, backup_dir):
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-        logging.info(f'Создан_backup_каталог: {backup_dir}')
-    
-    try:
-        # Получаем текущее время для создания уникальной папки
-timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_subdir = os.path.join(backup_dir, f'backup_{timestamp}')
-        os.makedirs(backup_subdir)
-        logging.info(f'Создан_каталог_резервной_копии: {backup_subdir}')
-        
-        # Копирование файлов
-        for item in os.listdir(source_dir):
-            source_item = os.path.join(source_dir, item)
-            destination_item = os.path.join(backup_subdir, item)
-            if os.path.isfile(source_item):
-                shutil.copy2(source_item, destination_item)
-                logging.info(f'Скопирован файл: {source_item} -> {destination_item}')
-            elif os.path.isdir(source_item):
-                shutil.copytree(source_item, destination_item)
-                logging.info(f'Скопирована папка: {source_item} -> {destination_item}')
-        
-        logging.info('Резервное копирование завершено успешно.')
-    except Exception as e:
-        logging.error(f'Ошибка при резервном копировании: {e}')
+# Путь к важным файлам и директории бэкапа
+important_files = ['/path/to/important/file1', '/path/to/important/file2']  # Замените на ваши файлы
+backup_directory = '/path/to/backup/directory/'  # Замените на путь к директории бэкапа
 
-# Пример использования
+def create_backup():
+    if not os.path.exists(backup_directory):
+        os.makedirs(backup_directory)
+        logging.info(f'Создана директория резервного копирования: {backup_directory}')
+
+    for file in important_files:
+        try:
+            shutil.copy(file, backup_directory)
+            logging.info(f'Файл {file} успешно скопирован в {backup_directory}')
+        except Exception as e:
+            logging.error(f'Ошибка при копировании файла {file}: {e}')  
+
 if __name__ == '__main__':
-    source_directory = '/path/to/important/files'
-    backup_directory = '/path/to/backup/location'
-    backup_files(source_directory, backup_directory)
+    create_backup()
