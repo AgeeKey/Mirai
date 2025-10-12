@@ -1,0 +1,79 @@
+name: Multi-Language Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-languages:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc g++
+    
+    - name: Test Python
+      run: |
+        python3 --version
+        python3 -c "print('✅ Python works')"
+    
+    - name: Test JavaScript
+      run: |
+        node --version
+        node -e "console.log('✅ JavaScript works')"
+    
+    - name: Test C++
+      run: |
+        g++ --version
+        echo '#include <iostream>' > test.cpp
+        echo 'int main() { std::cout << "✅ C++ works\\n"; return 0; }' >> test.cpp
+        g++ test.cpp -o test
+        ./test
+    
+    - name: Test Go
+      run: |
+        go version
+        echo 'package main' > test.go
+        echo 'import "fmt"' >> test.go
+        echo 'func main() { fmt.Println("✅ Go works") }' >> test.go
+        go run test.go
+    
+    - name: Test Rust
+      run: |
+        rustc --version
+        echo 'fn main() { println!("✅ Rust works"); }' > test.rs
+        rustc test.rs
+        ./test
+    
+    - name: Test Bash
+      run: |
+        bash --version
+        echo '#!/bin/bash' > test.sh
+        echo 'echo "✅ Bash works"' >> test.sh
+        bash test.sh
