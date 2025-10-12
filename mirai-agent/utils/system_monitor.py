@@ -1,21 +1,26 @@
 import psutil
 import time
 
-class SystemMonitor:
-    def __init__(self, interval=1):
-        self.interval = interval
-
-    def monitor(self):
+def monitor_system(interval=1):
+    print("Monitoring system...")
+    try:
         while True:
-            cpu_usage = psutil.cpu_percent(interval=self.interval)
-            ram_usage = psutil.virtual_memory()
-            disk_usage = psutil.disk_usage('/')[3]  # 3 is the free space, 0 is total
+            # Получение информации о CPU
+            cpu_usage = psutil.cpu_percent()
+            # Получение информации о RAM
+            ram = psutil.virtual_memory()
+            ram_usage = ram.percent
+            # Получение информации о диске
+            disk = psutil.disk_usage('/')
+            disk_usage = disk.percent
 
-            print(f'CPU Usage: {cpu_usage}%')
-            print(f'RAM Usage: {ram_usage.percent}%')
-            print(f'Disk Free Space: {disk_usage}')
-            time.sleep(self.interval)
+            print(f"CPU Usage: {cpu_usage}%")
+            print(f"RAM Usage: {ram_usage}%")
+            print(f"Disk Usage: {disk_usage}%")
+            print("---")
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        print("Monitoring stopped.")
 
 if __name__ == '__main__':
-    monitor = SystemMonitor()  # 1-second interval
-    monitor.monitor()
+    monitor_system()
