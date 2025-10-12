@@ -39,12 +39,19 @@ class TelegramBot:
     def send_message(self, text: str) -> bool:
         """Отправить сообщение хозяину"""
         try:
+            logger.info(f"📤 Отправляю в Telegram: {text[:100]}...")
             url = f"{self.base_url}/sendMessage"
             data = {"chat_id": self.admin_chat_id, "text": text, "parse_mode": "HTML"}
             response = requests.post(url, json=data, timeout=10)
-            return response.status_code == 200
+            
+            if response.status_code == 200:
+                logger.info("✅ Сообщение отправлено в Telegram!")
+                return True
+            else:
+                logger.error(f"❌ Telegram API вернул код {response.status_code}: {response.text}")
+                return False
         except Exception as e:
-            logger.error(f"❌ Ошибка отправки в Telegram: {e}")
+            logger.error(f"❌ Ошибка отправки в Telegram: {e}", exc_info=True)
             return False
 
     def get_updates(self) -> List[Dict]:
@@ -72,12 +79,20 @@ class TelegramBot:
 
                         if "message" in update and "text" in update["message"]:
                             chat_id = str(update["message"]["chat"]["id"])
+                            from_user = update["message"].get("from", {})
+                            is_bot = from_user.get("is_bot", False)
+                            text = update["message"]["text"]
+                            
+                            # Фильтруем сообщения от МИРАЙ (начинаются с эмодзи бота)
+                            bot_prefixes = ["🌸", "✅", "⚠️", "🙋‍♀️", "🤔"]
+                            is_from_mirai = any(text.startswith(prefix) for prefix in bot_prefixes)
+                            
                             logger.info(
-                                f"  Chat ID: {chat_id}, Admin: {self.admin_chat_id}"
+                                f"  Chat ID: {chat_id}, Admin: {self.admin_chat_id}, is_bot: {is_bot}, from_mirai: {is_from_mirai}"
                             )
 
-                            # Только от админа
-                            if chat_id == self.admin_chat_id:
+                            # Только от админа И НЕ от МИРАЙ
+                            if chat_id == self.admin_chat_id and not is_from_mirai:
                                 messages.append(
                                     {
                                         "text": update["message"]["text"],
@@ -87,6 +102,8 @@ class TelegramBot:
                                 logger.info(
                                     f"  ✅ Сообщение от админа: {update['message']['text']}"
                                 )
+                            elif is_from_mirai:
+                                logger.info(f"  ⏭️ Пропускаю своё сообщение: {text[:50]}...")
                             else:
                                 logger.warning(
                                     f"  ⚠️ Сообщение НЕ от админа (chat_id={chat_id})"
@@ -229,9 +246,15 @@ class MiraiAutonomous:
             logger.info(f"🌸 МИРАЙ поняла: {response}")
 
             # Отвечаем хозяину
-            self.telegram.send_message(
+            logger.info("📨 Отправляю ответ хозяину...")
+            success = self.telegram.send_message(
                 f"✅ <b>Поняла!</b>\n\n{response}\n\n🔧 Начинаю выполнение..."
             )
+            
+            if success:
+                logger.info("✅ Ответ отправлен!")
+            else:
+                logger.error("❌ Не удалось отправить ответ")
 
             self.waiting_for_human = False
             self.current_task = response
