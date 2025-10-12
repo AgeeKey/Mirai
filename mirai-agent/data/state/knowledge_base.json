@@ -229,6 +229,11 @@
       "name": "Kubernetes",
       "proficiency": 0.3,
       "learned_at": "2025-10-12T17:39:58.599388"
+    },
+    {
+      "name": "Scikit-learn",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-12T18:01:56.182874"
     }
   ],
   "skills": [],
