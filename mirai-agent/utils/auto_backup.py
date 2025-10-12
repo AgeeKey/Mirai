@@ -1,31 +1,31 @@
 import os
 import shutil
-import datetime
-def create_backup(source_dirs, backup_dir):
-    # Получаем текущую дату и время для имени папки бэкапа
-    now = datetime.datetime.now()
-    backup_folder_name = now.strftime('%Y%m%d_%H%M%S')
-    backup_path = os.path.join(backup_dir, backup_folder_name)
-    os.makedirs(backup_path, exist_ok=True)
-    log_entries = []
-    
-    for source_dir in source_dirs:
-        if os.path.exists(source_dir):
-            # Копируем содержимое файловой директории в директорию бэкапа
-            dest_dir = os.path.join(backup_path, os.path.basename(source_dir))
-            shutil.copytree(source_dir, dest_dir)
-            log_entry = f'Содержимое {source_dir} успешно скопировано в {dest_dir}'
-            log_entries.append(log_entry)
-        else:
-            log_entry = f'Ошибка: {source_dir} не найден'
-            log_entries.append(log_entry)
-    
-    # Записываем лог
-    with open(os.path.join(backup_path, 'backup_log.txt'), 'w') as log_file:
-        log_file.write('\n'.join(log_entries))
-    print(f'Бэкап успешно создан в {backup_path}')
+import time
+import logging
 
-# Пример использования
-source_directories = ['/путь/к/вашему/важному/директории1', '/путь/к/вашему/важному/директории2']
-backup_directory = '/путь/к/директории/бэкапа'
-create_backup(source_directories, backup_directory)
+# Настройка логирования
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Путь к важным файлам и директории для бэкапа
+important_files = ['/path/to/important/file1', '/path/to/important/file2']
+destination_folder = '/path/to/backup/folder/'
+
+# Функция для создания бэкапа
+def backup_files(files, destination):
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+        logging.info(f'Создана директория для бэкапа: {destination}')
+    for file in files:
+        if os.path.exists(file):
+            shutil.copy(file, destination)
+            logging.info(f'Файл {file} скопирован в {destination}')
+        else:
+            logging.warning(f'Файл {file} не найден')
+
+# Основная функция
+if __name__ == '__main__':
+    while True:
+        logging.info('Запуск бэкапа...')
+        backup_files(important_files, destination_folder)
+        logging.info('Бэкап завершен. Ожидание перед следующим запуском...')
+        time.sleep(86400)  # Ожидание 24 часа
