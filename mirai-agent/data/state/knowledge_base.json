@@ -749,6 +749,11 @@
       "name": "Swift",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T17:30:05.963492"
+    },
+    {
+      "name": "Arduino",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T17:52:22.611991"
     }
   ],
   "skills": [],
