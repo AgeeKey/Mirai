@@ -2,6 +2,7 @@
 
 # Импорт необходимых библиотек
 import logging
+import asyncio
 
 # Настройка уровня логирования
 logging.basicConfig(level=logging.INFO)
@@ -31,4 +32,4 @@ async def execute_async_task(param1, param2):
     """
     # Логика выполнения задачи (например, задержка или получение данных)
     await asyncio.sleep(1)  # Имитация асинхронной задержки
-    return f'Результат выполнения асинхронной задачи: {param1} и {param2}'
+    return f'Задача выполнена с параметрами: {param1} и {param2}'
