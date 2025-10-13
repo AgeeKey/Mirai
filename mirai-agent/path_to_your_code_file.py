@@ -37,13 +37,4 @@
 # Добавлен пример использования функций для лучшего понимания
 
 if __name__ == '__main__':
-    # Вы можете использовать следующие функции:
-
-    # Загрузите данные
-    data = load_data('example_data_source')
-
-    # Обработайте данные
-    processed_data = process_data(data)
-
-    # Сохраните результаты
-    save_data(processed_data, 'example_output_file')
+    #  
