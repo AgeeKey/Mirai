@@ -22,7 +22,6 @@ async def execute_async_task(param1, param2):
     return result
 
 # Пример использования функции выполнения асинхронных задач
-# Для корректного вызова функции нужно определить param1 и param2
 param1 = 'значение 1'
 param2 = 'значение 2'
 
@@ -33,4 +32,4 @@ try:
     async_task_result = await execute_async_task(param1, param2)
     logging.info(f'Результат: {async_task_result}')
 except Exception as e:
-    logging.error(f'Произошла ошибка: {e}')
+    logging.error(f'Ошибка: {e}')  # Добавлено логирование ошибок

@@ -409,6 +409,11 @@
       "name": "Vue",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T01:55:57.008199"
+    },
+    {
+      "name": "Docker",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T02:17:56.386751"
     }
   ],
   "skills": [],
