@@ -429,6 +429,11 @@
       "name": "Docker",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T02:50:42.881289"
+    },
+    {
+      "name": "TensorFlow",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T03:12:38.121449"
     }
   ],
   "skills": [],
