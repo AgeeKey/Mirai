@@ -32,38 +32,7 @@ try:
     async_task_result = await execute_async_task(param1, param2)
     logging.info(f'Результат: {async_task_result}')
 except Exception as e:
-    logging.error(f'Ошибка при выполнении асинхронной задачи: {e}')# Код для выполнения асинхронных задач
+    logging.error(f'Ошибка: {e}') # Захват ошибок для улучшения отладки
 
-# Импортируем необходимую библиотеку
-import logging
-
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-
-# Описание функции для выполнения асинхронных задач
-async def execute_async_task(param1, param2):
-    """
-    Выполняет асинхронную задачу с заданными параметрами.
-
-    :param param1: обязательный параметр для задачи 1
-    :param param2: обязательный параметр для задачи 2
-    :return: результат выполнения асинхронной задачи
-    """
-    # Логирование
-    logging.info('Запуск асинхронной задачи...')
-    # Здесь должна быть логика выполнения задачи.
-    result = 'Результат выполнения'  # Заменить логику на реальную
-    return result
-
-# Пример использования функции выполнения асинхронных задач
-param1 = 'значение 1'
-param2 = 'значение 2'
-
-# Показать результат выполнения асинхронной задачи
-
-# Обработка ошибок
-try:
-    async_task_result = await execute_async_task(param1, param2)
-    logging.info(f'Результат: {async_task_result}')
-except Exception as e:
-    logging.error(f'Ошибка при выполнении асинхронной задачи: {e}')
+# Примерные данные могут быть выведены на экран для лучшего понимания работы
+logging.info(f'Входные данные: param1={param1}, param2={param2}')
