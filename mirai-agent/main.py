@@ -30,13 +30,10 @@ async def execute_async_task(param1, param2):
     :param param2: Второй параметр для задачи.
     :return: Результат выполнения задачи.
     """
-    # Логика выполнения задачи (например, задержка на 1 секунду для симуляции)
-    await asyncio.sleep(1) # Здесь можно написать настоящую логику
-    return f'Задача выполнена с: {param1} и {param2}'
+    # Логика выполнения задачи (например, задержка на 1 секунду)
+    await asyncio.sleep(1)
+    return f'Задача выполнена с параметрами: {param1}, {param2}'
 
-# Запуск основной функции
-async def main():
-    await execute_async_task(param1, param2)
-
+# Запускает основную асинхронную функцию.
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(execute_async_task(param1, param2))
