@@ -31,6 +31,6 @@ param2 = 'значение 2'
 # Обработка ошибок
 try:
     async_task_result = await execute_async_task(param1, param2)
-    logging.info(f'Результат: {async_task_result}')  # Добавлено логирование результата
+    logging.info(f'Результат: {async_task_result}')
 except Exception as e:
-    logging.error(f'Произошла ошибка: {e}')  # Изменения в логировании на более ясные
+    logging.error(f'Произошла ошибка: {e}')
