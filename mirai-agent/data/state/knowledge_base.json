@@ -829,6 +829,11 @@
       "name": "CI/CD",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T21:09:42.377448"
+    },
+    {
+      "name": "LangChain",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T21:31:40.454357"
     }
   ],
   "skills": [],
