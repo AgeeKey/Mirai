@@ -509,6 +509,11 @@
       "name": "Encryption",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T06:30:30.002976"
+    },
+    {
+      "name": "Solidity",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T06:52:29.805901"
     }
   ],
   "skills": [],

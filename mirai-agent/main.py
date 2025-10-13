@@ -31,7 +31,5 @@ async def execute_async_task(param1, param2):
     :return: Результат выполнения задачи.
     """
     # Логика выполнения задачи (например, задержка или получение данных)
-    pass
-# Вызов функции для выполнения задачи в асинхронном цикле
-if __name__ == '__main__':
-    asyncio.run(execute_async_task(param1, param2))
+    await asyncio.sleep(1)  # Эмуляция длительной задачи
+    return f'Результат с параметрами: {param1}, {param2}'
