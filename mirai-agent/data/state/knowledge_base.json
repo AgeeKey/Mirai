@@ -369,6 +369,11 @@
       "name": "LoRaWAN",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T00:05:38.065964"
+    },
+    {
+      "name": "Django",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T00:27:42.352752"
     }
   ],
   "skills": [],
