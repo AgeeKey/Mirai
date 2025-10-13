@@ -4,8 +4,9 @@
 Автономный анализ возможностей и планирование улучшений
 """
 
-import sys
 import os
+import sys
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,6 +18,29 @@ from core.autonomous_agent import AutonomousAgent
 
 
 def main():
+    # Проверяем аргументы командной строки
+    if len(sys.argv) > 1:
+        # Если есть аргументы - используем их как вопрос
+        user_question = " ".join(sys.argv[1:])
+
+        print("=" * 80)
+        print("🤖 МИРАЙ: ОТВЕТ НА ВОПРОС")
+        print("=" * 80)
+        print(f"\n❓ Вопрос: {user_question}\n")
+
+        agent = AutonomousAgent()
+
+        print("🤔 МИРАЙ думает...\n")
+        response = agent.think(user_question, max_iterations=3)
+
+        print("\n" + "=" * 80)
+        print("💬 ОТВЕТ МИРАЙ:")
+        print("=" * 80)
+        print(response)
+        print("\n" + "=" * 80)
+        return
+
+    # Если аргументов нет - используем стандартный режим анализа
     print("=" * 80)
     print("🤖 МИРАЙ: САМОАНАЛИЗ И ПЛАНИРОВАНИЕ")
     print("=" * 80)
