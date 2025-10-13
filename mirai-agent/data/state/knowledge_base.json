@@ -849,6 +849,11 @@
       "name": "LangChain",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T22:04:30.470804"
+    },
+    {
+      "name": "Redis",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T22:26:21.764871"
     }
   ],
   "skills": [],
