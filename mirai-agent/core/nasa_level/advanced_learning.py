@@ -213,7 +213,7 @@ What is {technology}? What problem does it solve? (3-5 sentences)
 
 Be thorough but concise. Focus on actionable information."""
         
-        research_data = self.ai.think(prompt, max_iterations=1)
+        research_data = self.ai.ask(prompt)
         
         # Better quality scoring
         quality = 0.0
@@ -252,7 +252,7 @@ Requirements:
 
 Generate ONLY the code, no explanations."""
         
-        code = self.ai.think(prompt, max_iterations=2)
+        code = self.ai.ask(prompt)
         code = self._extract_code(code)
         
         return LearningArtifact(
@@ -282,7 +282,7 @@ Generate code that fixes these issues.
 Include: imports, docstrings, type hints, error handling, comments.
 NO TODO! Code must be complete."""
         
-        code = self.ai.think(prompt, max_iterations=2)
+        code = self.ai.ask(prompt)
         code = self._extract_code(code)
         
         return LearningArtifact(

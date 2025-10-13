@@ -526,6 +526,23 @@ class AutonomousAgent:
         else:
             return f"❌ Неизвестный инструмент: {tool_name}"
 
+    def ask(self, prompt: str) -> str:
+        """Простой вопрос к AI без использования инструментов"""
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful AI assistant. Provide clear, concise, and accurate information."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7
+            )
+            content = response.choices[0].message.content
+            return content if content else "No response"
+        except Exception as e:
+            logger.error(f"❌ AI request failed: {e}")
+            return f"Error: {str(e)}"
+    
     def think(self, prompt: str, max_iterations: int = 5) -> str:
         """Основной цикл мышления агента"""
         messages = [
