@@ -729,6 +729,11 @@
       "name": "Ethereum",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T16:35:25.912615"
+    },
+    {
+      "name": "Swift",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T16:57:17.637833"
     }
   ],
   "skills": [],
