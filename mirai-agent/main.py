@@ -26,3 +26,5 @@
 # result = await execute_async_task(True, False)
 # 4. Пример с пустым входом:
 # result = await execute_async_task('', '')
+
+# Убедитесь, что обработка ошибок охватывает все возможные исключения.
