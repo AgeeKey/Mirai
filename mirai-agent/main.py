@@ -23,3 +23,10 @@
 # result = await execute_async_task('значение 1', 'значение 2')
 # 
 # Важно! Не забудьте протестировать изменения.
+# 
+# Дополнительные примеры можно добавлять ниже.
+# Например:
+# ```
+# result = await execute_async_task('example 1', 'example 2')
+# print(result)
+# ```
