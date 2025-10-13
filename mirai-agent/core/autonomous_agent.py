@@ -11,16 +11,17 @@ MIRAI - Autonomous AI Agent
 - Автономное принятие решений
 """
 
-import os
-import json
-import subprocess
-import requests
-import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from openai import OpenAI
-from dotenv import load_dotenv
 import asyncio
+import json
+import logging
+import os
+import subprocess
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import requests
+from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
@@ -46,9 +47,9 @@ class AutonomousAgent:
 
         # Новые возможности
         try:
-            from core.multi_language_executor import MultiLanguageExecutor
             from core.database_manager import DatabaseManager
             from core.github_integration import GitHubIntegration
+            from core.multi_language_executor import MultiLanguageExecutor
 
             self.multi_lang = MultiLanguageExecutor()
             self.db_manager = DatabaseManager()
@@ -532,17 +533,20 @@ class AutonomousAgent:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful AI assistant. Provide clear, concise, and accurate information."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a helpful AI assistant. Provide clear, concise, and accurate information.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
-                temperature=0.7
+                temperature=0.7,
             )
             content = response.choices[0].message.content
             return content if content else "No response"
         except Exception as e:
             logger.error(f"❌ AI request failed: {e}")
             return f"Error: {str(e)}"
-    
+
     def think(self, prompt: str, max_iterations: int = 5) -> str:
         """Основной цикл мышления агента"""
         messages = [

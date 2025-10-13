@@ -2,6 +2,7 @@
 """Debug AI Agent responses"""
 
 import sys
+
 sys.path.insert(0, "/root/mirai/mirai-agent")
 
 from core.autonomous_agent import AutonomousAgent
@@ -22,14 +23,14 @@ List 3 core features
 Show simple Python code"""
 
 print("\n🤖 Sending prompt to AI...\n")
-print("="*80)
+print("=" * 80)
 print(prompt)
-print("="*80)
+print("=" * 80)
 
 response = agent.think(prompt, max_iterations=1)
 
 print("\n📝 AI Response:")
-print("="*80)
+print("=" * 80)
 print(response)
-print("="*80)
+print("=" * 80)
 print(f"\nResponse length: {len(response)} chars")
