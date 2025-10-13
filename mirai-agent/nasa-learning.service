@@ -1,0 +1,27 @@
+[Unit]
+Description=NASA-Level Autonomous Learning Service
+After=network.target
+Documentation=https://github.com/AgeeKey/mirai
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mirai/mirai-agent
+Environment="PATH=/root/mirai/mirai-agent/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai-agent/autonomous_service.py --interval 600
+Restart=always
+RestartSec=10
+StandardOutput=append:/tmp/kaizen_mirai.log
+StandardError=append:/tmp/kaizen_mirai.log
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Limits
+LimitNOFILE=65536
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

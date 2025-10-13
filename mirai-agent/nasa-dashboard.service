@@ -1,0 +1,29 @@
+[Unit]
+Description=NASA-Level Learning Dashboard (Flask)
+After=network.target nasa-learning.service
+Documentation=https://github.com/AgeeKey/mirai
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mirai/mirai-agent
+Environment="PATH=/root/mirai/mirai-agent/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="FLASK_APP=dashboard_server.py"
+Environment="FLASK_ENV=production"
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai-agent/dashboard_server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Limits
+LimitNOFILE=65536
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
