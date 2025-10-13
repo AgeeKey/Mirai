@@ -489,6 +489,11 @@
       "name": "AWS",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T05:35:53.919648"
+    },
+    {
+      "name": "Encryption",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T05:57:37.244332"
     }
   ],
   "skills": [],
