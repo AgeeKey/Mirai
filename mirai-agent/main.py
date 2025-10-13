@@ -32,4 +32,7 @@ try:
     async_task_result = await execute_async_task(param1, param2)
     logging.info(f'Результат: {async_task_result}')
 except Exception as e:
-    logging.error(f'Произошла ошибка: {e}')
+    logging.error(f'Ошибка: {str(e)}')
+
+# Обратите внимание: функция execute_async_task не завершена, необходимо добавить логику выполнения.
+# Параметры для функции можно изменить в зависимости от потребностей!
