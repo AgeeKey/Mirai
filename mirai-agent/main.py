@@ -21,6 +21,14 @@ param2 = 'значение 2'
 # Обработка ошибок
 try:
     async_task_result = await execute_async_task(param1, param2)
+    # Запись результата в логи
     logging.info(f'Результат: {async_task_result}')
 except Exception as e:
+    # Логирование ошибок
     logging.error(f'Ошибка при выполнении асинхронной задачи: {e}')
+
+# Основная точка входа в программу, выполняющая асинхронные задачи.
+
+# Главное асинхронное выполнение
+if __name__ == '__main__':
+    pass
