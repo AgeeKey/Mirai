@@ -669,6 +669,11 @@
       "name": "MongoDB",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T13:50:53.326113"
+    },
+    {
+      "name": "Azure",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T14:12:33.821709"
     }
   ],
   "skills": [],
