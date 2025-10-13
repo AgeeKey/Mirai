@@ -32,4 +32,6 @@ try:
     async_task_result = await execute_async_task(param1, param2)
     logging.info(f'Результат: {async_task_result}')
 except Exception as e:
-    logging.error(f'Ошибка при выполнении асинхронной задачи: {e}') # Улучшение: логи ошибки
+    logging.exception('Возникла ошибка во время выполнения задачи')
+
+# Добавлен комментарий на обработку ошибок
