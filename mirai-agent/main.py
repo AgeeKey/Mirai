@@ -30,4 +30,4 @@ async def execute_async_task(param1, param2):
     :return: Результат выполнения задачи.
     """
     # Логика выполнения задачи (например, задержка или получение данных)
-    return f'{param1} и {param2} обработаны.'
+    return f'Результат выполнения задачи с {param1} и {param2}'
