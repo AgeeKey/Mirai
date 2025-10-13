@@ -869,6 +869,11 @@
       "name": "Redis",
       "proficiency": 0.3,
       "learned_at": "2025-10-13T22:59:01.458612"
+    },
+    {
+      "name": "Vercel",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-13T23:21:09.093191"
     }
   ],
   "skills": [],
