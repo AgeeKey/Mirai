@@ -26,11 +26,11 @@ async def execute_async_task(param1, param2):
 param1 = 'значение 1'
 param2 = 'значение 2'
 
+# Показать результат выполнения асинхронной задачи
+
 # Обработка ошибок
 try:
     async_task_result = await execute_async_task(param1, param2)
+    logging.info(f'Результат: {async_task_result}')  # Добавлено логирование результата
 except Exception as e:
-    logging.error(f'Произошла ошибка: {e}')  # Изменение произошло!
-
-# Примечание: Асинхронные функции должны вызываться в асинхронном контексте.
-# Убедитесь, что вы используете await в рамках async функции или event loop.
+    logging.error(f'Произошла ошибка: {e}')  # Изменения в логировании на более ясные
