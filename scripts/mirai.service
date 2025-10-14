@@ -1,0 +1,44 @@
+[Unit]
+Description=MIRAI AI Agent - Autonomous Trading and Self-Improvement System
+Documentation=https://github.com/AgeeKey/Mirai
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/mirai
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+Environment="MIRAI_MODE=autonomous"
+
+# Health check before starting
+ExecStartPre=/root/mirai/scripts/healthcheck.sh --quiet
+
+# Main service
+ExecStart=/usr/bin/python3 /root/mirai/mirai.py --mode autonomous
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=5min
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mirai
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Resource limits
+LimitNOFILE=65536
+CPUQuota=80%
+MemoryLimit=2G
+
+[Install]
+WantedBy=multi-user.target
