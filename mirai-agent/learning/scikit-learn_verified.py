@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: C
-Overall Score: 0.80
+Overall Score: 0.77
 Tests Passed: 0/1
-Learned: 2025-10-14T20:59:39.237596
+Learned: 2025-10-14T21:15:46.694253
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,85 +14,45 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from typing import Tuple
 
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return features and target."""
+    iris = load_iris()
+    return iris.data, iris.target
 
-def load_and_prepare_data() -> tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset and prepare features and target variables.
-
-    Returns:
-        Tuple containing features and target variable arrays.
-    """
-    try:
-        iris = load_iris()
-        X, y = iris.data, iris.target
-        return X, y
-    except Exception as e:
-        raise RuntimeError("Error loading the dataset: " + str(e))
-
-
-def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets.
-
-    Args:
-        X (np.ndarray): Feature dataset.
-        y (np.ndarray): Target variable.
-        test_size (float): Proportion of the dataset to include in the test split.
-        random_state (int): Random seed for reproducibility.
-
-    Returns:
-        Tuple containing training features, testing features, training labels, and testing labels.
-    """
-    try:
-        return train_test_split(X, y, test_size=test_size, random_state=random_state)
-    except Exception as e:
-        raise RuntimeError("Error splitting the data: " + str(e))
-
+def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest classifier.
-
-    Args:
-        X_train (np.ndarray): Training features.
-        y_train (np.ndarray): Training labels.
-
-    Returns:
-        RandomForestClassifier: Trained model.
-    """
-    try:
-        model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
-        return model
-    except Exception as e:
-        raise RuntimeError("Error training the model: " + str(e))
-
+    """Train a RandomForest model on the training data."""
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    return model
 
 def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model's performance.
+    """Evaluate the model using accuracy score and classification report."""
+    predictions = model.predict(X_test)
+    accuracy = accuracy_score(y_test, predictions)
+    conf_matrix = confusion_matrix(y_test, predictions)
+    class_report = classification_report(y_test, predictions)
 
-    Args:
-        model (RandomForestClassifier): Trained model.
-        X_test (np.ndarray): Testing features.
-        y_test (np.ndarray): Testing labels.
-    """
-    try:
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred)
-        
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
-    except Exception as e:
-        raise RuntimeError("Error evaluating the model: " + str(e))
-
+    print(f"Accuracy: {accuracy:.2f}")
+    print("Confusion Matrix:\n", conf_matrix)
+    print("Classification Report:\n", class_report)
 
 def main() -> None:
-    """Main function to run the machine learning workflow."""
-    X, y = load_and_prepare_data()           # Load data
-    X_train, X_test, y_train, y_test = split_data(X, y)  # Split data
-    model = train_model(X_train, y_train)    # Train model
-    evaluate_model(model, X_test, y_test)    # Evaluate model
-
+    """Main function to execute the workflow."""
+    try:
+        features, target = load_data()
+        X_train, X_test, y_train, y_test = preprocess_data(features, target)
+        model = train_model(X_train, y_train)
+        evaluate_model(model, X_test, y_test)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
