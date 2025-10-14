@@ -1,25 +1,56 @@
 #!/usr/bin/env python3
 """
-MIRAI - Unified Entry Point
-============================
+╔══════════════════════════════════════════════════════════════════════╗
+║  MIRAI - Unified Entry Point                                        ║
+║  Single Command-Line Interface for All Operational Modes           ║
+╚══════════════════════════════════════════════════════════════════════╝
 
-Единая точка входа для всех режимов работы MIRAI:
-- Terminal (интерактивный терминал)
-- Dashboard (веб-интерфейс)
-- Autonomous (автономный режим)
-- Ask (разовый вопрос)
+Version: 2.0.0
+Codename: Evolution
 
-Автор: AgeeKey + MIRAI
-Версия: 2.0.0
-Дата: 2025-10-14
+Этот файл объединяет все режимы работы MIRAI:
+- 🤖 Terminal (KAIZEN) - Interactive CLI
+- 📊 Dashboard - Web UI
+- 🔄 Autonomous - Background service
+- 💬 Ask - Single question mode
+
+Usage:
+    python3 mirai.py --mode terminal
+    python3 mirai.py --mode dashboard --port 5000
+    python3 mirai.py --mode autonomous
+    python3 mirai.py --mode ask "What is AI?"
+    python3 mirai.py --version
+    python3 mirai.py --health
 """
 
-import sys
-import os
 import argparse
 import json
+import logging
+import os
+import sys
 from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent
+mirai_agent_root = project_root / "mirai-agent"
+sys.path.insert(0, str(mirai_agent_root))
+sys.path.insert(0, str(project_root))
+
+# Import core modules
+try:
+    from core.autonomous_agent import AutonomousAgent
+    from core.config_loader import get_api_key, get_config
+except ImportError as e:
+    print(f"❌ Error: core modules not found: {e}")
+    print("Make sure you're in the mirai-agent directory")
+    sys.exit(1)
+
+import argparse
+import json
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Добавить путь к модулям
 sys.path.insert(0, str(Path(__file__).parent / "mirai-agent"))
@@ -46,12 +77,14 @@ CODENAME = "Evolution"
 
 def load_identity():
     """Загрузить информацию о MIRAI"""
-    identity_file = Path(__file__).parent / "mirai-agent" / "data" / "mirai_identity.json"
-    
+    identity_file = (
+        Path(__file__).parent / "mirai-agent" / "data" / "mirai_identity.json"
+    )
+
     if identity_file.exists():
-        with open(identity_file, 'r') as f:
+        with open(identity_file, "r") as f:
             return json.load(f)
-    
+
     # Дефолтная идентичность
     return {
         "name": "MIRAI",
@@ -64,22 +97,22 @@ def load_identity():
             "github_integration",
             "database_management",
             "long_term_memory",
-            "self_evolution"
-        ]
+            "self_evolution",
+        ],
     }
 
 
 def show_version():
     """Показать версию и информацию о MIRAI"""
     identity = load_identity()
-    
+
     print(BANNER)
     print(f"Version: {identity['version']}")
     print(f"Codename: {identity['codename']}")
     print(f"Created: {identity.get('created_at', 'Unknown')}")
     print()
     print("Capabilities:")
-    for cap in identity.get('capabilities', []):
+    for cap in identity.get("capabilities", []):
         print(f"  • {cap.replace('_', ' ').title()}")
     print()
     print("Modes:")
@@ -95,10 +128,11 @@ def run_terminal():
     print(BANNER)
     print("🌸 Starting MIRAI Terminal (KAIZEN Mode)...")
     print()
-    
+
     # Импорт и запуск kaizen_terminal
     try:
         from kaizen_terminal import KaizenTerminal
+
         terminal = KaizenTerminal()
         terminal.run()
     except ImportError as e:
@@ -110,14 +144,15 @@ def run_terminal():
         sys.exit(1)
 
 
-def run_dashboard(host='0.0.0.0', port=5000):
+def run_dashboard(host="0.0.0.0", port=5000):
     """Запустить веб-дашборд"""
     print(BANNER)
     print(f"🌸 Starting MIRAI Dashboard on http://{host}:{port}")
     print()
-    
+
     try:
         from dashboard_server import app
+
         app.run(host=host, port=port, debug=False)
     except ImportError as e:
         print(f"❌ Error: Failed to import dashboard_server: {e}")
@@ -132,9 +167,10 @@ def run_autonomous():
     print(BANNER)
     print("🌸 Starting MIRAI Autonomous Service...")
     print()
-    
+
     try:
         from autonomous_service import AutonomousService
+
         service = AutonomousService()
         service.run()
     except ImportError as e:
@@ -150,20 +186,21 @@ def ask_question(question: str):
     print(BANNER)
     print(f"🌸 Question: {question}")
     print()
-    
+
     try:
         from core.autonomous_agent import AutonomousAgent
+
         agent = AutonomousAgent()
-        
+
         print("🤔 Thinking...")
         response = agent.think(question, max_iterations=1)
-        
+
         print()
         print("🌸 MIRAI Answer:")
         print("─" * 70)
         print(response)
         print("─" * 70)
-        
+
     except ImportError as e:
         print(f"❌ Error: Failed to import AutonomousAgent: {e}")
         sys.exit(1)
@@ -178,47 +215,54 @@ def check_health():
     print("🔍 MIRAI System Health Check")
     print("=" * 70)
     print()
-    
+
     checks = []
-    
+
     # Check 1: Python version
     import sys
-    py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+
+    py_version = (
+        f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    )
     checks.append(("Python", py_version, True))
-    
+
     # Check 2: Core modules
     try:
         from core.autonomous_agent import AutonomousAgent
+
         checks.append(("Core Module", "AutonomousAgent", True))
     except:
         checks.append(("Core Module", "AutonomousAgent", False))
-    
-    # Check 3: OpenAI API Key
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        checks.append(("API Key", "Set (env)", True))
-    else:
-        # Check config file
-        config_file = Path(__file__).parent / "mirai-agent" / "configs" / "api_keys.json"
-        if config_file.exists():
-            checks.append(("API Key", "Set (config)", True))
+
+    # Check 3: OpenAI API Key (using new config loader)
+    try:
+        api_key = get_api_key()
+        if api_key:
+            source = "env" if os.getenv("OPENAI_API_KEY") else "config"
+            checks.append(("API Key", f"Set ({source})", True))
         else:
             checks.append(("API Key", "Not found", False))
-    
-    # Check 4: Memory database
-    db_file = Path(__file__).parent / "mirai-agent" / "data" / "mirai_memory.db"
-    if db_file.exists():
-        checks.append(("Memory DB", str(db_file), True))
-    else:
-        checks.append(("Memory DB", "Not initialized", False))
-    
-    # Check 5: Config file
-    config_file = Path(__file__).parent / "configs" / "mirai.yaml"
-    if config_file.exists():
-        checks.append(("Config", "mirai.yaml", True))
-    else:
-        checks.append(("Config", "Using defaults", False))
-    
+    except Exception as e:
+        checks.append(("API Key", f"Error: {e}", False))
+
+    # Check 4: Config file (new unified config)
+    try:
+        config = get_config()
+        checks.append(("Config", f"v{config.version} ({config.codename})", True))
+    except Exception as e:
+        checks.append(("Config", f"Error: {e}", False))
+
+    # Check 5: Memory database (using config)
+    try:
+        config = get_config()
+        db_file = Path(config.memory.db_path)
+        if db_file.exists():
+            checks.append(("Memory DB", str(db_file), True))
+        else:
+            checks.append(("Memory DB", "Not initialized", False))
+    except Exception as e:
+        checks.append(("Memory DB", f"Error: {e}", False))
+
     # Print results
     all_ok = True
     for name, value, status in checks:
@@ -226,7 +270,7 @@ def check_health():
         print(f"{icon} {name:20} {value}")
         if not status:
             all_ok = False
-    
+
     print()
     if all_ok:
         print("🎉 All systems operational!")
@@ -249,57 +293,42 @@ Examples:
   python3 mirai.py --mode ask "What is AI?" # Single question
   python3 mirai.py --version                # Show version
   python3 mirai.py --health                 # Health check
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        '--mode',
-        choices=['terminal', 'dashboard', 'autonomous', 'ask'],
-        help='Operation mode'
+        "--mode",
+        choices=["terminal", "dashboard", "autonomous", "ask"],
+        help="Operation mode",
     )
-    
+
+    parser.add_argument("question", nargs="?", help="Question for ask mode")
+
     parser.add_argument(
-        'question',
-        nargs='?',
-        help='Question for ask mode'
+        "--version", action="store_true", help="Show version information"
     )
-    
+
+    parser.add_argument("--health", action="store_true", help="Run health check")
+
     parser.add_argument(
-        '--version',
-        action='store_true',
-        help='Show version information'
+        "--host", default="0.0.0.0", help="Dashboard host (default: 0.0.0.0)"
     )
-    
+
     parser.add_argument(
-        '--health',
-        action='store_true',
-        help='Run health check'
+        "--port", type=int, default=5000, help="Dashboard port (default: 5000)"
     )
-    
-    parser.add_argument(
-        '--host',
-        default='0.0.0.0',
-        help='Dashboard host (default: 0.0.0.0)'
-    )
-    
-    parser.add_argument(
-        '--port',
-        type=int,
-        default=5000,
-        help='Dashboard port (default: 5000)'
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Show version
     if args.version:
         show_version()
         return 0
-    
+
     # Health check
     if args.health:
         return check_health()
-    
+
     # No mode specified
     if not args.mode:
         show_version()
@@ -307,24 +336,24 @@ Examples:
         print()
         parser.print_help()
         return 1
-    
+
     # Run modes
-    if args.mode == 'terminal':
+    if args.mode == "terminal":
         run_terminal()
-    
-    elif args.mode == 'dashboard':
+
+    elif args.mode == "dashboard":
         run_dashboard(host=args.host, port=args.port)
-    
-    elif args.mode == 'autonomous':
+
+    elif args.mode == "autonomous":
         run_autonomous()
-    
-    elif args.mode == 'ask':
+
+    elif args.mode == "ask":
         if not args.question:
             print("❌ Error: Question required for ask mode")
-            print("Example: python3 mirai.py --mode ask \"What is AI?\"")
+            print('Example: python3 mirai.py --mode ask "What is AI?"')
             return 1
         ask_question(args.question)
-    
+
     return 0
 
 
@@ -337,5 +366,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Fatal error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
