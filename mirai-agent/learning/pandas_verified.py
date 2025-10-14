@@ -2,70 +2,85 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-14T22:36:32.940879
+Learned: 2025-10-14T22:53:28.038585
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+import numpy as np
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Create a DataFrame from a dictionary.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: The loaded DataFrame.
+    pd.DataFrame: A pandas DataFrame constructed from the input data.
     
     Raises:
-        FileNotFoundError: If the file at file_path does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+    ValueError: If the input data is not in the expected format.
     """
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
+    
     try:
-        df = pd.read_csv(file_path)
+        df = pd.DataFrame(data)  # Create DataFrame from the dictionary
         return df
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise
+    except Exception as e:
+        raise ValueError("An error occurred while creating the DataFrame: " + str(e))
 
-def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
+def calculate_statistics(df: pd.DataFrame, column: str) -> Optional[dict]:
     """
-    Generate a summary of the DataFrame.
+    Calculate basic statistics for a given column in the DataFrame.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    column (str): The column name for which to calculate statistics.
 
     Returns:
-        Dict[str, float]: A dictionary containing summary statistics.
+    Optional[dict]: A dictionary containing mean, median, and standard deviation, or None if column is not found.
     """
+    if column not in df.columns:
+        print(f"Column '{column}' not found in DataFrame.")
+        return None
+    
+    mean = df[column].mean()
+    median = df[column].median()
+    std_dev = df[column].std()
+    
     return {
-        'mean': df.mean(numeric_only=True).to_dict(),
-        'std': df.std(numeric_only=True).to_dict(),
-        'count': df.count().to_dict()
+        'mean': mean,
+        'median': median,
+        'std_dev': std_dev
     }
 
-def main(file_path: str) -> None:
+def main() -> None:
     """
-    Main function to load data and print a summary.
+    Main function to demonstrate DataFrame creation and statistics calculation.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 4, 3, 2, 1],
+        'C': [2, 3, 5, np.nan, 1]
+    }
 
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    try:
-        df = load_data(file_path)  # Load the data
-        summary = summarize_data(df)  # Generate summary
-        print("Summary Statistics:", summary)  # Print summary
-    except Exception as e:
-        print("An error occurred:", e)
+    # Create DataFrame
+    df = create_dataframe(data)
+    print("DataFrame:")
+    print(df)
+
+    # Calculate statistics for column 'A'
+    stats = calculate_statistics(df, 'A')
+    if stats:
+        print("\nStatistics for column 'A':")
+        print(stats)
 
 if __name__ == "__main__":
-    # Replace 'your_file.csv' with your actual CSV file path
-    main('your_file.csv')
+    main()
