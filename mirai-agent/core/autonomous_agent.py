@@ -23,6 +23,14 @@ import requests
 from dotenv import load_dotenv
 from openai import OpenAI
 
+# Import memory manager for persistent storage
+try:
+    from core.memory_manager import MemoryManager, Message
+    MEMORY_AVAILABLE = True
+except ImportError:
+    MEMORY_AVAILABLE = False
+    logging.warning("MemoryManager not available. Running without persistent memory.")
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -31,7 +39,7 @@ logger = logging.getLogger(__name__)
 class AutonomousAgent:
     """Автономный AI агент с реальными возможностями"""
 
-    def __init__(self):
+    def __init__(self, user_id: str = "system"):
         # Загружаем API ключ из configs/api_keys.json
         import json
         from pathlib import Path
@@ -43,7 +51,22 @@ class AutonomousAgent:
         api_key = config.get("openai") or os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
-        self.memory = []  # Память агента
+        self.memory = []  # Память агента (старая, для обратной совместимости)
+        
+        # Initialize persistent memory manager
+        self.user_id = user_id
+        self.session_id = None
+        if MEMORY_AVAILABLE:
+            try:
+                self.memory_manager = MemoryManager()
+                session = self.memory_manager.create_session(user_id=user_id)
+                self.session_id = session.id  # Store session ID as string
+                logger.info(f"🧠 Memory initialized: session {self.session_id}")
+            except Exception as e:
+                logger.error(f"Failed to initialize MemoryManager: {e}")
+                self.memory_manager = None
+        else:
+            self.memory_manager = None
 
         # Новые возможности
         try:
@@ -549,6 +572,20 @@ class AutonomousAgent:
 
     def think(self, prompt: str, max_iterations: int = 5) -> str:
         """Основной цикл мышления агента"""
+        
+        # Store user message in memory
+        if self.memory_manager and self.session_id and MEMORY_AVAILABLE:
+            try:
+                user_message = Message(
+                    session_id=self.session_id,
+                    role="user",
+                    content=prompt,
+                    tokens=len(prompt.split())  # Approximate token count
+                )
+                self.memory_manager.add_message(user_message)
+            except Exception as e:
+                logger.warning(f"Failed to store user message: {e}")
+        
         messages = [
             {
                 "role": "system",
@@ -578,6 +615,9 @@ class AutonomousAgent:
             {"role": "user", "content": prompt},
         ]
 
+        final_response = ""
+        total_tokens = 0
+
         for iteration in range(max_iterations):
             logger.info(f"🤔 Итерация {iteration + 1}/{max_iterations}")
 
@@ -592,11 +632,30 @@ class AutonomousAgent:
 
                 response_message = response.choices[0].message
                 messages.append(response_message)
+                
+                # Track tokens
+                if hasattr(response, 'usage') and response.usage:
+                    total_tokens += response.usage.total_tokens
 
                 # Если нет вызовов инструментов - агент закончил
                 if not response_message.tool_calls:
-                    final_response = response_message.content
+                    final_response = response_message.content or ""
                     logger.info(f"✅ Агент завершил работу")
+                    
+                    # Store AI response in memory
+                    if self.memory_manager and self.session_id and MEMORY_AVAILABLE:
+                        try:
+                            ai_message = Message(
+                                session_id=self.session_id,
+                                role="assistant",
+                                content=final_response,
+                                tokens=total_tokens,
+                                model=self.model
+                            )
+                            self.memory_manager.add_message(ai_message)
+                        except Exception as e:
+                            logger.warning(f"Failed to store AI response: {e}")
+                    
                     return final_response
 
                 # Выполняем вызовы инструментов
