@@ -37,4 +37,9 @@
 # Добавлен пример использования функций для лучшего понимания
 
 if __name__ == '__main__':
-    # Вставить код для запуска здесь...
+    # Загрузите данные
+    data = load_data('data_source')
+    # Обработайте данные
+    processed_data = process_data(data)
+    # Сохраните результаты
+    save_data(processed_data, 'output_file')
