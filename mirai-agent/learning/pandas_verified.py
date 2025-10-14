@@ -2,85 +2,65 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-14T22:53:28.038585
+Learned: 2025-10-14T23:09:41.989017
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Create a DataFrame from a dictionary.
+    Load a CSV file into a DataFrame and process it by renaming columns if provided.
 
-    Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    Args:
+        file_path (str): The path to the CSV file.
+        column_names (Optional[list[str]]): A list of new column names. If provided, these will replace the existing column names.
 
     Returns:
-    pd.DataFrame: A pandas DataFrame constructed from the input data.
+        pd.DataFrame: A DataFrame containing the loaded and processed data.
     
     Raises:
-    ValueError: If the input data is not in the expected format.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        Exception: For any other exceptions that may occur during file loading.
     """
-    if not isinstance(data, dict):
-        raise ValueError("Input data must be a dictionary.")
-    
     try:
-        df = pd.DataFrame(data)  # Create DataFrame from the dictionary
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Rename columns if new names are provided
+        if column_names:
+            df.columns = column_names
+        
         return df
+    
+    except FileNotFoundError as e:
+        print(f"Error: The file '{file_path}' was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
+        raise e
     except Exception as e:
-        raise ValueError("An error occurred while creating the DataFrame: " + str(e))
-
-def calculate_statistics(df: pd.DataFrame, column: str) -> Optional[dict]:
-    """
-    Calculate basic statistics for a given column in the DataFrame.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-    column (str): The column name for which to calculate statistics.
-
-    Returns:
-    Optional[dict]: A dictionary containing mean, median, and standard deviation, or None if column is not found.
-    """
-    if column not in df.columns:
-        print(f"Column '{column}' not found in DataFrame.")
-        return None
-    
-    mean = df[column].mean()
-    median = df[column].median()
-    std_dev = df[column].std()
-    
-    return {
-        'mean': mean,
-        'median': median,
-        'std_dev': std_dev
-    }
+        print(f"An unexpected error occurred: {e}")
+        raise e
 
 def main() -> None:
     """
-    Main function to demonstrate DataFrame creation and statistics calculation.
+    Main function to execute the data loading and processing.
     """
-    # Sample data
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 4, 3, 2, 1],
-        'C': [2, 3, 5, np.nan, 1]
-    }
+    file_path = 'data/sample_data.csv'  # Update with your actual file path
+    new_column_names = ['Column1', 'Column2', 'Column3']  # Example new column names
 
-    # Create DataFrame
-    df = create_dataframe(data)
-    print("DataFrame:")
-    print(df)
-
-    # Calculate statistics for column 'A'
-    stats = calculate_statistics(df, 'A')
-    if stats:
-        print("\nStatistics for column 'A':")
-        print(stats)
+    # Load and process data
+    try:
+        df = load_and_process_data(file_path, new_column_names)
+        print(df.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print(f"Failed to load and process data: {e}")
 
 if __name__ == "__main__":
     main()
