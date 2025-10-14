@@ -102,3 +102,7 @@ orchestrator_status.json
 health_status.json
 mirai-agent/configs/api_keys.json
 mirai-agent/.env
+MINIMAL_MODE_README.md
+quick_start_minimal.sh
+*.key
+*_API_KEY*
