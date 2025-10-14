@@ -252,16 +252,40 @@ def check_health():
     except Exception as e:
         checks.append(("Config", f"Error: {e}", False))
 
-    # Check 5: Memory database (using config)
+    # Check 5: Memory database (using config + actual test)
     try:
+        from core.memory_manager import MemoryManager
+
         config = get_config()
         db_file = Path(config.memory.db_path)
-        if db_file.exists():
-            checks.append(("Memory DB", str(db_file), True))
-        else:
-            checks.append(("Memory DB", "Not initialized", False))
+
+        # Try to initialize memory manager
+        mm = MemoryManager(str(db_file))
+        stats = mm.get_stats()
+
+        checks.append(
+            (
+                "Memory DB",
+                f"{stats['total_sessions']} sessions, {stats['total_messages']} msgs",
+                True,
+            )
+        )
     except Exception as e:
         checks.append(("Memory DB", f"Error: {e}", False))
+
+    # Check 6: Logger (new structured logger)
+    try:
+        from core.logger import MiraiLogger
+
+        config = get_config()
+        log_path = config.monitoring.logs.get("path", "/tmp/mirai.log")
+
+        # Try to initialize logger
+        test_logger = MiraiLogger(name="healthcheck", log_file=log_path, level="INFO")
+
+        checks.append(("Logger", f"Ready ({Path(log_path).name})", True))
+    except Exception as e:
+        checks.append(("Logger", f"Error: {e}", False))
 
     # Print results
     all_ok = True
