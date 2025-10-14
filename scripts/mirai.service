@@ -14,11 +14,8 @@ WorkingDirectory=/root/mirai
 Environment="PYTHONUNBUFFERED=1"
 Environment="MIRAI_MODE=autonomous"
 
-# Health check before starting
-ExecStartPre=/root/mirai/scripts/healthcheck.sh --quiet
-
 # Main service
-ExecStart=/usr/bin/python3 /root/mirai/mirai.py --mode autonomous
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai.py --mode autonomous
 
 # Restart policy
 Restart=on-failure
@@ -38,7 +35,7 @@ PrivateTmp=true
 # Resource limits
 LimitNOFILE=65536
 CPUQuota=80%
-MemoryLimit=2G
+MemoryMax=2G
 
 [Install]
 WantedBy=multi-user.target

@@ -1,0 +1,71 @@
+name: Health Check
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  health:
+    name: System Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name: Install dependencies
+      run: |
+        cd mirai-agent
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run comprehensive health check
+      run: |
+        chmod +x scripts/healthcheck.sh
+        ./scripts/healthcheck.sh --json > health_report.json || true
+    
+    - name: Parse health results
+      run: |
+        python3 << 'EOF'
+import json
+try:
+    with open('health_report.json', 'r') as f:
+        health = json.load(f)
+    
+    print(f"🏥 Health Status: {health['overall_status']}")
+    print(f"✅ Passed: {health['summary']['passed']}/{health['summary']['total']}")
+    
+    if health['overall_status'] != 'healthy':
+        print("\n⚠️ Failed checks:")
+        for check, result in health['checks'].items():
+            if result['status'] == 'fail':
+                print(f"  - {check}: {result.get('message', 'Failed')}")
+except Exception as e:
+    print(f"❌ Error parsing health check: {e}")
+EOF
+    
+    - name: Upload health report
+      uses: actions/upload-artifact@v4
+      with:
+        name: health-report
+        path: health_report.json
+        retention-days: 30
+
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [health]
+    if: failure()
+    
+    steps:
+    - name: Send notification
+      run: |
+        echo "🚨 Health check failed!"
+        echo "Check the health report artifact for details."

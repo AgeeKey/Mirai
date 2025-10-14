@@ -1,0 +1,100 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  pre-deploy-check:
+    name: Pre-deployment Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name: Install dependencies
+      run: |
+        cd mirai-agent
+        pip install -r requirements.txt
+    
+    - name: Run health check
+      run: |
+        chmod +x scripts/healthcheck.sh
+        ./scripts/healthcheck.sh --verbose
+    
+    - name: Run all tests
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        cd mirai-agent
+        pip install pytest pytest-cov
+        pytest tests/ -v
+    
+    - name: Validate systemd service file
+      run: |
+        if [ -f "scripts/mirai.service" ]; then
+          echo "✅ Service file exists"
+          systemd-analyze verify scripts/mirai.service || echo "⚠️ Service file has warnings"
+        fi
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-check]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create deployment package
+      run: |
+        tar -czf mirai-deploy.tar.gz \
+          mirai-agent/ \
+          scripts/ \
+          mirai.py \
+          README.md \
+          LICENSE
+    
+    - name: Upload deployment artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mirai-deployment
+        path: mirai-deploy.tar.gz
+        retention-days: 90
+    
+    - name: Deployment summary
+      run: |
+        echo "🚀 Deployment package created!"
+        echo "📦 Size: $(du -h mirai-deploy.tar.gz | cut -f1)"
+        echo "🏷️ Git SHA: ${{ github.sha }}"
+        echo "👤 Author: ${{ github.actor }}"
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false

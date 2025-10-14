@@ -26,6 +26,7 @@ from openai import OpenAI
 # Import memory manager for persistent storage
 try:
     from core.memory_manager import MemoryManager, Message
+
     MEMORY_AVAILABLE = True
 except ImportError:
     MEMORY_AVAILABLE = False
@@ -52,7 +53,7 @@ class AutonomousAgent:
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
         self.memory = []  # Память агента (старая, для обратной совместимости)
-        
+
         # Initialize persistent memory manager
         self.user_id = user_id
         self.session_id = None
@@ -572,7 +573,7 @@ class AutonomousAgent:
 
     def think(self, prompt: str, max_iterations: int = 5) -> str:
         """Основной цикл мышления агента"""
-        
+
         # Store user message in memory
         if self.memory_manager and self.session_id and MEMORY_AVAILABLE:
             try:
@@ -580,12 +581,12 @@ class AutonomousAgent:
                     session_id=self.session_id,
                     role="user",
                     content=prompt,
-                    tokens=len(prompt.split())  # Approximate token count
+                    tokens=len(prompt.split()),  # Approximate token count
                 )
                 self.memory_manager.add_message(user_message)
             except Exception as e:
                 logger.warning(f"Failed to store user message: {e}")
-        
+
         messages = [
             {
                 "role": "system",
@@ -632,16 +633,16 @@ class AutonomousAgent:
 
                 response_message = response.choices[0].message
                 messages.append(response_message)
-                
+
                 # Track tokens
-                if hasattr(response, 'usage') and response.usage:
+                if hasattr(response, "usage") and response.usage:
                     total_tokens += response.usage.total_tokens
 
                 # Если нет вызовов инструментов - агент закончил
                 if not response_message.tool_calls:
                     final_response = response_message.content or ""
                     logger.info(f"✅ Агент завершил работу")
-                    
+
                     # Store AI response in memory
                     if self.memory_manager and self.session_id and MEMORY_AVAILABLE:
                         try:
@@ -650,12 +651,12 @@ class AutonomousAgent:
                                 role="assistant",
                                 content=final_response,
                                 tokens=total_tokens,
-                                model=self.model
+                                model=self.model,
                             )
                             self.memory_manager.add_message(ai_message)
                         except Exception as e:
                             logger.warning(f"Failed to store AI response: {e}")
-                    
+
                     return final_response
 
                 # Выполняем вызовы инструментов

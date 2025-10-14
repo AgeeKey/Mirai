@@ -2,12 +2,13 @@
 """Test Memory Integration"""
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from core.autonomous_agent import AutonomousAgent
 from core.memory_manager import MemoryManager
 
-print("🧪 Testing Memory Integration\n" + "="*70)
+print("🧪 Testing Memory Integration\n" + "=" * 70)
 
 agent = AutonomousAgent(user_id="test_user")
 print(f"✅ Agent created: session={agent.session_id}")
@@ -32,9 +33,9 @@ stats = mm.get_stats()
 print(f"✅ Total sessions: {stats['total_sessions']}")
 print(f"✅ Total messages: {stats['total_messages']}")
 
-print("\n" + "="*70)
+print("\n" + "=" * 70)
 print("🎉 MEMORY INTEGRATION WORKS!")
-print("="*70)
+print("=" * 70)
 print("\n📝 What's working:")
 print("  • Sessions created on agent init")
 print("  • User messages stored automatically")
