@@ -909,6 +909,11 @@
       "name": "OWASP",
       "proficiency": 0.3,
       "learned_at": "2025-10-14T00:49:20.754801"
+    },
+    {
+      "name": "DeFi",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-14T01:11:11.150680"
     }
   ],
   "skills": [],
