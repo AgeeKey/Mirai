@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-14T14:42:38.444743
+Learned: 2025-10-14T14:59:02.827695
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,56 +13,55 @@ import pandas as pd
 from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
-    """Load data from a CSV file into a DataFrame.
+    """
+    Load data from a CSV file into a DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
+    Optional[pd.DataFrame]: A DataFrame containing the loaded data or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean the DataFrame by dropping missing values.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    cleaned_df = df.dropna()  # Drop rows with any missing values
-    return cleaned_df
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+    except pd.errors.ParserError:
+        print("Error: There was an error parsing the file.")
+    return None
 
 def analyze_data(df: pd.DataFrame) -> None:
-    """Perform basic analysis on the DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
     """
-    print("Data Summary:")
-    print(df.describe())  # Print a summary of the DataFrame
-    print("\nData Types:")
-    print(df.dtypes)  # Print the data types of each column
+    Perform basic analysis on the DataFrame.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    """
+    if df is None or df.empty:
+        print("DataFrame is empty or None. Cannot perform analysis.")
+        return
+
+    # Display basic information about the DataFrame
+    print("DataFrame Information:")
+    print(df.info())
+    
+    # Display the first five rows of the DataFrame
+    print("\nFirst 5 rows of the DataFrame:")
+    print(df.head())
 
 def main(file_path: str) -> None:
-    """Main function to load, clean, and analyze data.
+    """
+    Main function to load and analyze data.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file to load.
     """
     df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        analyze_data(cleaned_df)
+    analyze_data(df)
 
 if __name__ == "__main__":
-    # Example file path; replace with your actual file path
-    example_file_path = "example_data.csv"
-    main(example_file_path)
+    # Change 'your_file.csv' to the actual path of your CSV file
+    main('your_file.csv')
