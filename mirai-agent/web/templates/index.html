@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 NASA-Level Learning Dashboard</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #1f2937;
+            --card-bg: #ffffff;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-container {
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+        
+        .progress-custom {
+            height: 25px;
+            border-radius: 10px;
+        }
+        
+        .badge-custom {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .tech-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .tech-item {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s;
+        }
+        
+        .tech-item:hover {
+            background: #f9fafb;
+        }
+        
+        .log-viewer {
+            background: #1f2937;
+            color: #10b981;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .btn-custom {
+            border-radius: 20px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-healthy {
+            background: var(--success-color);
+            box-shadow: 0 0 10px var(--success-color);
+        }
+        
+        .status-warning {
+            background: var(--warning-color);
+            box-shadow: 0 0 10px var(--warning-color);
+        }
+        
+        .status-error {
+            background: var(--danger-color);
+            box-shadow: 0 0 10px var(--danger-color);
+        }
+        
+        .loader {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-rocket-takeoff"></i> NASA-Level Learning Dashboard
+            </span>
+            <div class="d-flex align-items-center">
+                <span class="me-3 text-white-50" id="last-update">Обновление...</span>
+                <span class="status-indicator status-healthy" id="system-status"></span>
+                <span class="text-white ms-2" id="system-status-text">Онлайн</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value" id="total-learned">0</div>
+                    <div class="stat-label">Изучено технологий</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value text-success" id="success-rate">0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value text-warning" id="avg-proficiency">0%</div>
+                    <div class="stat-label">Средняя Профессиональность</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value text-info" id="active-tasks">0</div>
+                    <div class="stat-label">Активные задачи</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row g-3">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- Learning Control -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-play-circle"></i> Управление Обучением
+                    </div>
+                    <div class="card-body">
+                        <form id="learn-form">
+                            <div class="mb-3">
+                                <label class="form-label">Технология</label>
+                                <input type="text" class="form-control" id="tech-input" 
+                                       placeholder="Например: pandas, numpy, fastapi" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Глубина</label>
+                                    <select class="form-select" id="depth-select">
+                                        <option value="basic">Basic</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Приоритет</label>
+                                    <select class="form-select" id="priority-select">
+                                        <option value="LOW">Low</option>
+                                        <option value="NORMAL" selected>Normal</option>
+                                        <option value="HIGH">High</option>
+                                        <option value="CRITICAL">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-custom w-100">
+                                <i class="bi bi-rocket-takeoff"></i> Начать Обучение
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Active Tasks -->
+                <div class="card mt-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-list-task"></i> Активные Задачи</span>
+                        <button class="btn btn-sm btn-light" onclick="refreshTasks()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="tasks-container">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="bi bi-graph-up"></i> Метрики Обучения
+                    </div>
+                    <div class="card-body">
+                        <canvas id="proficiency-chart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <!-- Knowledge Browser -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-book"></i> База Знаний</span>
+                        <input type="text" class="form-control form-control-sm w-50" 
+                               id="search-input" placeholder="Поиск...">
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="tech-list" id="knowledge-list">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Rate Chart -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="bi bi-pie-chart"></i> Распределение Качества
+                    </div>
+                    <div class="card-body">
+                        <canvas id="quality-chart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Logs Viewer -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="bi bi-terminal"></i> Логи Системы
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="log-viewer" id="log-viewer">
+                            <div>Инициализация логов...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dashboard JS -->
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
