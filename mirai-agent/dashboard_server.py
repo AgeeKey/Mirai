@@ -15,7 +15,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 from modules.learning_api import TaskStatus, get_task_manager
 
-app = Flask(__name__, template_folder="../web/templates", static_folder="../web/static")
+app = Flask(__name__, template_folder="web/templates", static_folder="web/static")
 CORS(app)
 
 # Task manager для real-time learning
