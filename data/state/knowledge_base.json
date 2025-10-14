@@ -219,6 +219,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8779808924451235,
       "learned_at": "2025-10-14T20:10:48.128714"
+    },
+    {
+      "name": "Beautiful Soup",
+      "proficiency": 0.8110758587741665,
+      "learned_at": "2025-10-14T20:26:30.797607"
+    },
+    {
+      "name": "Selenium",
+      "proficiency": 0.8687657000937379,
+      "learned_at": "2025-10-14T20:27:05.383917"
     }
   ],
   "skills": [],
