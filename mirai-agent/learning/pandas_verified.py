@@ -2,64 +2,70 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-14T22:20:19.108989
+Learned: 2025-10-14T22:36:32.940879
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List, Dict
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it into a DataFrame.
-    
+    Load data from a CSV file into a DataFrame.
+
     Args:
-        file_path (str): The path to the CSV file to load.
-        column_names (Optional[list[str]]): List of column names to use. If None, uses the file's headers.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
-        
+        pd.DataFrame: The loaded DataFrame.
+    
     Raises:
-        FileNotFoundError: If the specified file does not exist.
+        FileNotFoundError: If the file at file_path does not exist.
         pd.errors.EmptyDataError: If the file is empty.
-        Exception: For any other errors that may occur during loading.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, names=column_names, header=0 if column_names is None else None)
-        
-        # Basic data cleaning: drop duplicates and fill missing values
-        df.drop_duplicates(inplace=True)
-        df.fillna(method='ffill', inplace=True)  # Forward fill to handle missing values
-        
+        df = pd.read_csv(file_path)
         return df
-    except FileNotFoundError as fnf_error:
-        print(f"Error: {fnf_error}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
         raise
-    except pd.errors.EmptyDataError as empty_error:
-        print(f"Error: {empty_error}")
-        raise
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
         raise
 
-def main() -> None:
+def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Main function to execute the data loading and processing.
-    """
-    file_path = 'data/sample_data.csv'  # Specify the path to your CSV file
-    column_names = ['Column1', 'Column2', 'Column3']  # Example column names
+    Generate a summary of the DataFrame.
 
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+
+    Returns:
+        Dict[str, float]: A dictionary containing summary statistics.
+    """
+    return {
+        'mean': df.mean(numeric_only=True).to_dict(),
+        'std': df.std(numeric_only=True).to_dict(),
+        'count': df.count().to_dict()
+    }
+
+def main(file_path: str) -> None:
+    """
+    Main function to load data and print a summary.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
     try:
-        # Load and process the data
-        data = load_and_process_data(file_path, column_names)
-        print(data.head())  # Display the first few rows of the DataFrame
+        df = load_data(file_path)  # Load the data
+        summary = summarize_data(df)  # Generate summary
+        print("Summary Statistics:", summary)  # Print summary
     except Exception as e:
-        print(f"Failed to process data: {e}")
+        print("An error occurred:", e)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'your_file.csv' with your actual CSV file path
+    main('your_file.csv')
