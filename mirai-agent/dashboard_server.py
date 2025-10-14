@@ -5,14 +5,31 @@ Flask backend for real-time CI/CD metrics visualization
 
 import json
 from pathlib import Path
+import asyncio
+import threading
 
 from core.cicd_monitor import CICDMonitor
 from core.nasa_level.orchestrator import NASALearningOrchestrator
-from flask import Flask, jsonify, render_template, send_from_directory
+from core.nasa_level.learning_pipeline import Priority
+from modules.learning_api import get_task_manager, TaskStatus
+from flask import Flask, jsonify, render_template, send_from_directory, request
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder="../web/templates", static_folder="../web/static")
 CORS(app)
+
+# Task manager для real-time learning
+task_manager = get_task_manager()
+
+# Запускаем task manager в отдельном потоке
+def start_task_manager():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(task_manager.start())
+    loop.run_forever()
+
+task_manager_thread = threading.Thread(target=start_task_manager, daemon=True)
+task_manager_thread.start()
 
 # Load GitHub config
 config_path = Path(__file__).parent / "configs" / "api_keys.json"
@@ -97,12 +114,186 @@ def report():
 # 🚀 NASA-LEVEL LEARNING SYSTEM ENDPOINTS
 # ============================================================================
 
+# ============================================================================
+# 📡 REAL-TIME LEARNING API
+# ============================================================================
+
+
+@app.route("/api/nasa/learn", methods=["POST"])
+def nasa_learn():
+    """
+    Start a new learning task
+    
+    Body: {
+        "technology": str,
+        "depth": str (optional, default="basic"),
+        "priority": str (optional, default="normal")
+    }
+    
+    Returns: {
+        "success": bool,
+        "task_id": str,
+        "message": str
+    }
+    """
+    try:
+        data = request.json
+        if not data or "technology" not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing 'technology' in request body"
+            }), 400
+        
+        technology = data["technology"]
+        depth = data.get("depth", "basic")
+        priority_str = data.get("priority", "normal").upper()
+        
+        # Parse priority
+        try:
+            priority = Priority[priority_str]
+        except KeyError:
+            return jsonify({
+                "success": False,
+                "error": f"Invalid priority '{priority_str}'. Use: CRITICAL, HIGH, NORMAL, LOW"
+            }), 400
+        
+        # Add task
+        task_id = task_manager.add_task(technology, depth, priority)
+        
+        return jsonify({
+            "success": True,
+            "task_id": task_id,
+            "message": f"Learning task for '{technology}' created successfully"
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/learn/<task_id>", methods=["GET"])
+def nasa_learn_status(task_id):
+    """
+    Get status of a learning task
+    
+    Returns: {
+        "success": bool,
+        "task": {
+            "task_id": str,
+            "technology": str,
+            "status": str,
+            "progress": int,
+            "result": dict,
+            ...
+        }
+    }
+    """
+    try:
+        task = task_manager.get_task(task_id)
+        if not task:
+            return jsonify({
+                "success": False,
+                "error": f"Task '{task_id}' not found"
+            }), 404
+        
+        return jsonify({
+            "success": True,
+            "task": task.to_dict()
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/tasks", methods=["GET"])
+def nasa_tasks():
+    """
+    Get all learning tasks
+    
+    Query params:
+        - status: filter by status (pending, running, completed, failed)
+        - limit: max number of tasks to return
+    
+    Returns: {
+        "success": bool,
+        "tasks": [...],
+        "stats": {...}
+    }
+    """
+    try:
+        # Get filters
+        status_filter = request.args.get("status")
+        limit = request.args.get("limit", type=int)
+        
+        # Get all tasks
+        all_tasks = task_manager.get_all_tasks()
+        
+        # Filter by status
+        if status_filter:
+            status_enum = TaskStatus(status_filter.lower())
+            filtered_tasks = [t for t in all_tasks if t.status == status_enum]
+        else:
+            filtered_tasks = all_tasks
+        
+        # Sort by created_at (newest first)
+        filtered_tasks.sort(key=lambda t: t.created_at, reverse=True)
+        
+        # Limit
+        if limit:
+            filtered_tasks = filtered_tasks[:limit]
+        
+        # Convert to dict
+        tasks_data = [t.to_dict() for t in filtered_tasks]
+        
+        # Get stats
+        stats = task_manager.get_stats()
+        
+        return jsonify({
+            "success": True,
+            "tasks": tasks_data,
+            "stats": stats
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/learn/<task_id>", methods=["DELETE"])
+def nasa_cancel_task(task_id):
+    """
+    Cancel a learning task
+    
+    Returns: {
+        "success": bool,
+        "message": str
+    }
+    """
+    try:
+        cancelled = task_manager.cancel_task(task_id)
+        if cancelled:
+            return jsonify({
+                "success": True,
+                "message": f"Task '{task_id}' cancelled successfully"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"Task '{task_id}' cannot be cancelled (not found or already completed)"
+            }), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ============================================================================
+# 📊 NASA SYSTEM STATUS & KNOWLEDGE
+# ============================================================================
+
 
 @app.route("/api/nasa/status")
 def nasa_status():
     """Get NASA learning system status"""
     try:
         status = nasa_learning.get_status()
+        
+        # Add task manager stats
+        status["task_manager"] = task_manager.get_stats()
+        
         return jsonify({"success": True, "data": status})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
