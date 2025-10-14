@@ -4,56 +4,81 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-14T20:42:47.982467
+Learned: 2025-10-14T20:58:48.906380
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Dict, Any
+from pandas import DataFrame
+from typing import Optional
 
-def create_dataframe(data: Dict[str, Any]) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load data from a CSV file into a DataFrame.
 
-    Parameters:
-    data (Dict[str, Any]): A dictionary where keys are column names and values are lists of column values.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame constructed from the provided data.
-
-    Raises:
-    ValueError: If the input data is not a dictionary or if columns have different lengths.
-    """
-    if not isinstance(data, dict):
-        raise ValueError("Input data must be a dictionary.")
-
-    column_lengths = [len(v) for v in data.values()]
-    if len(set(column_lengths)) != 1:
-        raise ValueError("All columns must have the same number of values.")
-
-    return pd.DataFrame(data)
-
-def main() -> None:
-    """
-    Main function to execute the DataFrame creation and display.
+        Optional[DataFrame]: A DataFrame containing the loaded data, or None if loading fails.
     """
     try:
-        # Sample data to create DataFrame
-        data = {
-            'Name': ['Alice', 'Bob', 'Charlie'],
-            'Age': [25, 30, 35],
-            'City': ['New York', 'Los Angeles', 'Chicago']
-        }
-        
-        # Create DataFrame
-        df = create_dataframe(data)
-        
-        # Display the DataFrame
-        print(df)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: No data found in the file.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: Could not parse the file.")
+        return None
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+def clean_data(df: DataFrame) -> DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and duplicates.
+
+    Args:
+        df (DataFrame): The DataFrame to clean.
+
+    Returns:
+        DataFrame: A cleaned DataFrame.
+    """
+    # Drop rows with any missing values
+    df_cleaned = df.dropna()
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+    return df_cleaned
+
+def analyze_data(df: DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame and print summary statistics.
+
+    Args:
+        df (DataFrame): The DataFrame to analyze.
+    """
+    print("Data Summary:")
+    print(df.describe())  # Summary statistics
+    print("\nData Types:")
+    print(df.dtypes)      # Data types of columns
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data.
+
+    Args:
+        file_path (str): The path to the CSV file to process.
+    """
+    # Load the data
+    data = load_data(file_path)
+    if data is not None:
+        # Clean the data
+        cleaned_data = clean_data(data)
+        # Analyze the cleaned data
+        analyze_data(cleaned_data)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'your_file.csv' with the path to your CSV file
+    main('your_file.csv')
