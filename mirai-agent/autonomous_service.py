@@ -4,14 +4,14 @@
 Работают автономно в фоне, результаты в логи + web dashboard
 """
 
-import sys
-import time
 import json
 import logging
-from pathlib import Path
-from datetime import datetime
-import signal
 import os
+import signal
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
 
 sys.path.insert(0, "/root/mirai/mirai-agent")
 
@@ -81,7 +81,7 @@ class AutonomousService:
     def autonomous_learning(self):
         """Автономное обучение через NASA-Level систему"""
         logger.info("🎓 Запуск автономного обучения...")
-        
+
         # Получаем рекомендации от MIRAI о том, что изучить
         question = """
         Ты МИРАЙ. Выбери 1-2 Python библиотеки, которые стоит изучить сейчас.
@@ -90,25 +90,25 @@ class AutonomousService:
         Формат ответа: просто названия библиотек через запятую.
         Например: prometheus-client, aiohttp
         """
-        
+
         mirai_recommendation = self.consult_mirai(question)
         logger.info(f"📚 МИРАЙ рекомендует изучить: {mirai_recommendation}")
-        
+
         # Парсим рекомендации
         technologies = [t.strip() for t in mirai_recommendation.split(",")[:2]]
-        
+
         # KAIZEN изучает каждую технологию
         for tech in technologies:
             # Очищаем название от лишних символов
             tech = tech.strip().strip("'\"").strip()
             if not tech or len(tech) > 50:
                 continue
-                
+
             logger.info(f"🚀 КАЙДЗЕН начинает изучение: {tech}")
-            
+
             try:
                 result = self.nasa_learning.learn_technology(tech, depth="basic")
-                
+
                 if result.success:
                     logger.info(f"✅ Успешно изучил {tech}!")
                     logger.info(f"   📊 Профессиональность: {result.proficiency:.1f}%")
@@ -117,19 +117,23 @@ class AutonomousService:
                 else:
                     error_msg = result.errors[0] if result.errors else "Unknown error"
                     logger.warning(f"⚠️  Не удалось изучить {tech}: {error_msg}")
-                    
+
             except Exception as e:
                 logger.error(f"❌ Ошибка при изучении {tech}: {e}")
-        
+
         # Показываем статистику обучения
         status = self.nasa_learning.get_status()
         kb_stats = status.get("knowledge", {})
         metrics_summary = status.get("metrics", {})
-        
+
         logger.info(f"📊 Статистика обучения:")
-        logger.info(f"   • Всего изучено: {kb_stats.get('total_entries', 0)} технологий")
+        logger.info(
+            f"   • Всего изучено: {kb_stats.get('total_entries', 0)} технологий"
+        )
         logger.info(f"   • Success rate: {metrics_summary.get('success_rate', 0):.1f}%")
-        logger.info(f"   • Средняя профессиональность: {kb_stats.get('average_proficiency', 0):.1f}%")
+        logger.info(
+            f"   • Средняя профессиональность: {kb_stats.get('average_proficiency', 0):.1f}%"
+        )
 
     def autonomous_cycle(self):
         """Один цикл автономной работы"""
@@ -217,7 +221,7 @@ class AutonomousService:
             if self.cycle_count % 3 == 0:
                 logger.info("🎓 Время для автономного обучения...")
                 self.autonomous_learning()
-            
+
             # 4. Каждые 5 циклов - спрашиваем MIRAI что улучшить
             if self.cycle_count % 5 == 0:
                 logger.info("💭 Время для планирования улучшений...")

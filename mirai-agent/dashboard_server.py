@@ -3,12 +3,13 @@
 Flask backend for real-time CI/CD metrics visualization
 """
 
-from flask import Flask, jsonify, render_template, send_from_directory
-from flask_cors import CORS
 import json
 from pathlib import Path
+
 from core.cicd_monitor import CICDMonitor
 from core.nasa_level.orchestrator import NASALearningOrchestrator
+from flask import Flask, jsonify, render_template, send_from_directory
+from flask_cors import CORS
 
 app = Flask(__name__, template_folder="../web/templates", static_folder="../web/static")
 CORS(app)

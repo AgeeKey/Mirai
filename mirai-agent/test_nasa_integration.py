@@ -9,8 +9,9 @@
 
 import sys
 import time
-import requests
 from pathlib import Path
+
+import requests
 
 sys.path.insert(0, "/root/mirai/mirai-agent")
 
@@ -53,8 +54,8 @@ def main():
     test_header("TEST 1: Проверка импортов и инициализации")
 
     try:
-        from core.nasa_level.orchestrator import NASALearningOrchestrator
         from core.autonomous_agent import AutonomousAgent
+        from core.nasa_level.orchestrator import NASALearningOrchestrator
 
         results.append(
             test_result("Импорт NASALearningOrchestrator", True, "Модуль найден")
@@ -66,7 +67,9 @@ def main():
     try:
         print("\n🚀 Инициализация NASA-Level системы...")
         nasa = NASALearningOrchestrator()
-        results.append(test_result("Инициализация Orchestrator", True, "Создан успешно"))
+        results.append(
+            test_result("Инициализация Orchestrator", True, "Создан успешно")
+        )
     except Exception as e:
         results.append(test_result("Инициализация Orchestrator", False, str(e)))
         return
@@ -146,9 +149,7 @@ def main():
     # ========================================================================
     test_header("TEST 5: Dashboard Endpoints (опционально)")
 
-    print(
-        "\n⚠️  Этот тест требует запущенный dashboard_server.py"
-    )
+    print("\n⚠️  Этот тест требует запущенный dashboard_server.py")
     print("   Пропускаем если сервер не запущен...\n")
 
     dashboard_url = "http://localhost:5000"
@@ -171,7 +172,9 @@ def main():
                     success = resp.status_code == 200 and resp.json().get("success")
                     results.append(
                         test_result(
-                            f"Endpoint {endpoint}", success, f"Status: {resp.status_code}"
+                            f"Endpoint {endpoint}",
+                            success,
+                            f"Status: {resp.status_code}",
                         )
                     )
                 except Exception as e:
@@ -272,9 +275,7 @@ def main():
         )
         return 0
     elif success_rate >= 75:
-        print(
-            f"\n{YELLOW}⚠️  Большинство тестов прошло, но есть проблемы{RESET}"
-        )
+        print(f"\n{YELLOW}⚠️  Большинство тестов прошло, но есть проблемы{RESET}")
         return 1
     else:
         print(f"\n{RED}❌ КРИТИЧЕСКИЕ ОШИБКИ! Проверьте логи выше.{RESET}")
