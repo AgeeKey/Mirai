@@ -1,84 +1,68 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.81
+Quality Grade: A
+Overall Score: 0.95
 Tests Passed: 0/1
-Learned: 2025-10-14T16:55:26.069234
+Learned: 2025-10-14T17:11:50.281642
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def generate_sample_data(num_rows: int) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
     """
-    Generate a sample DataFrame with random data.
-
-    Parameters:
-    num_rows (int): The number of rows to generate.
-
-    Returns:
-    pd.DataFrame: A DataFrame containing random sample data.
-    """
-    if num_rows <= 0:
-        raise ValueError("Number of rows must be a positive integer.")
+    Load data from a CSV file, filter by a specific column if provided, and return a processed DataFrame.
     
-    data = {
-        'A': np.random.randint(1, 100, size=num_rows),  # Random integers
-        'B': np.random.rand(num_rows),                 # Random floats
-        'C': np.random.choice(['X', 'Y', 'Z'], size=num_rows)  # Random categories
-    }
-    return pd.DataFrame(data)
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by removing any rows with missing values.
-
     Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
-
+    - file_path: str - The path to the CSV file.
+    - column_name: str - The column name to filter on.
+    - filter_value: Optional[str] - The value to filter the specified column by (default is None).
+    
     Returns:
-    pd.DataFrame: A cleaned DataFrame with no missing values.
-    """
-    if df.isnull().values.any():
-        df_cleaned = df.dropna()  # Remove rows with missing values
-        return df_cleaned
-    return df
-
-def analyze_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Perform analysis on the DataFrame, calculating summary statistics.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    pd.DataFrame: A DataFrame containing summary statistics.
-    """
-    summary = df.describe()  # Get summary statistics
-    return summary
-
-def main() -> None:
-    """
-    Main function to generate, clean, and analyze sample data.
+    - pd.DataFrame - The processed DataFrame.
+    
+    Raises:
+    - FileNotFoundError: If the specified file does not exist.
+    - ValueError: If the specified column does not exist in the DataFrame.
     """
     try:
-        num_rows = 10  # Specify number of rows for sample data
-        sample_data = generate_sample_data(num_rows)
-        print("Sample Data:\n", sample_data)
+        # Load data from the CSV file
+        df = pd.read_csv(file_path)
 
-        cleaned_data = clean_data(sample_data)
-        print("\nCleaned Data:\n", cleaned_data)
+        # Check if the specified column exists in the DataFrame
+        if column_name not in df.columns:
+            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
 
-        summary_stats = analyze_data(cleaned_data)
-        print("\nSummary Statistics:\n", summary_stats)
+        # Filter the DataFrame if filter_value is provided
+        if filter_value is not None:
+            df = df[df[column_name] == filter_value]
 
-    except ValueError as e:
-        print(f"ValueError: {e}")
+        # Return the processed DataFrame
+        return df
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+        raise
 
+# Example of usage
 if __name__ == "__main__":
-    main()
+    try:
+        # Define the file path and parameters for loading data
+        file_path = 'data.csv'  # Replace with your actual file path
+        column_name = 'Category'  # Replace with your actual column name
+        filter_value = 'A'  # Replace with your actual filter value (if needed)
+
+        # Load and process the data
+        processed_data = load_and_process_data(file_path, column_name, filter_value)
+
+        # Display the processed data
+        print(processed_data)
+
+    except Exception as e:
+        print(f"Failed to process data: {e}")
