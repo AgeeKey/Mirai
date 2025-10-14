@@ -949,6 +949,11 @@
       "name": "Expo",
       "proficiency": 0.3,
       "learned_at": "2025-10-14T02:39:30.527701"
+    },
+    {
+      "name": "MQTT",
+      "proficiency": 0.3,
+      "learned_at": "2025-10-14T02:50:33.508215"
     }
   ],
   "skills": [],
