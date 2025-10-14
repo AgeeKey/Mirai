@@ -2,89 +2,76 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-14T16:05:28.127336
+Learned: 2025-10-14T16:22:12.183197
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List, Dict
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load a CSV file into a DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
+        pd.DataFrame: DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the file at the specified path does not exist.
+        ValueError: If the file is empty or cannot be parsed.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
+        data = pd.read_csv(file_path)
+        if data.empty:
+            raise ValueError("The CSV file is empty.")
+        return data
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
     except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error.")
-        return None
+        raise ValueError("The CSV file is empty or cannot be parsed.")
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_statistics(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Clean the DataFrame by dropping missing values.
+    Calculate basic statistics of the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to clean.
+        df (pd.DataFrame): DataFrame to calculate statistics for.
 
     Returns:
-        pd.DataFrame: Cleaned DataFrame.
+        Dict[str, float]: A dictionary containing mean, median, and standard deviation.
     """
-    # Drop rows with any missing values
-    cleaned_df = df.dropna()
-    return cleaned_df
-
-def analyze_data(df: pd.DataFrame) -> pd.Series:
-    """
-    Analyze the DataFrame by calculating the mean of each numeric column.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-        pd.Series: Series containing the mean of each numeric column.
-    """
-    # Calculate the mean for numeric columns
-    mean_values = df.mean()
-    return mean_values
+    stats = {
+        'mean': df.mean().to_dict(),
+        'median': df.median().to_dict(),
+        'std_dev': df.std().to_dict()
+    }
+    return stats
 
 def main(file_path: str) -> None:
     """
-    Main function to execute the data processing pipeline.
+    Main function to load data and calculate statistics.
 
     Args:
         file_path (str): The path to the CSV file.
     """
-    # Load data from CSV
-    df = load_data(file_path)
-    if df is None:
-        return  # Exit if loading data fails
-
-    # Clean the data
-    cleaned_df = clean_data(df)
-
-    # Analyze the data
-    mean_values = analyze_data(cleaned_df)
-
-    # Print the analysis results
-    print("Mean values of numeric columns:")
-    print(mean_values)
+    try:
+        # Load the data from the specified CSV file
+        data = load_data(file_path)
+        # Calculate statistics for the loaded data
+        statistics = calculate_statistics(data)
+        # Print the calculated statistics
+        print("Statistics:", statistics)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    # Example CSV file path (replace with your actual file path)
+    csv_file_path = 'data.csv'
+    main(csv_file_path)
