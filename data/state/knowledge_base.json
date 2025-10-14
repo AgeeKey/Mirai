@@ -169,6 +169,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8987143409945287,
       "learned_at": "2025-10-14T18:49:48.229423"
+    },
+    {
+      "name": "Selenium",
+      "proficiency": 0.9295558240801763,
+      "learned_at": "2025-10-14T19:05:34.929148"
+    },
+    {
+      "name": "FastAPI",
+      "proficiency": 0.6811381197751717,
+      "learned_at": "2025-10-14T19:06:06.993696"
     }
   ],
   "skills": [],
