@@ -1,68 +1,81 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.95
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-14T17:11:50.281642
+Learned: 2025-10-14T17:28:13.197019
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
+from typing import Optional, Tuple
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: np.ndarray, columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file, filter by a specific column if provided, and return a processed DataFrame.
-    
-    Parameters:
-    - file_path: str - The path to the CSV file.
-    - column_name: str - The column name to filter on.
-    - filter_value: Optional[str] - The value to filter the specified column by (default is None).
-    
+    Create a pandas DataFrame from a numpy array.
+
+    Args:
+        data (np.ndarray): The data to be converted into a DataFrame.
+        columns (Optional[list]): List of column names for the DataFrame. Default is None.
+
     Returns:
-    - pd.DataFrame - The processed DataFrame.
-    
+        pd.DataFrame: A DataFrame containing the input data.
+
     Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - ValueError: If the specified column does not exist in the DataFrame.
+        ValueError: If data is empty or not a 2D numpy array.
     """
+    if data.size == 0:
+        raise ValueError("Input data cannot be empty.")
+    if len(data.shape) != 2:
+        raise ValueError("Input data must be a 2D numpy array.")
+
+    return pd.DataFrame(data, columns=columns)
+
+def calculate_statistics(df: pd.DataFrame) -> Tuple[float, float]:
+    """
+    Calculate the mean and standard deviation of each numeric column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        Tuple[float, float]: A tuple containing the mean and standard deviation.
+
+    Raises:
+        ValueError: If the DataFrame is empty or has no numeric columns.
+    """
+    if df.empty:
+        raise ValueError("Input DataFrame cannot be empty.")
+
+    means = df.mean()
+    std_devs = df.std()
+    
+    return means.mean(), std_devs.mean()
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and statistical calculation.
+    """
+    # Example data
+    data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    columns = ['A', 'B', 'C']
+
+    # Create DataFrame
     try:
-        # Load data from the CSV file
-        df = pd.read_csv(file_path)
+        df = create_dataframe(data, columns)
+        print("DataFrame created successfully:")
+        print(df)
 
-        # Check if the specified column exists in the DataFrame
-        if column_name not in df.columns:
-            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-
-        # Filter the DataFrame if filter_value is provided
-        if filter_value is not None:
-            df = df[df[column_name] == filter_value]
-
-        # Return the processed DataFrame
-        return df
-
-    except FileNotFoundError as e:
+        # Calculate statistics
+        mean, std_dev = calculate_statistics(df)
+        print(f"Mean of numeric columns: {mean}")
+        print(f"Standard deviation of numeric columns: {std_dev}")
+        
+    except ValueError as e:
         print(f"Error: {e}")
-        raise
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        raise
 
-# Example of usage
 if __name__ == "__main__":
-    try:
-        # Define the file path and parameters for loading data
-        file_path = 'data.csv'  # Replace with your actual file path
-        column_name = 'Category'  # Replace with your actual column name
-        filter_value = 'A'  # Replace with your actual filter value (if needed)
-
-        # Load and process the data
-        processed_data = load_and_process_data(file_path, column_name, filter_value)
-
-        # Display the processed data
-        print(processed_data)
-
-    except Exception as e:
-        print(f"Failed to process data: {e}")
+    main()
