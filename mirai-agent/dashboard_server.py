@@ -13,6 +13,7 @@ from core.nasa_level.learning_pipeline import Priority
 from core.nasa_level.orchestrator import NASALearningOrchestrator
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
+from modules.analytics_engine import get_analytics_engine
 from modules.learning_api import TaskStatus, get_task_manager
 
 app = Flask(__name__, template_folder="web/templates", static_folder="web/static")
@@ -46,6 +47,9 @@ monitor = CICDMonitor(
 
 # Initialize NASA-Level Learning System
 nasa_learning = NASALearningOrchestrator()
+
+# Initialize Analytics Engine
+analytics = get_analytics_engine()
 
 
 @app.route("/")
@@ -373,6 +377,126 @@ def nasa_prometheus():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# ═══════════════════════════════════════════════════════════════
+# 🧠 ANALYTICS ENDPOINTS (Phase 3.3)
+# ═══════════════════════════════════════════════════════════════
+
+
+@app.route("/api/nasa/analytics/trends", methods=["GET"])
+def get_trends():
+    """Get learning trends analysis"""
+    try:
+        period = request.args.get("period", "week")  # day, week, month
+        technology = request.args.get("technology")  # Optional filter
+
+        trends = analytics.get_learning_trends(period=period, technology=technology)
+
+        return jsonify(
+            {
+                "success": True,
+                "trends": [
+                    {
+                        "period": t.period,
+                        "technology": t.technology,
+                        "metric": t.metric,
+                        "values": t.values,
+                        "timestamps": t.timestamps,
+                        "trend_direction": t.trend_direction,
+                        "confidence": t.confidence,
+                    }
+                    for t in trends
+                ],
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/analytics/recommendations", methods=["GET"])
+def get_recommendations():
+    """Get AI-powered technology recommendations"""
+    try:
+        limit = int(request.args.get("limit", 5))
+        user_level = request.args.get("level", "intermediate")
+
+        recommendations = analytics.get_technology_recommendations(
+            limit=limit, user_level=user_level
+        )
+
+        return jsonify(
+            {
+                "success": True,
+                "recommendations": [
+                    {
+                        "technology": r.technology,
+                        "score": r.score,
+                        "reason": r.reason,
+                        "related_techs": r.related_techs,
+                        "estimated_difficulty": r.estimated_difficulty,
+                        "estimated_time_hours": r.estimated_time_hours,
+                    }
+                    for r in recommendations
+                ],
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/analytics/predictions", methods=["GET"])
+def get_predictions():
+    """Get proficiency predictions for a technology"""
+    try:
+        technology = request.args.get("technology", "python")
+        user_level = request.args.get("level", "intermediate")
+
+        prediction = analytics.predict_proficiency(
+            technology=technology, context={"user_level": user_level}
+        )
+
+        return jsonify(
+            {
+                "success": True,
+                "prediction": {
+                    "technology": prediction.technology,
+                    "predicted_proficiency": prediction.predicted_proficiency,
+                    "confidence": prediction.confidence,
+                    "estimated_attempts": prediction.estimated_attempts,
+                    "success_probability": prediction.success_probability,
+                    "factors": prediction.factors,
+                },
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nasa/analytics/insights", methods=["GET"])
+def get_insights():
+    """Get performance insights and recommendations"""
+    try:
+        insights = analytics.get_performance_insights()
+
+        return jsonify(
+            {
+                "success": True,
+                "insights": [
+                    {
+                        "category": i.category,
+                        "title": i.title,
+                        "description": i.description,
+                        "metric_value": i.metric_value,
+                        "recommendation": i.recommendation,
+                        "priority": i.priority,
+                    }
+                    for i in insights
+                ],
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     print(
         """
@@ -398,6 +522,14 @@ if __name__ == "__main__":
    • http://localhost:5000/api/nasa/search/<query> - Search knowledge base
    • http://localhost:5000/api/nasa/report - Comprehensive report
    • http://localhost:5000/api/nasa/prometheus - Prometheus metrics
+   • http://localhost:5000/api/nasa/learn - Create learning task (POST)
+   • http://localhost:5000/api/nasa/tasks - List all tasks
+
+🧠 Analytics Endpoints (NEW):
+   • http://localhost:5000/api/nasa/analytics/trends - Learning trends
+   • http://localhost:5000/api/nasa/analytics/recommendations - What to learn next
+   • http://localhost:5000/api/nasa/analytics/predictions - Success predictions
+   • http://localhost:5000/api/nasa/analytics/insights - Performance insights
 
 🌸 МИРАЙ's choice: Unified dashboard for comprehensive monitoring
 🤖 КАЙДЗЕН: Dashboard starting on port 5000...

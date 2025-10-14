@@ -954,6 +954,11 @@
       "name": "MQTT",
       "proficiency": 0.3,
       "learned_at": "2025-10-14T02:50:33.508215"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.837570905459064,
+      "learned_at": "2025-10-14T10:51:13.682491"
     }
   ],
   "skills": [],
