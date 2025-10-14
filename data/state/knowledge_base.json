@@ -179,6 +179,16 @@
       "name": "FastAPI",
       "proficiency": 0.6811381197751717,
       "learned_at": "2025-10-14T19:06:06.993696"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.8202789423631968,
+      "learned_at": "2025-10-14T19:21:45.734942"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.9182761710652692,
+      "learned_at": "2025-10-14T19:22:16.799087"
     }
   ],
   "skills": [],
