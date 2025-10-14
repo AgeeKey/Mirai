@@ -2,90 +2,82 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-14T15:16:16.692728
+Learned: 2025-10-14T15:32:04.595177
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import List, Dict
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: List[Dict[str, any]]) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a pandas DataFrame from a list of dictionaries.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (List[Dict[str, any]]): A list of dictionaries where each dictionary represents a row of data.
 
     Returns:
-        pd.DataFrame: A processed DataFrame.
-    
+        pd.DataFrame: A DataFrame constructed from the provided data.
+
     Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is a parsing error.
+        ValueError: If the input data is empty or not a list of dictionaries.
     """
-    try:
-        # Load the CSV data into a DataFrame
-        df = pd.read_csv(file_path)
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input data must be a list of dictionaries.")
+    
+    if not data:
+        raise ValueError("Input data cannot be empty.")
 
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    
+    return df
 
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
-
-        return df
-    except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: There was a problem parsing the file.")
-        raise e
-
-def calculate_statistics(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+def filter_dataframe(df: pd.DataFrame, column: str, threshold: float) -> pd.DataFrame:
     """
-    Calculate basic statistics for specified columns in a DataFrame.
+    Filter the DataFrame based on a threshold for a specified column.
 
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        columns (List[str]): The list of column names to calculate statistics for.
+        df (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to apply the filter on.
+        threshold (float): The threshold value for filtering.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the statistics.
-    """
-    stats = {}
-    for column in columns:
-        if column in df.columns:
-            stats[column] = {
-                'mean': df[column].mean(),
-                'std': df[column].std(),
-                'min': df[column].min(),
-                'max': df[column].max()
-            }
-        else:
-            print(f"Warning: Column '{column}' not found in DataFrame.")
-    
-    # Convert the statistics dictionary to a DataFrame
-    return pd.DataFrame(stats)
+        pd.DataFrame: A filtered DataFrame containing only rows where the specified column is greater than the threshold.
 
+    Raises:
+        KeyError: If the specified column does not exist in the DataFrame.
+    """
+    if column not in df.columns:
+        raise KeyError(f"Column '{column}' does not exist in the DataFrame.")
+    
+    # Filter DataFrame
+    filtered_df = df[df[column] > threshold]
+    
+    return filtered_df
+
+# Example usage
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Specify the path to your CSV file
+    # Sample data
+    sample_data = [
+        {"name": "Alice", "age": 30, "salary": 70000},
+        {"name": "Bob", "age": 25, "salary": 50000},
+        {"name": "Charlie", "age": 35, "salary": 90000}
+    ]
+
     try:
-        data = load_and_process_data(file_path)
-        print("Data loaded successfully.")
-        
-        # Specify the columns for which to calculate statistics
-        columns_to_analyze = ['column1', 'column2']  # Replace with actual column names
-        stats = calculate_statistics(data, columns_to_analyze)
-        
-        print("Calculated statistics:")
-        print(stats)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        # Create DataFrame
+        df = create_dataframe(sample_data)
+        print("Original DataFrame:")
+        print(df)
+
+        # Filter DataFrame by salary
+        filtered_df = filter_dataframe(df, "salary", 60000)
+        print("\nFiltered DataFrame (salary > 60000):")
+        print(filtered_df)
+
+    except (ValueError, KeyError) as e:
+        print(f"Error: {e}")
