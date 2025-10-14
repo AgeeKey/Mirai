@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from core.logger import setup_logger
+from core.logger import get_logger
 
 def benchmark_logging(num_logs=1000):
     """Benchmark logging performance"""
@@ -19,7 +19,7 @@ def benchmark_logging(num_logs=1000):
     with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
         log_path = f.name
     
-    logger = setup_logger("benchmark_logger", log_path=log_path, console_output=False)
+    logger = get_logger("benchmark_logger")
     
     log_times = []
     

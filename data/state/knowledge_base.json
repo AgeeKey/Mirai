@@ -1,0 +1,19 @@
+{
+  "technologies": [
+    {
+      "name": "pandas",
+      "proficiency": 0.9246020658495211,
+      "learned_at": "2025-10-14T14:26:24.508650"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.805924255344529,
+      "learned_at": "2025-10-14T14:26:52.913694"
+    }
+  ],
+  "skills": [],
+  "completed_tasks": [],
+  "failed_tasks": [],
+  "interests": [],
+  "performance_metrics": {}
+}

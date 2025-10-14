@@ -38,7 +38,7 @@ def test_memory_persistence():
     
     # Check database for messages from first session
     memory = MemoryManager()
-    messages = memory.get_session_messages(session1_id)
+    messages = memory.get_recent_messages(session1_id, limit=100)
     
     print(f"✅ Retrieved {len(messages)} messages from session 1")
     
