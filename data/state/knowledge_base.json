@@ -229,6 +229,16 @@
       "name": "Selenium",
       "proficiency": 0.8687657000937379,
       "learned_at": "2025-10-14T20:27:05.383917"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8836323778266997,
+      "learned_at": "2025-10-14T20:42:47.983442"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.7661232287794196,
+      "learned_at": "2025-10-14T20:43:14.441492"
     }
   ],
   "skills": [],
