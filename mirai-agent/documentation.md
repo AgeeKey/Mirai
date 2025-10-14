@@ -1,16 +1,15 @@
-# Документация к проекту
+# Project Documentation
 
-## Описание
-Этот проект предназначен для ...
+## Overview
+This project aims to ...  
 
-## Установка
-1. Склонируйте репозиторий
-2. Установите зависимости с помощью `pip install -r requirements.txt`
+## Setup Instructions
+1. Clone the repository  
+2. Install dependencies using `pip install -r requirements.txt`  
+3. Run the application using `python main.py`  
 
-## Использование
-```bash
-python main.py
-```
+## Usage
+...  
 
-## Вклад
-Если вы хотите внести свой вклад, пожалуйста, создайте issue или pull request.
+## Contributing
+Please follow the guidelines in CONTRIBUTING.md for contributing to this project.
