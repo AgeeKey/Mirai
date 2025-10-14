@@ -129,7 +129,7 @@ class AutonomousService:
         logger.info(f"📊 Статистика обучения:")
         logger.info(f"   • Всего изучено: {kb_stats.get('total_entries', 0)} технологий")
         logger.info(f"   • Success rate: {metrics_summary.get('success_rate', 0):.1f}%")
-        logger.info(f"   • Средняя профессиональность: {kb_stats.get('avg_proficiency', 0):.1f}%")
+        logger.info(f"   • Средняя профессиональность: {kb_stats.get('average_proficiency', 0):.1f}%")
 
     def autonomous_cycle(self):
         """Один цикл автономной работы"""
