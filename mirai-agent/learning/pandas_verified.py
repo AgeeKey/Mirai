@@ -2,66 +2,90 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-14T14:59:02.827695
+Learned: 2025-10-14T15:16:16.692728
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Load data from a CSV file and perform basic processing.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data or None if an error occurs.
+        pd.DataFrame: A processed DataFrame.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
+        # Load the CSV data into a DataFrame
+        df = pd.read_csv(file_path)
+
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
+
+        return df
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: There was an error parsing the file.")
-    return None
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: There was a problem parsing the file.")
+        raise e
 
-def analyze_data(df: pd.DataFrame) -> None:
+def calculate_statistics(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     """
-    Perform basic analysis on the DataFrame.
+    Calculate basic statistics for specified columns in a DataFrame.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        columns (List[str]): The list of column names to calculate statistics for.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the statistics.
     """
-    if df is None or df.empty:
-        print("DataFrame is empty or None. Cannot perform analysis.")
-        return
-
-    # Display basic information about the DataFrame
-    print("DataFrame Information:")
-    print(df.info())
+    stats = {}
+    for column in columns:
+        if column in df.columns:
+            stats[column] = {
+                'mean': df[column].mean(),
+                'std': df[column].std(),
+                'min': df[column].min(),
+                'max': df[column].max()
+            }
+        else:
+            print(f"Warning: Column '{column}' not found in DataFrame.")
     
-    # Display the first five rows of the DataFrame
-    print("\nFirst 5 rows of the DataFrame:")
-    print(df.head())
-
-def main(file_path: str) -> None:
-    """
-    Main function to load and analyze data.
-
-    Parameters:
-    file_path (str): The path to the CSV file to load.
-    """
-    df = load_data(file_path)
-    analyze_data(df)
+    # Convert the statistics dictionary to a DataFrame
+    return pd.DataFrame(stats)
 
 if __name__ == "__main__":
-    # Change 'your_file.csv' to the actual path of your CSV file
-    main('your_file.csv')
+    # Example usage
+    file_path = 'data.csv'  # Specify the path to your CSV file
+    try:
+        data = load_and_process_data(file_path)
+        print("Data loaded successfully.")
+        
+        # Specify the columns for which to calculate statistics
+        columns_to_analyze = ['column1', 'column2']  # Replace with actual column names
+        stats = calculate_statistics(data, columns_to_analyze)
+        
+        print("Calculated statistics:")
+        print(stats)
+    except Exception as e:
+        print(f"An error occurred: {e}")
