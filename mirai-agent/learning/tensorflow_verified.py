@@ -2,31 +2,32 @@
 TensorFlow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-15T05:15:35.630753
+Learned: 2025-10-15T12:00:25.128651
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from sklearn.model_selection import train_test_split
+from tensorflow.keras import layers, models
 import numpy as np
 
-def create_model(input_shape: tuple) -> keras.Model:
-    """
-    Create a simple feedforward neural network model.
+def create_model(input_shape: tuple) -> tf.keras.Model:
+    """Create a simple CNN model for image classification.
 
     Args:
-        input_shape (tuple): Shape of the input data.
+        input_shape (tuple): Shape of the input images (height, width, channels).
 
     Returns:
-        keras.Model: Compiled Keras model.
+        tf.keras.Model: A compiled Keras model.
     """
-    model = keras.Sequential([
-        layers.Dense(64, activation='relu', input_shape=input_shape),
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Flatten(),
         layers.Dense(64, activation='relu'),
         layers.Dense(10, activation='softmax')  # Assuming 10 classes for output
     ])
@@ -36,60 +37,42 @@ def create_model(input_shape: tuple) -> keras.Model:
                   metrics=['accuracy'])
     return model
 
-def load_data() -> tuple:
-    """
-    Load the dataset and split it into training and testing sets.
+def load_data() -> tuple[np.ndarray, np.ndarray]:
+    """Load sample data for training and testing.
 
     Returns:
-        tuple: Training and testing data and labels.
+        tuple: Tuple containing training and testing images and labels.
     """
-    # Generating dummy data for demonstration
-    num_samples = 1000
-    num_features = 20
-    X = np.random.rand(num_samples, num_features)
-    y = np.random.randint(0, 10, num_samples)  # Random labels for 10 classes
-    
-    # Splitting the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    return (X_train, y_train), (X_test, y_test)
+    try:
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        # Normalize images to [0, 1] range
+        x_train, x_test = x_train.astype('float32') / 255.0, x_test.astype('float32') / 255.0
+        return x_train, y_train.flatten(), x_test, y_test.flatten()
+    except Exception as e:
+        raise RuntimeError(f"Error loading data: {e}")
 
-def train_model(model: keras.Model, X_train: np.ndarray, y_train: np.ndarray) -> None:
-    """
-    Train the neural network model.
+def train_model(model: tf.keras.Model, x_train: np.ndarray, y_train: np.ndarray) -> None:
+    """Train the model on the provided training data.
 
     Args:
-        model (keras.Model): The model to be trained.
-        X_train (np.ndarray): Training data.
+        model (tf.keras.Model): The model to train.
+        x_train (np.ndarray): Training images.
         y_train (np.ndarray): Training labels.
-    """
-    try:
-        model.fit(X_train, y_train, epochs=10, batch_size=32)
-    except Exception as e:
-        print(f"An error occurred during training: {e}")
 
-def evaluate_model(model: keras.Model, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    Raises:
+        ValueError: If the shapes of x_train and y_train do not match.
     """
-    Evaluate the trained model on the test dataset.
-
-    Args:
-        model (keras.Model): The trained model.
-        X_test (np.ndarray): Test data.
-        y_test (np.ndarray): Test labels.
-    """
-    try:
-        test_loss, test_acc = model.evaluate(X_test, y_test)
-        print(f"Test accuracy: {test_acc:.4f}, Test loss: {test_loss:.4f}")
-    except Exception as e:
-        print(f"An error occurred during evaluation: {e}")
+    if x_train.shape[0] != y_train.shape[0]:
+        raise ValueError("Mismatch in number of training samples and labels.")
+    
+    model.fit(x_train, y_train, epochs=10, batch_size=64, validation_split=0.1)
 
 def main() -> None:
-    """
-    Main function to execute the model training and evaluation.
-    """
-    (X_train, y_train), (X_test, y_test) = load_data()  # Load data
-    model = create_model(input_shape=(X_train.shape[1],))  # Create the model
-    train_model(model, X_train, y_train)  # Train the model
-    evaluate_model(model, X_test, y_test)  # Evaluate the model
+    """Main function to execute the model training."""
+    input_shape = (32, 32, 3)  # CIFAR-10 image shape
+    model = create_model(input_shape)
+    x_train, y_train, x_test, y_test = load_data()
+    train_model(model, x_train, y_train)
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()
