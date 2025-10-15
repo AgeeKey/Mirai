@@ -1029,6 +1029,16 @@
       "name": "scikit-learn",
       "proficiency": 0.7849712675899196,
       "learned_at": "2025-10-15T18:15:21.400195"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.9153894253538634,
+      "learned_at": "2025-10-15T18:30:57.127273"
+    },
+    {
+      "name": "seaborn",
+      "proficiency": 0.9700508904431583,
+      "learned_at": "2025-10-15T18:31:21.290830"
     }
   ],
   "skills": [],
