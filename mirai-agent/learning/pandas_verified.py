@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.93
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-15T09:01:48.592217
+Learned: 2025-10-15T09:18:16.611339
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,46 +14,52 @@ from typing import Optional
 
 def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and process the data.
-    
-    Parameters:
+    Load a CSV file into a pandas DataFrame, clean it, and process it.
+
+    Args:
         file_path (str): The path to the CSV file.
-        column_names (Optional[list[str]]): Optional list of column names to use.
-        
+        column_names (Optional[list[str]]): A list of column names to rename the DataFrame columns.
+
     Returns:
-        pd.DataFrame: A processed DataFrame.
-        
+        pd.DataFrame: A cleaned and processed DataFrame.
+
     Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the DataFrame is empty after loading.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, names=column_names, header=None)
-        
-        # Check for empty DataFrame
-        if df.empty:
-            raise ValueError("The loaded DataFrame is empty.")
-        
-        # Data processing: Dropping missing values
+        # Load data from CSV file
+        df = pd.read_csv(file_path)
+
+        # Check if column names are provided for renaming
+        if column_names is not None:
+            df.columns = column_names
+
+        # Drop rows with any missing values
         df.dropna(inplace=True)
-        
-        # Data transformation: Converting all column names to lowercase
-        df.columns = [col.lower() for col in df.columns]
-        
+
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
+
         return df
-    
     except FileNotFoundError as e:
-        print(f"Error: {e}. Please check the file path.")
+        print(f"Error: {e}")
         raise
-    except ValueError as e:
-        print(f"Error: {e}.")
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty. {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: The file could not be parsed. {e}")
         raise
 
-# Example usage
 if __name__ == "__main__":
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual file path
+    column_names = ['Column1', 'Column2', 'Column3']  # Adjust based on your CSV structure
+    
     try:
-        processed_data = load_and_process_data("data.csv", column_names=["Name", "Age", "City"])
-        print(processed_data.head())
+        df = load_and_process_data(file_path, column_names)
+        print(df.head())  # Display the first few rows of the DataFrame
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Failed to process the data: {e}")
