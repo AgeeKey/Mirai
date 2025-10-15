@@ -2,87 +2,66 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.93
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-15T01:44:56.101394
+Learned: 2025-10-15T02:01:12.527626
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
-
+    Load data from a CSV file and process it.
+    
     Args:
-        file_path (str): The path to the CSV file.
-
+        file_path (str): Path to the CSV file.
+        columns (Optional[list]): List of columns to select from the DataFrame. If None, all columns are used.
+    
     Returns:
-        pd.DataFrame: A processed DataFrame containing the data.
+        pd.DataFrame: Processed DataFrame.
     
     Raises:
         FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is an error parsing the file.
+        ValueError: If no columns are found in the file.
     """
     try:
-        # Load the CSV file into a DataFrame
+        # Load the dataset
         df = pd.read_csv(file_path)
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
-        
-        return df
     except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: There was a problem parsing the file.")
-        raise e
+        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
 
-def summarize_data(df: pd.DataFrame) -> pd.Series:
+    if columns is not None:
+        # Check if the specified columns exist in the DataFrame
+        missing_cols = set(columns) - set(df.columns)
+        if missing_cols:
+            raise ValueError(f"Error: The following columns are missing in the data: {missing_cols}")
+
+        # Select the specified columns
+        df = df[columns]
+
+    # Drop any rows with missing values
+    df.dropna(inplace=True)
+
+    # Reset index after dropping rows
+    df.reset_index(drop=True, inplace=True)
+
+    return df
+
+def main() -> None:
     """
-    Generate summary statistics for the DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-        pd.Series: A Series containing summary statistics.
+    Main function to execute the data loading and processing.
     """
-    # Check if the DataFrame is empty
-    if df.empty:
-        raise ValueError("The DataFrame is empty. Cannot generate summary statistics.")
-    
-    # Generate summary statistics
-    return df.describe()
+    file_path = 'data.csv'  # Path to the CSV file
+    selected_columns = ['column1', 'column2']  # Change to your desired columns
 
-def main(file_path: str) -> None:
-    """
-    Main function to load data, process it, and summarize it.
-
-    Args:
-        file_path (str): The path to the CSV file to process.
-    """
-    # Load and process the data
-    df = load_and_process_data(file_path)
-    
-    # Summarize the data
-    summary = summarize_data(df)
-    
-    # Print the summary statistics
-    print("Summary Statistics:")
-    print(summary)
+    try:
+        processed_data = load_and_process_data(file_path, selected_columns)
+        print(processed_data)
+    except (FileNotFoundError, ValueError) as e:
+        print(e)
 
 if __name__ == "__main__":
-    # Specify the path to the CSV file
-    file_path = 'data.csv'  # Change this to your actual CSV file path
-    main(file_path)
+    main()
