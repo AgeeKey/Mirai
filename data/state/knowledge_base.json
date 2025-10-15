@@ -1039,6 +1039,16 @@
       "name": "seaborn",
       "proficiency": 0.9700508904431583,
       "learned_at": "2025-10-15T18:31:21.290830"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.7971602819572629,
+      "learned_at": "2025-10-15T18:47:11.935420"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.7550827445284881,
+      "learned_at": "2025-10-15T18:47:43.197689"
     }
   ],
   "skills": [],
