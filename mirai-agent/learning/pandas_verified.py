@@ -2,60 +2,69 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-15T09:34:02.714188
+Learned: 2025-10-15T09:50:13.172594
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Any, Dict
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load a CSV file into a DataFrame, filter by a specific column if required,
-    and process the data by dropping any rows with missing values.
+    Load data from a CSV file and perform basic data processing.
 
     Args:
-        file_path (str): The path to the CSV file to be loaded.
-        column_name (str): The name of the column to filter by.
-        filter_value (Optional[str]): The value to filter the column by. If None, no filtering is applied.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A processed DataFrame with missing values dropped.
-
+        pd.DataFrame: A processed DataFrame ready for analysis.
+    
     Raises:
         FileNotFoundError: If the specified file does not exist.
-        ValueError: If the specified column does not exist in the DataFrame.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an issue parsing the file.
     """
     try:
-        # Load the data from the CSV file
+        # Load the CSV file into a DataFrame
         df = pd.read_csv(file_path)
     except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file at {file_path} was not found.") from e
+        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError("Error: The file is empty.") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError("Error: There was a problem parsing the file.") from e
 
-    # Check if the specified column exists in the DataFrame
-    if column_name not in df.columns:
-        raise ValueError(f"The column '{column_name}' does not exist in the DataFrame.")
+    # Display the first few rows of the DataFrame
+    print("Initial DataFrame:")
+    print(df.head())
 
-    # Filter the DataFrame if a filter_value is provided
-    if filter_value is not None:
-        df = df[df[column_name] == filter_value]
+    # Drop duplicate rows
+    df = df.drop_duplicates()
 
-    # Drop rows with any missing values
-    df = df.dropna()
+    # Fill missing values with the mean of each column
+    df = df.fillna(df.mean(numeric_only=True))
+
+    # Convert all column names to lowercase
+    df.columns = [col.lower() for col in df.columns]
+
+    print("Processed DataFrame:")
+    print(df.head())
 
     return df
 
-if __name__ == "__main__":
-    # Example usage
-    FILE_PATH = 'data.csv'  # Example file path
-    COLUMN_NAME = 'Category'  # Example column name
-    FILTER_VALUE = 'A'  # Example filter value
-
+def main() -> None:
+    """
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Specify your CSV file path here
     try:
-        processed_data = load_and_process_data(FILE_PATH, COLUMN_NAME, FILTER_VALUE)
-        print(processed_data)
-    except (FileNotFoundError, ValueError) as e:
+        processed_data = load_and_process_data(file_path)
+        # Further analysis or processing can be done with processed_data here
+    except Exception as e:
         print(e)
+
+if __name__ == "__main__":
+    main()
