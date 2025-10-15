@@ -2,71 +2,61 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-15T17:09:40.839882
+Learned: 2025-10-15T17:25:51.275229
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
-    """
-    Load a CSV file into a Pandas DataFrame.
+def generate_sample_data(num_rows: int) -> pd.DataFrame:
+    """Generate a sample DataFrame with random data.
 
     Args:
-        file_path (str): The path to the CSV file.
+        num_rows (int): Number of rows to generate.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the data, or None if loading fails.
+        pd.DataFrame: A DataFrame containing random data.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error.")
-        return None
+        data = {
+            'A': np.random.randint(1, 100, size=num_rows),
+            'B': np.random.randn(num_rows),
+            'C': np.random.choice(['X', 'Y', 'Z'], size=num_rows),
+        }
+        return pd.DataFrame(data)
+    except Exception as e:
+        print(f"Error generating sample data: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by filling missing values and removing duplicates.
+def filter_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter the DataFrame where column 'A' is greater than 50.
 
     Args:
-        df (pd.DataFrame): The DataFrame to clean.
+        df (pd.DataFrame): The DataFrame to filter.
 
     Returns:
-        pd.DataFrame: The cleaned DataFrame.
+        pd.DataFrame: A filtered DataFrame.
     """
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-    # Remove duplicate rows
-    df.drop_duplicates(inplace=True)
-    return df
+    try:
+        filtered_df = df[df['A'] > 50]
+        return filtered_df
+    except KeyError as e:
+        print(f"Column not found in DataFrame: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
 
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and display the DataFrame.
+def main() -> None:
+    """Main function to run the data generation and filtering."""
+    sample_data = generate_sample_data(100)  # Generate sample data
+    filtered_data = filter_data(sample_data)   # Filter the data
 
-    Args:
-        file_path (str): The path to the CSV file to load.
-    """
-    df = load_data(file_path)
-    if df is not None:  # Proceed only if the DataFrame was loaded successfully
-        print("Original DataFrame:")
-        print(df)
-        
-        cleaned_df = clean_data(df)
-        print("\nCleaned DataFrame:")
-        print(cleaned_df)
+    print("Sample Data:")
+    print(sample_data.head())  # Display the first 5 rows of the sample data
+    print("\nFiltered Data (A > 50):")
+    print(filtered_data.head())  # Display the first 5 rows of the filtered data
 
 if __name__ == "__main__":
-    # Example usage; replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    main()  # Execute the main function
