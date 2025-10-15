@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-15T19:03:29.030603
+Learned: 2025-10-15T19:20:14.030095
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,45 +12,62 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
-    """
-    Load data from a CSV file and process it.
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
+    """Load data from a CSV file into a DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
-        column_names (Optional[list]): List of column names to use. If None, use the default from the file.
 
     Returns:
-        pd.DataFrame: A processed DataFrame with non-null values.
-    
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the DataFrame is empty after processing.
+        Optional[pd.DataFrame]: DataFrame containing the data, or None if an error occurs.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path, names=column_names, header=0 if column_names is None else None)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a problem parsing the file.")
+        return None
 
-        # Drop rows with any null values
-        df.dropna(inplace=True)
+def analyze_data(df: pd.DataFrame) -> None:
+    """Perform basic analysis on the DataFrame.
 
-        # Check if the DataFrame is empty after dropping nulls
-        if df.empty:
-            raise ValueError("The DataFrame is empty after processing.")
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
 
-        return df
+    Raises:
+        ValueError: If the DataFrame is empty.
+    """
+    if df.empty:
+        raise ValueError("The DataFrame is empty. Cannot perform analysis.")
     
-    except FileNotFoundError as fnf_error:
-        print(f"Error: {fnf_error}")
-        raise
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        raise
+    # Display the first few rows of the DataFrame
+    print("First 5 rows of the DataFrame:")
+    print(df.head())
+    
+    # Summary statistics
+    print("\nSummary statistics:")
+    print(df.describe())
+    
+    # Check for missing values
+    print("\nMissing values in each column:")
+    print(df.isnull().sum())
+
+def main(file_path: str) -> None:
+    """Main function to load and analyze data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)
+    if df is not None:
+        analyze_data(df)
 
 if __name__ == "__main__":
-    # Example usage
-    try:
-        data_frame = load_and_process_data('data.csv', column_names=['Column1', 'Column2', 'Column3'])
-        print(data_frame.head())
-    except Exception as e:
-        print(f"Failed to load and process data: {e}")
+    FILE_PATH = 'data.csv'  # Replace with your CSV file path
+    main(FILE_PATH)

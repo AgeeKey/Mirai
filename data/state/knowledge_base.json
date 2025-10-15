@@ -1064,6 +1064,11 @@
       "name": "requests",
       "proficiency": 0.9810327648793931,
       "learned_at": "2025-10-15T19:19:41.755643"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8607102746745579,
+      "learned_at": "2025-10-15T19:20:14.030868"
     }
   ],
   "skills": [],
