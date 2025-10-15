@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-15T22:02:18.169544
+Learned: 2025-10-15T22:18:31.724380
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,48 +12,50 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a DataFrame and process it.
-
+    Load data from a CSV file into a DataFrame.
+    
     Args:
         file_path (str): The path to the CSV file.
-        column_names (Optional[list]): A list of column names to use. If None, uses the default names.
-
+        
     Returns:
-        pd.DataFrame: A processed DataFrame.
-    
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the DataFrame is empty after loading.
+        Optional[pd.DataFrame]: DataFrame containing the data or None if an error occurs.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path, names=column_names, header=0 if column_names is None else None)
-        
-        # Check if the DataFrame is empty
-        if df.empty:
-            raise ValueError("The DataFrame is empty after loading.")
-        
-        # Drop any rows with missing values
-        df.dropna(inplace=True)
-        
-        # Reset the index of the DataFrame
-        df.reset_index(drop=True, inplace=True)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: Error parsing the file.")
+        return None
 
-        return df
+def summarize_data(df: pd.DataFrame) -> None:
+    """
+    Print basic statistics and information about the DataFrame.
     
-    except FileNotFoundError as e:
-        print(f"Error: The file '{file_path}' was not found.")
-        raise e
-    except ValueError as e:
-        print(e)
-        raise e
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+    """
+    print("DataFrame Info:")
+    print(df.info())  # Display DataFrame information
+    print("\nDescriptive Statistics:")
+    print(df.describe())  # Display descriptive statistics for numerical columns
+
+def main() -> None:
+    """
+    Main function to load data and summarize it.
+    """
+    file_path = 'data.csv'  # Specify the path to your CSV file
+    df = load_data(file_path)  # Load the data
+    
+    if df is not None:  # Check if the DataFrame is loaded successfully
+        summarize_data(df)  # Summarize the loaded DataFrame
 
 if __name__ == "__main__":
-    # Example usage
-    try:
-        data = load_and_process_data("sample_data.csv", column_names=["Column1", "Column2", "Column3"])
-        print(data.head())
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    main()  # Run the main function
