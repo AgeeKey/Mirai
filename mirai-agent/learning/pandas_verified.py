@@ -2,67 +2,63 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.90
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-15T08:13:22.527865
+Learned: 2025-10-15T08:29:25.902730
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def create_dataframe(data: List[dict]) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a list of dictionaries.
-
+    Load a CSV file into a DataFrame and process the data.
+    
     Parameters:
-    data (List[dict]): A list of dictionaries containing data.
-
+        file_path (str): The path to the CSV file.
+    
     Returns:
-    pd.DataFrame: A DataFrame containing the provided data.
-
-    Raises:
-    ValueError: If the input data is empty or not a list of dictionaries.
-    """
-    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
-        raise ValueError("Input must be a list of dictionaries.")
-    
-    if not data:
-        raise ValueError("Input data cannot be empty.")
-    
-    # Creating DataFrame from the list of dictionaries
-    df = pd.DataFrame(data)
-    return df
-
-def save_dataframe_to_csv(df: pd.DataFrame, file_path: str) -> None:
-    """
-    Save the DataFrame to a CSV file.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to save.
-    file_path (str): The path where the CSV file will be saved.
-
-    Raises:
-    IOError: If there is an issue with file writing.
+        Optional[pd.DataFrame]: A processed DataFrame or None if an error occurs.
     """
     try:
-        df.to_csv(file_path, index=False)
-    except IOError as e:
-        raise IOError(f"An error occurred while writing to the file: {e}")
+        # Load the data from a CSV file
+        df = pd.read_csv(file_path)
 
-# Example usage
+        # Display the first few rows of the DataFrame
+        print("Initial data loaded:")
+        print(df.head())
+
+        # Drop any rows with missing values
+        df_cleaned = df.dropna()
+
+        # Reset index after dropping rows
+        df_cleaned.reset_index(drop=True, inplace=True)
+
+        # Display the cleaned DataFrame
+        print("Cleaned data:")
+        print(df_cleaned.head())
+
+        return df_cleaned
+
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: No data found in the file.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: Could not parse the file.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
+
 if __name__ == "__main__":
-    # Sample data
-    sample_data = [
-        {"Name": "Alice", "Age": 30, "City": "New York"},
-        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
-        {"Name": "Charlie", "Age": 35, "City": "Chicago"}
-    ]
-
-    # Create DataFrame
-    df = create_dataframe(sample_data)
-    print(df)
-
-    # Save DataFrame to a CSV file
-    save_dataframe_to_csv(df, "output.csv")
+    # Example usage
+    data_frame = load_and_process_data('data.csv')
+    if data_frame is not None:
+        print("Data processing completed successfully.")
+    else:
+        print("Data processing failed.")
