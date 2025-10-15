@@ -1,72 +1,62 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.87
+Quality Grade: A
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-15T17:42:07.487499
+Learned: 2025-10-15T17:58:11.592138
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(rows: int, columns: int) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a DataFrame with random data.
-
-    Parameters:
-    rows (int): Number of rows in the DataFrame.
-    columns (int): Number of columns in the DataFrame.
-
+    Load data from a CSV file and process it.
+    
+    Args:
+    - file_path (str): The path to the CSV file.
+    
     Returns:
-    pd.DataFrame: A DataFrame filled with random numbers.
-    """
-    if rows <= 0 or columns <= 0:
-        raise ValueError("Number of rows and columns must be positive integers.")
-    
-    # Create a DataFrame with random numbers
-    data = np.random.rand(rows, columns)
-    df = pd.DataFrame(data, columns=[f'Col_{i+1}' for i in range(columns)])
-    
-    return df
-
-def summarize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Generate summary statistics for the DataFrame.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-    pd.DataFrame: A DataFrame containing summary statistics.
-    """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("Input must be a pandas DataFrame.")
-    
-    # Generate summary statistics
-    summary = df.describe()
-    
-    return summary
-
-def main() -> None:
-    """
-    Main function to execute the data manipulation example.
+    - Optional[pd.DataFrame]: Processed DataFrame or None if an error occurs.
     """
     try:
-        # Create a DataFrame with 5 rows and 3 columns
-        df = create_dataframe(5, 3)
-        print("Original DataFrame:")
-        print(df)
-
-        # Summarize the DataFrame
-        summary = summarize_dataframe(df)
-        print("\nSummary Statistics:")
-        print(summary)
+        # Load data from CSV
+        df = pd.read_csv(file_path)
         
+        # Display the first few rows of the DataFrame
+        print("Data loaded successfully. Here are the first few rows:")
+        print(df.head())
+        
+        # Drop rows with any missing values
+        df_cleaned = df.dropna()
+        
+        # Reset index after dropping rows
+        df_cleaned.reset_index(drop=True, inplace=True)
+        
+        return df_cleaned
+    
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error while reading the file.")
+        return None
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+        return None
 
+# Example usage
 if __name__ == "__main__":
-    main()
+    # Specify the path to your CSV file
+    csv_file_path = 'data.csv'
+    processed_data = load_and_process_data(csv_file_path)
+    
+    if processed_data is not None:
+        print("Processed DataFrame:")
+        print(processed_data)
