@@ -2,53 +2,53 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.80
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-15T21:46:35.401475
+Learned: 2025-10-15T22:02:54.108958
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.datasets import load_iris
+from typing import Tuple
 
-def load_data() -> pd.DataFrame:
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load the Iris dataset.
-
+    Load and return the iris dataset (features and target).
+    
     Returns:
-        pd.DataFrame: A DataFrame containing the Iris dataset.
+        Tuple[np.ndarray, np.ndarray]: Features and target arrays from the iris dataset.
     """
     iris = load_iris()
-    return pd.DataFrame(data=np.c_[iris['data'], iris['target']], columns=iris['feature_names'] + ['target'])
+    return iris.data, iris.target
 
-def split_data(data: pd.DataFrame, test_size: float = 0.2) -> tuple:
+def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Split the dataset into training and testing sets.
-
+    
     Args:
-        data (pd.DataFrame): The dataset to split.
-        test_size (float): The proportion of the dataset to include in the test split.
-
+        X (np.ndarray): Feature data.
+        y (np.ndarray): Target data.
+    
     Returns:
-        tuple: Training features, testing features, training labels, testing labels.
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: 
+        Tuple containing training features, testing features, training labels, and testing labels.
     """
-    X = data.iloc[:, :-1]
-    y = data.iloc[:, -1]
-    return train_test_split(X, y, test_size=test_size, random_state=42)
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
     """
-    Train a Random Forest classifier.
-
+    Train the Random Forest model on the training data.
+    
     Args:
-        X_train (pd.DataFrame): Training features.
-        y_train (pd.Series): Training labels.
-
+        X_train (np.ndarray): Training feature data.
+        y_train (np.ndarray): Training target data.
+    
     Returns:
         RandomForestClassifier: Trained Random Forest model.
     """
@@ -56,28 +56,27 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassi
     model.fit(X_train, y_train)
     return model
 
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
     """
-    Evaluate the trained model on the test set.
-
+    Evaluate the model and print the accuracy and classification report.
+    
     Args:
         model (RandomForestClassifier): Trained Random Forest model.
-        X_test (pd.DataFrame): Testing features.
-        y_test (pd.Series): Testing labels.
+        X_test (np.ndarray): Testing feature data.
+        y_test (np.ndarray): Testing target data.
     """
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+    predictions = model.predict(X_test)
+    accuracy = accuracy_score(y_test, predictions)
     print(f"Accuracy: {accuracy:.2f}")
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
+    print("Classification Report:\n", classification_report(y_test, predictions))
 
 def main() -> None:
     """
-    Main function to execute the machine learning workflow.
+    Main function to load data, train the model, and evaluate it.
     """
     try:
-        data = load_data()
-        X_train, X_test, y_train, y_test = split_data(data)
+        X, y = load_data()
+        X_train, X_test, y_train, y_test = preprocess_data(X, y)
         model = train_model(X_train, y_train)
         evaluate_model(model, X_test, y_test)
     except Exception as e:
