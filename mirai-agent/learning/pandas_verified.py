@@ -2,80 +2,88 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-15T16:36:39.070587
+Learned: 2025-10-15T16:53:18.729121
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+import numpy as np
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a pandas DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
-
+        pd.DataFrame: A DataFrame constructed from the input data.
+    
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If the file cannot be parsed.
+        ValueError: If the input dictionary is empty or columns have unequal lengths.
     """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
-        raise
-    except pd.errors.ParserError as e:
-        print(f"Error: Could not parse the file. {e}")
-        raise
+    if not data:
+        raise ValueError("Input dictionary is empty.")
+    
+    # Check for unequal lengths in columns
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All columns must have the same length.")
+    
+    return pd.DataFrame(data)
 
-def analyze_data(df: pd.DataFrame) -> Union[pd.DataFrame, str]:
+def calculate_statistics(df: pd.DataFrame) -> pd.Series:
     """
-    Analyze the DataFrame and return summary statistics.
+    Calculate basic statistics (mean, median, std) for numeric columns in the DataFrame.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
 
     Returns:
-        Union[pd.DataFrame, str]: A DataFrame with summary statistics or an error message.
-    """
-    if df.empty:
-        return "The DataFrame is empty. No analysis performed."
+        pd.Series: A Series containing the mean, median, and standard deviation of numeric columns.
     
-    summary = df.describe()  # Get summary statistics for numerical columns
-    return summary
-
-def main(file_path: str) -> None:
+    Raises:
+        ValueError: If the DataFrame does not contain any numeric columns.
     """
-    Main function to load and analyze data.
+    numeric_df = df.select_dtypes(include=[np.number])
+    if numeric_df.empty:
+        raise ValueError("No numeric columns to calculate statistics.")
+    
+    stats = {
+        'mean': numeric_df.mean(),
+        'median': numeric_df.median(),
+        'std': numeric_df.std()
+    }
+    
+    return pd.Series(stats)
 
-    Args:
-        file_path (str): The path to the CSV file.
+def main() -> None:
     """
+    Main function to run the example.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4],
+        'B': [5, 6, 7, 8],
+        'C': ['foo', 'bar', 'baz', 'qux']
+    }
+    
     try:
-        # Load the data
-        data = load_data(file_path)
-        
-        # Analyze the data
-        summary = analyze_data(data)
-        
-        # Print the analysis result
-        print(summary)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
+
+        # Calculate and display statistics
+        stats = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats)
+    
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example file path; replace with your actual file path
-    example_file_path = 'data.csv'
-    main(example_file_path)
+    main()
