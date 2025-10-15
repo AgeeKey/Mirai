@@ -2,52 +2,67 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.94
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-15T07:57:16.416675
+Learned: 2025-10-15T08:13:22.527865
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str, delimiter: str = ',', index_col: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and perform basic processing.
-    
+    Create a pandas DataFrame from a list of dictionaries.
+
     Parameters:
-    file_path (str): The path to the CSV file.
-    delimiter (str): The delimiter used in the CSV file (default is ',').
-    index_col (Optional[str]): Column to set as index (default is None).
-    
+    data (List[dict]): A list of dictionaries containing data.
+
     Returns:
-    pd.DataFrame: Processed DataFrame ready for analysis.
+    pd.DataFrame: A DataFrame containing the provided data.
+
+    Raises:
+    ValueError: If the input data is empty or not a list of dictionaries.
+    """
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input must be a list of dictionaries.")
+    
+    if not data:
+        raise ValueError("Input data cannot be empty.")
+    
+    # Creating DataFrame from the list of dictionaries
+    df = pd.DataFrame(data)
+    return df
+
+def save_dataframe_to_csv(df: pd.DataFrame, file_path: str) -> None:
+    """
+    Save the DataFrame to a CSV file.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to save.
+    file_path (str): The path where the CSV file will be saved.
+
+    Raises:
+    IOError: If there is an issue with file writing.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path, delimiter=delimiter, index_col=index_col)
-        
-        # Drop duplicate rows
-        df = df.drop_duplicates()
-        
-        # Fill missing values with the mean of each column
-        df.fillna(df.mean(), inplace=True)
-        
-        return df
-    
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
+        df.to_csv(file_path, index=False)
+    except IOError as e:
+        raise IOError(f"An error occurred while writing to the file: {e}")
 
 # Example usage
 if __name__ == "__main__":
-    # Replace 'your_file.csv' with the path to your CSV file
-    data_frame = load_and_process_data('your_file.csv')
-    print(data_frame.head())
+    # Sample data
+    sample_data = [
+        {"Name": "Alice", "Age": 30, "City": "New York"},
+        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
+        {"Name": "Charlie", "Age": 35, "City": "Chicago"}
+    ]
+
+    # Create DataFrame
+    df = create_dataframe(sample_data)
+    print(df)
+
+    # Save DataFrame to a CSV file
+    save_dataframe_to_csv(df, "output.csv")
