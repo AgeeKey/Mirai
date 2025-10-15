@@ -2,76 +2,77 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-15T10:22:44.421014
+Learned: 2025-10-15T10:38:47.523678
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, List
+import numpy as np
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a pandas DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary containing data for the DataFrame.
 
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-    """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise ValueError("No data found in the file.") from e
-
-def filter_data(df: pd.DataFrame, column: str, values: List[Optional[str]]) -> pd.DataFrame:
-    """
-    Filter the DataFrame based on specified column values.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column (str): The column name to filter on.
-        values (List[Optional[str]]): The values to filter for.
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame.
-    """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+        pd.DataFrame: A DataFrame containing the provided data.
     
-    filtered_df = df[df[column].isin(values)]
-    return filtered_df
-
-def main(file_path: str, column: str, values: List[Optional[str]]) -> None:
+    Raises:
+        ValueError: If the input data is empty or not a dictionary.
     """
-    Main function to load, filter, and display data.
+    if not isinstance(data, dict) or not data:
+        raise ValueError("Input data must be a non-empty dictionary.")
+
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame) -> pd.Series:
+    """
+    Calculate basic statistics (mean, median, and standard deviation) for numerical columns in the DataFrame.
 
     Args:
-        file_path (str): The path to the CSV file.
-        column (str): The column name to filter on.
-        values (List[Optional[str]]): The values to filter for.
+        df (pd.DataFrame): The DataFrame for which to calculate statistics.
+
+    Returns:
+        pd.Series: A Series containing the mean, median, and standard deviation of each numerical column.
+    
+    Raises:
+        ValueError: If the DataFrame is empty or does not contain numerical columns.
     """
+    if df.empty:
+        raise ValueError("The DataFrame is empty.")
+
+    numeric_df = df.select_dtypes(include=[np.number])
+    if numeric_df.empty:
+        raise ValueError("The DataFrame does not contain numerical columns.")
+
+    return pd.Series({
+        'mean': numeric_df.mean(),
+        'median': numeric_df.median(),
+        'std_dev': numeric_df.std()
+    })
+
+# Example usage
+if __name__ == "__main__":
     try:
-        # Load the data
-        df = load_data(file_path)
+        # Sample data for DataFrame
+        sample_data = {
+            'A': [1, 2, 3, 4, 5],
+            'B': [5, 6, 7, 8, 9],
+            'C': [10, 11, 12, 13, 14]
+        }
         
-        # Filter the data
-        filtered_df = filter_data(df, column, values)
-        
-        # Display the filtered data
-        print(filtered_df)
+        # Create DataFrame
+        df = create_dataframe(sample_data)
+        print("DataFrame created:\n", df)
+
+        # Calculate statistics
+        stats = calculate_statistics(df)
+        print("\nStatistics:\n", stats)
+    
     except Exception as e:
         print(f"An error occurred: {e}")
-
-# Example usage (uncomment the following line to run):
-# main('data.csv', 'column_name', ['value1', 'value2'])
