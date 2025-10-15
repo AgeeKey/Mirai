@@ -1,56 +1,82 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.95
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-15T15:14:45.633100
+Learned: 2025-10-15T15:30:56.719788
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Tuple
 
-def load_and_process_data(file_path: str, column_name: str, threshold: float) -> pd.DataFrame:
+def read_csv_file(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a DataFrame, filter rows based on a threshold, and clean the data.
+    Reads a CSV file into a pandas DataFrame.
 
     Parameters:
-    - file_path: str - The path to the CSV file.
-    - column_name: str - The column to filter on.
-    - threshold: float - The threshold value for filtering.
+    - file_path (str): The path to the CSV file.
 
     Returns:
-    - pd.DataFrame - The processed DataFrame.
+    - Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file, or None if an error occurs.
     """
     try:
-        # Load the data from a CSV file
         df = pd.read_csv(file_path)
-        
-        # Check if the specified column exists
-        if column_name not in df.columns:
-            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-        
-        # Filter rows where the specified column's value is greater than the threshold
-        filtered_df = df[df[column_name] > threshold]
-        
-        # Clean up the DataFrame by dropping any rows with missing values
-        cleaned_df = filtered_df.dropna()
-        
-        return cleaned_df
+        return df
     except FileNotFoundError:
-        raise FileNotFoundError(f"The file at '{file_path}' was not found.")
+        print(f"Error: The file at {file_path} was not found.")
+        return None
     except pd.errors.EmptyDataError:
-        raise ValueError("The file is empty.")
-    except Exception as e:
-        raise RuntimeError(f"An error occurred while processing the data: {e}")
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was an error parsing the file.")
+        return None
 
-# Example usage
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Cleans the DataFrame by dropping rows with any missing values.
+
+    Parameters:
+    - df (pd.DataFrame): The data to clean.
+
+    Returns:
+    - pd.DataFrame: A cleaned DataFrame with no missing values.
+    """
+    cleaned_df = df.dropna()  # Drop rows with missing values
+    return cleaned_df
+
+def summarize_data(df: pd.DataFrame) -> Tuple[int, pd.Series]:
+    """
+    Summarizes the DataFrame by returning its shape and a summary of a specific column.
+
+    Parameters:
+    - df (pd.DataFrame): The data to summarize.
+
+    Returns:
+    - Tuple[int, pd.Series]: A tuple containing the number of rows and a summary of the first column.
+    """
+    num_rows = df.shape[0]  # Get the number of rows
+    summary = df.iloc[:, 0].describe()  # Get a summary of the first column
+    return num_rows, summary
+
+def main(file_path: str) -> None:
+    """
+    Main function to execute the data processing workflow.
+
+    Parameters:
+    - file_path (str): The path to the CSV file to process.
+    """
+    df = read_csv_file(file_path)
+    if df is not None:
+        cleaned_df = clean_data(df)
+        num_rows, summary = summarize_data(cleaned_df)
+        print(f"Number of rows after cleaning: {num_rows}")
+        print("Summary of the first column:")
+        print(summary)
+
 if __name__ == "__main__":
-    try:
-        # Load and process the data from a sample CSV file
-        result_df = load_and_process_data('sample_data.csv', 'value', 10.0)
-        print(result_df)
-    except Exception as e:
-        print(f"Error: {e}")
+    # Replace 'data.csv' with the actual path to your CSV file
+    main('data.csv')

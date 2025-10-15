@@ -1,10 +1,10 @@
 """
-FastAPI - Verified Learning Artifact
+fastapi - Verified Learning Artifact
 
 Quality Grade: D
 Overall Score: 0.68
 Tests Passed: 0/1
-Learned: 2025-10-14T19:06:06.993279
+Learned: 2025-10-15T15:31:38.238474
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -15,55 +15,54 @@ from typing import List, Optional
 
 app = FastAPI()
 
+# Data model for a simple item
 class Item(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
-    price: float
-    quantity: int
 
-# In-memory database simulation
-items_db: List[Item] = []
+# In-memory storage for items
+items: List[Item] = []
 
 @app.post("/items/", response_model=Item)
 async def create_item(item: Item) -> Item:
     """
-    Create a new item in the database.
+    Create a new item.
     
-    Parameters:
-    - item: Item to be created.
-    
+    Args:
+        item (Item): The item to be created.
+        
     Returns:
-    - The created item.
+        Item: The created item.
     """
-    items_db.append(item)
+    items.append(item)
     return item
 
 @app.get("/items/", response_model=List[Item])
 async def read_items() -> List[Item]:
     """
-    Retrieve all items from the database.
+    Retrieve the list of items.
     
     Returns:
-    - A list of items.
+        List[Item]: The list of items.
     """
-    return items_db
+    return items
 
 @app.get("/items/{item_id}", response_model=Item)
 async def read_item(item_id: int) -> Item:
     """
     Retrieve an item by its ID.
     
-    Parameters:
-    - item_id: ID of the item to retrieve.
-    
+    Args:
+        item_id (int): The ID of the item to retrieve.
+        
     Raises:
-    - HTTPException: If item with the given ID does not exist.
-    
+        HTTPException: If the item is not found.
+        
     Returns:
-    - The requested item.
+        Item: The requested item.
     """
-    for item in items_db:
+    for item in items:
         if item.id == item_id:
             return item
     raise HTTPException(status_code=404, detail="Item not found")
@@ -71,21 +70,21 @@ async def read_item(item_id: int) -> Item:
 @app.put("/items/{item_id}", response_model=Item)
 async def update_item(item_id: int, updated_item: Item) -> Item:
     """
-    Update an existing item.
+    Update an existing item by its ID.
     
-    Parameters:
-    - item_id: ID of the item to update.
-    - updated_item: New data for the item.
-    
+    Args:
+        item_id (int): The ID of the item to update.
+        updated_item (Item): The updated item data.
+        
     Raises:
-    - HTTPException: If item with the given ID does not exist.
-    
+        HTTPException: If the item is not found.
+        
     Returns:
-    - The updated item.
+        Item: The updated item.
     """
-    for index, item in enumerate(items_db):
+    for index, item in enumerate(items):
         if item.id == item_id:
-            items_db[index] = updated_item
+            items[index] = updated_item
             return updated_item
     raise HTTPException(status_code=404, detail="Item not found")
 
@@ -94,19 +93,17 @@ async def delete_item(item_id: int) -> dict:
     """
     Delete an item by its ID.
     
-    Parameters:
-    - item_id: ID of the item to delete.
-    
+    Args:
+        item_id (int): The ID of the item to delete.
+        
     Raises:
-    - HTTPException: If item with the given ID does not exist.
-    
+        HTTPException: If the item is not found.
+        
     Returns:
-    - A message confirming deletion.
+        dict: A message confirming the deletion.
     """
-    for index, item in enumerate(items_db):
+    for index, item in enumerate(items):
         if item.id == item_id:
-            del items_db[index]
+            del items[index]
             return {"message": "Item deleted successfully"}
     raise HTTPException(status_code=404, detail="Item not found")
-
-# To run the application, use the command: uvicorn filename:app --reload
