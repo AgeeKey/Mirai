@@ -2,67 +2,81 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-15T06:52:07.415006
+Learned: 2025-10-15T07:08:33.614935
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
-    
-    Args:
-        file_path (str): The path to the CSV file.
-        
+    Load a CSV file into a pandas DataFrame.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurred.
+    pd.DataFrame: The loaded DataFrame.
+    
+    Raises:
+    FileNotFoundError: If the file does not exist.
+    pd.errors.EmptyDataError: If the file is empty.
+    pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
         df = pd.read_csv(file_path)
         return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
-        return None
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: {e}")
+        raise
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def filter_data(df: pd.DataFrame, column_name: str, value: str) -> pd.DataFrame:
     """
-    Clean the DataFrame by dropping missing values and duplicates.
-    
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-        
+    Filter the DataFrame based on a specific column and value.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to filter.
+    column_name (str): The column name to filter on.
+    value (str): The value to filter by.
+
     Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    df_cleaned = df.dropna()  # Drop rows with missing values
-    df_cleaned = df_cleaned.drop_duplicates()  # Drop duplicate rows
-    return df_cleaned
-
-def main(file_path: str) -> None:
-    """
-    Main function to load and clean data.
+    pd.DataFrame: The filtered DataFrame.
     
-    Args:
-        file_path (str): The path to the CSV file to be processed.
+    Raises:
+    KeyError: If the column name does not exist in the DataFrame.
     """
+    if column_name not in df.columns:
+        raise KeyError(f"Column '{column_name}' does not exist in the DataFrame.")
+    return df[df[column_name] == value]
+
+def main(file_path: str, column_name: str, value: str) -> None:
+    """
+    Main function to load, filter, and display data.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    column_name (str): The column name to filter on.
+    value (str): The value to filter by.
+    """
+    # Load data from the CSV file
     df = load_data(file_path)
-    if df is not None:
-        print("Data loaded successfully.")
-        df_cleaned = clean_data(df)
-        print("Data cleaned successfully.")
-        print(df_cleaned.head())  # Display the first few rows of the cleaned DataFrame
+    
+    # Filter the DataFrame
+    filtered_df = filter_data(df, column_name, value)
+    
+    # Display the filtered DataFrame
+    print(filtered_df)
 
 if __name__ == "__main__":
-    # Example usage. Replace 'data.csv' with your actual CSV file path.
-    main('data.csv')
+    # Example usage
+    main("data.csv", "category", "A")

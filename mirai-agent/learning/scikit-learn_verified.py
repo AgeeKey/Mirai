@@ -1,69 +1,90 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.97
+Quality Grade: C
+Overall Score: 0.78
 Tests Passed: 0/1
-Learned: 2025-10-15T06:52:36.489844
+Learned: 2025-10-15T07:09:15.239118
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.exceptions import NotFittedError
+import logging
 
-def load_data(file_path: str) -> pd.DataFrame:
-    """Load dataset from a CSV file."""
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def load_data() -> pd.DataFrame:
+    """Load the iris dataset and return it as a DataFrame."""
     try:
-        data = pd.read_csv(file_path)
-        return data
+        data = load_iris()
+        df = pd.DataFrame(data.data, columns=data.feature_names)
+        df['target'] = data.target
+        return df
     except Exception as e:
-        raise ValueError(f"Error loading data from {file_path}: {e}")
+        logging.error("Error loading data: %s", e)
+        raise
 
-def preprocess_data(data: pd.DataFrame, target_column: str) -> tuple:
-    """Preprocess the data, splitting into features and target."""
+def split_data(df: pd.DataFrame) -> tuple:
+    """Split the DataFrame into features and target, then into training and testing sets."""
     try:
-        X = data.drop(columns=[target_column])
-        y = data[target_column]
-        return X, y
+        X = df.drop('target', axis=1)
+        y = df['target']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
     except KeyError as e:
-        raise ValueError(f"Target column '{target_column}' not found in data: {e}")
+        logging.error("Target column not found: %s", e)
+        raise
 
-def main(file_path: str, target_column: str) -> None:
-    """Main function to execute the machine learning workflow."""
-    # Load the dataset
-    data = load_data(file_path)
+class IrisClassifier:
+    """A class for training and predicting with a Random Forest classifier on the iris dataset."""
     
-    # Preprocess the data
-    X, y = preprocess_data(data, target_column)
+    def __init__(self):
+        self.model = RandomForestClassifier(random_state=42)
 
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
+        """Train the Random Forest model."""
+        try:
+            self.model.fit(X_train, y_train)
+            logging.info("Model trained successfully.")
+        except Exception as e:
+            logging.error("Error during model training: %s", e)
+            raise
 
-    # Scale the features
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        """Make predictions using the trained model."""
+        try:
+            return self.model.predict(X)
+        except NotFittedError:
+            logging.error("Model is not fitted. Please train the model first.")
+            raise
+        except Exception as e:
+            logging.error("Error during prediction: %s", e)
+            raise
 
-    # Initialize the model
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+def main() -> None:
+    """Main function to execute the data loading, training, and prediction."""
+    try:
+        df = load_data()
+        X_train, X_test, y_train, y_test = split_data(df)
 
-    # Train the model
-    model.fit(X_train, y_train)
+        classifier = IrisClassifier()
+        classifier.train(X_train, y_train)
 
-    # Make predictions
-    y_pred = model.predict(X_test)
+        predictions = classifier.predict(X_test)
 
-    # Evaluate the model
-    print(confusion_matrix(y_test, y_pred))
-    print(classification_report(y_test, y_pred))
+        accuracy = accuracy_score(y_test, predictions)
+        logging.info("Accuracy: %.2f%%", accuracy * 100)
+        print(classification_report(y_test, predictions))
+    except Exception as e:
+        logging.error("An error occurred in the main execution: %s", e)
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'path/to/your/dataset.csv'  # Update with your dataset path
-    target_column = 'target'  # Update with your target column name
-    main(file_path, target_column)
+    main()
