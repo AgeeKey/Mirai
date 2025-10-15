@@ -4,37 +4,38 @@ pandas - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-15T02:17:18.497377
+Learned: 2025-10-15T02:33:28.970634
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> Union[pd.DataFrame, None]:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and perform basic processing.
+    Load a CSV file into a pandas DataFrame, process it, and return the DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file to be loaded.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Union[pd.DataFrame, None]: Processed DataFrame or None if an error occurs.
+    Optional[pd.DataFrame]: Processed DataFrame or None if an error occurs.
     """
     try:
-        # Load the data into a DataFrame
+        # Load CSV data into a DataFrame
         df = pd.read_csv(file_path)
 
-        # Display the first few rows of the DataFrame
-        print("Data loaded successfully.")
-        print(df.head())
+        # Check if the DataFrame is empty
+        if df.empty:
+            print("Warning: The DataFrame is empty.")
+            return None
 
         # Drop rows with any missing values
         df.dropna(inplace=True)
 
-        # Convert column names to lowercase for consistency
-        df.columns = [col.lower() for col in df.columns]
+        # Reset the index of the DataFrame
+        df.reset_index(drop=True, inplace=True)
 
         return df
     except FileNotFoundError:
@@ -44,15 +45,14 @@ def load_and_process_data(file_path: str) -> Union[pd.DataFrame, None]:
         print("Error: The file is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
+        print("Error: The file could not be parsed.")
         return None
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
 
+# Example usage
 if __name__ == "__main__":
-    # Example usage
-    data_frame = load_and_process_data('data.csv')
+    data_frame = load_and_process_data("data.csv")
     if data_frame is not None:
-        print("Processed DataFrame:")
-        print(data_frame)
+        print(data_frame.head())
