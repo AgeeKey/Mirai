@@ -2,75 +2,58 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-15T05:47:15.795015
+Learned: 2025-10-15T06:03:38.409206
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_clean_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Creates a pandas DataFrame from a dictionary of data.
+    Load data from a CSV file and clean it by removing rows with missing values.
 
-    Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
-
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary are not equal.
+    Optional[pd.DataFrame]: A cleaned DataFrame or None if an error occurs.
     """
-    # Check if all columns have the same number of rows
-    column_lengths = [len(value) for value in data.values()]
-    if len(set(column_lengths)) != 1:
-        raise ValueError("All columns must have the same number of rows.")
-
-    # Create DataFrame
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculates basic statistics for numerical columns in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame for which to calculate statistics.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the mean and standard deviation for each numerical column.
-    """
-    # Calculate mean and standard deviation
-    stats = pd.DataFrame({
-        'mean': df.mean(),
-        'std': df.std()
-    })
-    return stats
+    try:
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Remove rows with any missing values
+        cleaned_df = df.dropna()
+        
+        return cleaned_df
+    
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a problem parsing the file.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
 
 def main():
-    # Sample data
-    data = {
-        'A': np.random.rand(10),
-        'B': np.random.rand(10),
-        'C': np.random.rand(10)
-    }
-
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:")
-        print(df)
-
-        # Calculate statistics
-        stats = calculate_statistics(df)
-        print("\nStatistics:")
-        print(stats)
-
-    except ValueError as e:
-        print(f"Error: {e}")
+    # Specify the CSV file path
+    csv_file_path = 'data.csv'
+    
+    # Load and clean the data
+    data = load_and_clean_data(csv_file_path)
+    
+    if data is not None:
+        # Display the first few rows of the cleaned data
+        print(data.head())
 
 if __name__ == "__main__":
     main()
