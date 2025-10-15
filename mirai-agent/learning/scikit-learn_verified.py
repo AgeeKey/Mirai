@@ -1,88 +1,73 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.85
+Quality Grade: C
+Overall Score: 0.79
 Tests Passed: 0/1
-Learned: 2025-10-15T04:27:29.789222
+Learned: 2025-10-15T04:43:36.923665
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.exceptions import NotFittedError
 
-def load_and_preprocess_data() -> pd.DataFrame:
-    """
-    Load the Iris dataset and return it as a DataFrame.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the Iris dataset.
-    """
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset into a DataFrame."""
     iris = load_iris()
-    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-    data['target'] = iris.target
-    return data
+    return pd.DataFrame(data=iris.data, columns=iris.feature_names)
 
-def train_model(data: pd.DataFrame) -> RandomForestClassifier:
-    """
-    Train a Random Forest model on the provided data.
-
-    Args:
-        data (pd.DataFrame): The input data containing features and target.
-
-    Returns:
-        RandomForestClassifier: The trained Random Forest model.
-    """
-    X = data.drop('target', axis=1)
-    y = data['target']
+def preprocess_data(df: pd.DataFrame) -> tuple:
+    """Split the DataFrame into features and target variable, then into training and test sets."""
+    X = df.values
+    y = load_iris().target
     
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Split the data into training and testing sets
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    
-    # Evaluate the model
-    y_pred = model.predict(X_test)
-    print(classification_report(y_test, y_pred))
-    print(f'Accuracy: {accuracy_score(y_test, y_pred):.2f}')
-    
-    return model
+class IrisClassifier:
+    """A classifier for the Iris dataset using Random Forest."""
 
-def predict(model: RandomForestClassifier, sample: np.ndarray) -> int:
-    """
-    Predict the class of a given sample using the trained model.
+    def __init__(self):
+        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-    Args:
-        model (RandomForestClassifier): The trained model.
-        sample (np.ndarray): The feature vector to predict.
+    def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
+        """Train the Random Forest classifier on the training data."""
+        try:
+            self.model.fit(X_train, y_train)
+        except Exception as e:
+            raise RuntimeError("Failed to train model") from e
 
-    Returns:
-        int: The predicted class label.
+    def predict(self, X_test: np.ndarray) -> np.ndarray:
+        """Make predictions using the trained model."""
+        try:
+            return self.model.predict(X_test)
+        except NotFittedError as e:
+            raise RuntimeError("Model is not fitted yet. Please train the model first.") from e
+        except Exception as e:
+            raise RuntimeError("Prediction failed") from e
 
-    Raises:
-        NotFittedError: If the model has not been fitted yet.
-    """
-    if not hasattr(model, "estimators_"):
-        raise NotFittedError("The model is not fitted yet.")
-    
-    prediction = model.predict(sample.reshape(1, -1))
-    return prediction[0]
+def main() -> None:
+    """Main function to execute the data loading, training, and evaluation."""
+    df = load_data()
+    X_train, X_test, y_train, y_test = preprocess_data(df)
+
+    classifier = IrisClassifier()
+    classifier.train(X_train, y_train)
+
+    predictions = classifier.predict(X_test)
+
+    accuracy = accuracy_score(y_test, predictions)
+    report = classification_report(y_test, predictions)
+
+    print(f"Accuracy: {accuracy:.2f}")
+    print("Classification Report:")
+    print(report)
 
 if __name__ == "__main__":
-    try:
-        data = load_and_preprocess_data()
-        model = train_model(data)
-
-        # Example prediction
-        sample = np.array([5.1, 3.5, 1.4, 0.2])  # Example feature vector
-        predicted_class = predict(model, sample)
-        print(f'The predicted class for the sample is: {predicted_class}')
-    except Exception as e:
-        print(f'An error occurred: {e}')
+    main()
