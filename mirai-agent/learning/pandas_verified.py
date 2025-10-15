@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-15T05:15:03.695339
+Learned: 2025-10-15T05:31:44.340079
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,62 +14,52 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    - file_path: str - The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    - pd.DataFrame or None: DataFrame containing the loaded data, or None if loading fails.
+        Optional[pd.DataFrame]: A DataFrame containing the data, or None if loading fails.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        df = pd.read_csv(file_path)
+        return df
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
+        print(f"Error: The file at {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
-        print("Error: No data found in the file.")
+        print("Error: The file is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: Error parsing the file.")
+        print("Error: There was a problem parsing the file.")
         return None
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping rows with missing values.
-
-    Parameters:
-    - df: pd.DataFrame - The DataFrame to clean.
-
-    Returns:
-    - pd.DataFrame: Cleaned DataFrame.
-    """
-    cleaned_df = df.dropna()  # Drop rows with any missing values
-    return cleaned_df
 
 def analyze_data(df: pd.DataFrame) -> None:
     """
-    Analyze the DataFrame and print basic statistics.
+    Perform basic analysis on the DataFrame.
 
-    Parameters:
-    - df: pd.DataFrame - The DataFrame to analyze.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
     """
-    print("Basic Statistics:")
-    print(df.describe())  # Print basic statistics for numerical columns
+    if df is not None:
+        print("DataFrame Head:")
+        print(df.head())  # Display the first few rows of the DataFrame
+        print("\nDataFrame Description:")
+        print(df.describe())  # Show basic statistics for numerical columns
+        print("\nDataFrame Info:")
+        print(df.info())  # Show info about the DataFrame
 
 def main(file_path: str) -> None:
     """
-    Main function to load, clean, and analyze data.
+    Main function to execute data loading and analysis.
 
-    Parameters:
-    - file_path: str - The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
     """
-    df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        analyze_data(cleaned_df)
+    df = load_data(file_path)  # Load the data
+    analyze_data(df)  # Analyze the data
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")  # Replace with your actual CSV file path
+    # Example usage: specify the path to your CSV file here
+    main("path_to_your_file.csv")
