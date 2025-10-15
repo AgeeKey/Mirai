@@ -2,61 +2,57 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-15T07:24:50.022096
+Learned: 2025-10-15T07:41:04.803890
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Union
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, delimiter: str = ',', columns: Union[list, None] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it into a DataFrame.
+    Load a CSV file into a Pandas DataFrame and process it.
 
-    Parameters:
-    - file_path: str - Path to the CSV file.
-    - column_names: Optional[list[str]] - List of column names to use. If None, uses default names.
+    Args:
+        file_path (str): The path to the CSV file.
+        delimiter (str): The delimiter used in the CSV file. Defaults to ','.
+        columns (list, optional): List of columns to select from the DataFrame. If None, all columns are selected.
 
     Returns:
-    - pd.DataFrame: Processed DataFrame.
+        pd.DataFrame: A DataFrame containing the loaded data.
 
     Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - pd.errors.EmptyDataError: If the file is empty.
-    - pd.errors.ParserError: If there is an error parsing the file.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the CSV file is empty.
+        pd.errors.ParserError: If there is an error parsing the CSV file.
     """
     try:
-        # Load the data from the CSV file
-        df = pd.read_csv(file_path, names=column_names, header=None if column_names else 'infer')
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path, delimiter=delimiter, usecols=columns)
         
-        # Basic data cleaning: drop rows with any missing values
-        df.dropna(inplace=True)
-
+        # Perform basic data cleaning
+        df.dropna(inplace=True)  # Drop rows with missing values
+        df.reset_index(drop=True, inplace=True)  # Reset index
+        
         return df
-
+    
     except FileNotFoundError as e:
-        print(f"Error: The file at {file_path} was not found.")
+        print(f"Error: The file '{file_path}' was not found.")
         raise e
     except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
         raise e
     except pd.errors.ParserError as e:
-        print("Error: There was an error parsing the file.")
+        print("Error: There was a problem parsing the file.")
         raise e
 
-def main():
-    # Example usage of the load_and_process_data function
-    file_path = 'data.csv'  # Specify the path to your CSV file
-    column_names = ['Column1', 'Column2', 'Column3']
-
+# Example usage
+if __name__ == "__main__":
     try:
-        data_frame = load_and_process_data(file_path, column_names)
-        print(data_frame.head())  # Display the first few rows of the DataFrame
+        data = load_and_process_data('example_data.csv', delimiter=',', columns=['column1', 'column2'])
+        print(data.head())
     except Exception as e:
         print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()
