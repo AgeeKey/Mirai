@@ -2,57 +2,59 @@
 selenium - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-15T05:31:09.176716
+Learned: 2025-10-15T13:53:27.024708
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import WebDriverException
 import time
-from selenium.common.exceptions import WebDriverException, NoSuchElementException
 
-def perform_google_search(search_query: str) -> None:
-    """
-    Automates a Google search.
-
-    Args:
-        search_query (str): The query to search on Google.
-    
-    Raises:
-        WebDriverException: If there is an issue with the WebDriver.
-        NoSuchElementException: If an expected element is not found in the DOM.
-    """
+def setup_driver() -> webdriver.Chrome:
+    """Set up the Chrome WebDriver."""
     try:
-        # Set up the Chrome WebDriver
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-        driver.get("https://www.google.com")
-
-        # Find the search box using its name attribute value
-        search_box = driver.find_element(By.NAME, "q")
-        search_box.send_keys(search_query + Keys.RETURN)  # Enter the search query and submit
-
-        time.sleep(2)  # Wait for the results page to load
-
-        # Check for results
-        results = driver.find_elements(By.CSS_SELECTOR, 'h3')
-        if results:
-            for result in results:
-                print(result.text)  # Print the title of each result
-        else:
-            print("No results found.")
-
+        service = ChromeService(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service)
+        return driver
     except WebDriverException as e:
-        print(f"WebDriver error occurred: {e}")
-    except NoSuchElementException as e:
-        print(f"Element not found: {e}")
+        print(f"Error setting up the WebDriver: {e}")
+        raise
+
+def navigate_to_page(driver: webdriver.Chrome, url: str) -> None:
+    """Navigate to a specified URL."""
+    try:
+        driver.get(url)
+    except WebDriverException as e:
+        print(f"Error navigating to {url}: {e}")
+        raise
+
+def find_element(driver: webdriver.Chrome, by: By, value: str) -> webdriver.WebElement:
+    """Find an element on the page."""
+    try:
+        element = driver.find_element(by, value)
+        return element
+    except WebDriverException as e:
+        print(f"Error finding element by {by} with value '{value}': {e}")
+        raise
+
+def main() -> None:
+    """Main function to run the Selenium automation."""
+    driver = setup_driver()
+    try:
+        navigate_to_page(driver, "https://www.example.com")
+        time.sleep(2)  # Wait for the page to load
+        
+        # Example of finding an element (change selector as needed)
+        element = find_element(driver, By.TAG_NAME, "h1")
+        print(f"Found element text: {element.text}")
     finally:
         driver.quit()  # Ensure the driver is closed properly
 
 if __name__ == "__main__":
-    perform_google_search("OpenAI")
+    main()
