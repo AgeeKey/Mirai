@@ -1,10 +1,10 @@
 """
 schedule - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-15T18:30:57.126426
+Learned: 2025-10-15T19:35:52.226183
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,30 +12,45 @@ This code has been verified by MIRAI's NASA-level learning system.
 import schedule
 import time
 import logging
+from typing import Callable
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 
 def job() -> None:
-    """Function to be scheduled that prints a message."""
+    """Function to execute as a scheduled job."""
     try:
         logging.info("Job is running...")
-        # Simulate job processing
-        # Here you can add the actual work to be done.
+        # Simulate a task
+        print("Task executed.")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"Error occurred: {e}")
 
-def schedule_jobs() -> None:
-    """Schedules the job to run every 10 seconds."""
-    schedule.every(10).seconds.do(job)
+def schedule_job(interval: str, job_function: Callable[[], None]) -> None:
+    """Schedules a job to run at specified intervals.
+
+    Args:
+        interval (str): The interval for scheduling the job (e.g., 'every 10 seconds').
+        job_function (Callable[[], None]): The function to be executed.
+    """
+    try:
+        if 'seconds' in interval:
+            schedule.every(10).seconds.do(job_function)
+        elif 'minutes' in interval:
+            schedule.every(1).minutes.do(job_function)
+        else:
+            logging.error("Unsupported interval format.")
+            return
+    except Exception as e:
+        logging.error(f"Failed to schedule job: {e}")
 
 def run_scheduler() -> None:
-    """Runs the scheduled jobs in an infinite loop."""
+    """Runs the scheduler to execute scheduled jobs."""
     while True:
         schedule.run_pending()
-        time.sleep(1)  # Sleep to prevent high CPU usage
+        time.sleep(1)
 
 if __name__ == "__main__":
-    schedule_jobs()
-    logging.info("Scheduler started.")
-    run_scheduler()
+    schedule_job("every 10 seconds", job)  # Schedule the job
+    logging.info("Scheduler is starting...")
+    run_scheduler()  # Start the scheduler
