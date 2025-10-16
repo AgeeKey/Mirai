@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: C
-Overall Score: 0.80
+Overall Score: 0.76
 Tests Passed: 0/1
-Learned: 2025-10-16T02:36:19.039494
+Learned: 2025-10-16T02:52:21.222367
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,62 +12,51 @@ This code has been verified by MIRAI's NASA-level learning system.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
-from sklearn.exceptions import NotFittedError
-from typing import Tuple
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset and return features and target."""
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset and return it as a DataFrame."""
     iris = load_iris()
-    return iris.data, iris.target
+    df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df['target'] = iris.target
+    return df
 
-def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets."""
-    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+def preprocess_data(df: pd.DataFrame) -> tuple:
+    """Preprocess the DataFrame and split it into features and target variables."""
+    X = df.drop('target', axis=1)
+    y = df['target']
+    return X, y
 
-class IrisClassifier:
-    """A classifier for the Iris dataset using Random Forest."""
+def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
+    """Train a RandomForest classifier on the provided features and target."""
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    
+    return model, X_test, y_test
 
-    def __init__(self):
-        """Initialize the classifier."""
-        self.model = RandomForestClassifier()
-
-    def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
-        """Train the classifier on the training data."""
-        try:
-            self.model.fit(X_train, y_train)
-        except Exception as e:
-            print(f"An error occurred during training: {e}")
-
-    def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Make predictions on the test data."""
-        try:
-            return self.model.predict(X_test)
-        except NotFittedError:
-            print("Model is not fitted yet. Please train the model first.")
-            return np.array([])
-        except Exception as e:
-            print(f"An error occurred during prediction: {e}")
-            return np.array([])
-
-    def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> None:
-        """Evaluate the model's performance."""
-        accuracy = accuracy_score(y_true, y_pred)
-        report = classification_report(y_true, y_pred)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the trained model and print the accuracy and classification report."""
+    try:
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f'Accuracy: {accuracy:.2f}')
+        print(classification_report(y_test, y_pred))
+    except Exception as e:
+        print(f"An error occurred during evaluation: {e}")
 
 def main() -> None:
-    """Main function to execute the workflow."""
-    X, y = load_data()  # Load data
-    X_train, X_test, y_train, y_test = split_data(X, y)  # Split data
-
-    classifier = IrisClassifier()  # Initialize classifier
-    classifier.train(X_train, y_train)  # Train the model
-    y_pred = classifier.predict(X_test)  # Make predictions
-    classifier.evaluate(y_test, y_pred)  # Evaluate the model
+    """Main function to execute the machine learning workflow."""
+    try:
+        df = load_data()
+        X, y = preprocess_data(df)
+        model, X_test, y_test = train_model(X, y)
+        evaluate_model(model, X_test, y_test)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()

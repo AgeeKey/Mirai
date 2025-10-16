@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-16T02:35:51.946540
+Learned: 2025-10-16T02:51:52.568787
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,46 +12,63 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and process it by filtering specific columns.
+    Load a CSV file into a Pandas DataFrame.
 
     Parameters:
     file_path (str): The path to the CSV file.
-    column_filter (Optional[list]): A list of columns to filter. If None, all columns are included.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
-
-    Raises:
-    FileNotFoundError: If the specified file does not exist.
-    pd.errors.EmptyDataError: If the CSV file is empty.
-    pd.errors.ParserError: If there is a parsing error while reading the CSV file.
+    Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
     """
     try:
-        # Load the CSV data into a DataFrame
         df = pd.read_csv(file_path)
-
-        # Filter the DataFrame by the specified columns
-        if column_filter is not None:
-            df = df[column_filter]
-
         return df
-
-    except FileNotFoundError as e:
-        print(f"Error: The file '{file_path}' was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
+    except pd.errors.ParserError:
         print("Error: There was a problem parsing the file.")
-        raise e
+    return None
 
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Process the DataFrame by calculating a new column 'total' based on existing columns.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to process.
+
+    Returns:
+    pd.DataFrame: The processed DataFrame with the new 'total' column.
+    """
+    if df is None or df.empty:
+        raise ValueError("The DataFrame is empty or not valid for processing.")
+    
+    # Assuming the DataFrame has columns 'quantity' and 'price'
+    if 'quantity' in df.columns and 'price' in df.columns:
+        df['total'] = df['quantity'] * df['price']
+    else:
+        raise KeyError("The required columns 'quantity' and 'price' are not in the DataFrame.")
+    
+    return df
+
+def main(file_path: str):
+    """
+    Main function to load and process data from a CSV file.
+
+    Parameters:
+    file_path (str): The path to the CSV file to be processed.
+    """
+    # Load data from the specified file path
+    data = load_data(file_path)
+    
+    # Process the DataFrame if it was loaded successfully
+    if data is not None:
+        processed_data = process_data(data)
+        print(processed_data)
+
+# Example usage
 if __name__ == "__main__":
-    # Example usage of the function
-    try:
-        data = load_and_process_data('data.csv', column_filter=['Column1', 'Column2'])
-        print(data.head())  # Display the first few rows of the DataFrame
-    except Exception as e:
-        print("An error occurred while processing the data.")
+    main("data.csv")
