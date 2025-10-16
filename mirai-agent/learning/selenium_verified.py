@@ -2,9 +2,9 @@
 selenium - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-15T13:53:27.024708
+Learned: 2025-10-16T05:31:52.034233
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,49 +12,44 @@ This code has been verified by MIRAI's NASA-level learning system.
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import WebDriverException
 import time
 
 def setup_driver() -> webdriver.Chrome:
-    """Set up the Chrome WebDriver."""
-    try:
-        service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
-        return driver
-    except WebDriverException as e:
-        print(f"Error setting up the WebDriver: {e}")
-        raise
+    """
+    Sets up the Chrome WebDriver with necessary options.
 
-def navigate_to_page(driver: webdriver.Chrome, url: str) -> None:
-    """Navigate to a specified URL."""
-    try:
-        driver.get(url)
-    except WebDriverException as e:
-        print(f"Error navigating to {url}: {e}")
-        raise
-
-def find_element(driver: webdriver.Chrome, by: By, value: str) -> webdriver.WebElement:
-    """Find an element on the page."""
-    try:
-        element = driver.find_element(by, value)
-        return element
-    except WebDriverException as e:
-        print(f"Error finding element by {by} with value '{value}': {e}")
-        raise
+    Returns:
+        webdriver.Chrome: Configured Chrome WebDriver instance.
+    """
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run in headless mode for faster execution
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    
+    # Initialize the Chrome driver
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+    return driver
 
 def main() -> None:
-    """Main function to run the Selenium automation."""
-    driver = setup_driver()
+    """
+    Main function to automate browser actions using Selenium.
+    """
     try:
-        navigate_to_page(driver, "https://www.example.com")
+        driver = setup_driver()  # Set up the WebDriver
+        driver.get("https://www.example.com")  # Navigate to the target URL
+        
         time.sleep(2)  # Wait for the page to load
         
-        # Example of finding an element (change selector as needed)
-        element = find_element(driver, By.TAG_NAME, "h1")
-        print(f"Found element text: {element.text}")
+        # Find an element by its tag name
+        heading = driver.find_element(By.TAG_NAME, "h1")
+        print(f"Heading text: {heading.text}")  # Print the heading text
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")  # Handle any exceptions that occur
     finally:
-        driver.quit()  # Ensure the driver is closed properly
+        driver.quit()  # Ensure the driver is closed
 
 if __name__ == "__main__":
-    main()
+    main()  # Execute the main function

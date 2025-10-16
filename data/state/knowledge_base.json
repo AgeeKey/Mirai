@@ -1439,6 +1439,16 @@
       "name": "pandas",
       "proficiency": 0.9035252075649628,
       "learned_at": "2025-10-16T05:16:16.117374"
+    },
+    {
+      "name": "selenium",
+      "proficiency": 0.8666027170346258,
+      "learned_at": "2025-10-16T05:31:52.035744"
+    },
+    {
+      "name": "tensorflow",
+      "proficiency": 0.913154243121273,
+      "learned_at": "2025-10-16T05:32:18.924108"
     }
   ],
   "skills": [],
