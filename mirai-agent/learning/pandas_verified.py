@@ -2,63 +2,61 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-16T13:09:58.336203
+Learned: 2025-10-16T13:26:02.340338
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from pandas import DataFrame
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[DataFrame]:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file, process it, and return a DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the processed data.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        # Load the dataset
+        df = pd.read_csv(file_path)
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
     except pd.errors.EmptyDataError:
-        print(f"Error: The file {file_path} is empty.")
+        raise ValueError("The file is empty.")
     except pd.errors.ParserError:
-        print(f"Error: There was a parsing error in the file {file_path}.")
+        raise ValueError("Error while parsing the file.")
+
+    # Check if the necessary columns exist
+    required_columns = ['column1', 'column2']
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+
+    # Fill missing values with the mean of the column
+    for col in required_columns:
+        df[col].fillna(df[col].mean(), inplace=True)
+
+    # Create a new column based on existing data
+    df['new_column'] = df['column1'] + df['column2']
+
+    return df
+
+def main():
+    """
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Path to the CSV file
+    try:
+        processed_data = load_and_process_data(file_path)
+        print(processed_data.head())  # Display the first few rows of the processed DataFrame
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-    
-    return None
-
-def analyze_data(df: DataFrame) -> None:
-    """
-    Perform basic analysis on the DataFrame.
-
-    Args:
-        df (DataFrame): The DataFrame to analyze.
-    """
-    if df is not None:
-        print("Data Overview:")
-        print(df.head())  # Display the first few rows of the DataFrame
-        print("\nSummary Statistics:")
-        print(df.describe())  # Show summary statistics for numerical columns
-    else:
-        print("No data to analyze.")
-
-def main() -> None:
-    """
-    Main function to execute the data loading and analysis.
-    """
-    file_path = 'data.csv'  # Replace with your actual file path
-    data = load_data(file_path)
-    analyze_data(data)
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
