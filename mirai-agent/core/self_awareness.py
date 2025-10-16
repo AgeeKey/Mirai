@@ -6,11 +6,11 @@
 
 import json
 import sqlite3
+import statistics
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple
-import statistics
 
 
 class SelfAwareness:
@@ -90,7 +90,9 @@ class SelfAwareness:
 
         conn.close()
 
-        success_rate = (completed / (completed + failed) * 100) if (completed + failed) > 0 else 0
+        success_rate = (
+            (completed / (completed + failed) * 100) if (completed + failed) > 0 else 0
+        )
 
         return {
             "total": total_goals,
@@ -123,9 +125,27 @@ class SelfAwareness:
 
         # Категоризация достижений
         categories = {
-            "auto_fix": len([d for d in descriptions if "auto-fix" in d.lower() or "pr" in d.lower()]),
-            "learning": len([d for d in descriptions if "learn" in d.lower() or "изучи" in d.lower()]),
-            "improvement": len([d for d in descriptions if "improve" in d.lower() or "улучш" in d.lower()]),
+            "auto_fix": len(
+                [
+                    d
+                    for d in descriptions
+                    if "auto-fix" in d.lower() or "pr" in d.lower()
+                ]
+            ),
+            "learning": len(
+                [
+                    d
+                    for d in descriptions
+                    if "learn" in d.lower() or "изучи" in d.lower()
+                ]
+            ),
+            "improvement": len(
+                [
+                    d
+                    for d in descriptions
+                    if "improve" in d.lower() or "улучш" in d.lower()
+                ]
+            ),
             "other": 0,
         }
         categories["other"] = total - sum(categories.values())
@@ -234,7 +254,7 @@ class SelfAwareness:
 
         # Анализируем тренд ошибок
         errors = [m.get("errors", 0) for m in metrics_data]
-        
+
         # Простой тренд: сравниваем первую и вторую половину периода
         mid = len(errors) // 2
         first_half_avg = statistics.mean(errors[:mid]) if errors[:mid] else 0
@@ -279,9 +299,12 @@ class SelfAwareness:
 
         # 5. Тренд улучшения (вес 10%)
         trend = performance["trends"]["direction"]
-        trend_score = {"improving": 100, "stable": 70, "degrading": 30, "unknown": 50}.get(
-            trend, 50
-        )
+        trend_score = {
+            "improving": 100,
+            "stable": 70,
+            "degrading": 30,
+            "unknown": 50,
+        }.get(trend, 50)
         scores.append(trend_score * 0.1)
 
         return round(sum(scores), 1)
@@ -493,9 +516,12 @@ class SelfAwareness:
         reflection += "\n\n---\n\n💡 ЧТО Я МОГУ УЛУЧШИТЬ:\n"
 
         for i, improvement in enumerate(improvements, 1):
-            emoji = {"критичный": "🔴", "высокий": "🟠", "средний": "🟡", "низкий": "🟢"}.get(
-                improvement["priority"], "⚪"
-            )
+            emoji = {
+                "критичный": "🔴",
+                "высокий": "🟠",
+                "средний": "🟡",
+                "низкий": "🟢",
+            }.get(improvement["priority"], "⚪")
             reflection += f"\n{i}. [{emoji} {improvement['priority'].upper()}] {improvement['area']}\n"
             reflection += f"   Проблема: {improvement['issue']}\n"
             reflection += f"   Решение: {improvement['suggestion']}\n"
@@ -542,9 +568,13 @@ class SelfAwareness:
             reflection += "Фокус: поддерживать текущий уровень и искать возможности для инноваций.\n"
         elif performance["overall_score"] >= 60:
             reflection += "Моя работа стабильна, но есть возможности для улучшения.\n"
-            reflection += "Фокус: устранить выявленные слабости, повысить качество решений.\n"
+            reflection += (
+                "Фокус: устранить выявленные слабости, повысить качество решений.\n"
+            )
         else:
-            reflection += "Мои показатели ниже ожидаемых. Требуется значительное улучшение.\n"
+            reflection += (
+                "Мои показатели ниже ожидаемых. Требуется значительное улучшение.\n"
+            )
             reflection += "Фокус: критичные проблемы должны быть решены в приоритете.\n"
 
         if performance["trends"]["direction"] == "improving":
@@ -557,7 +587,7 @@ class SelfAwareness:
     def get_summary(self) -> str:
         """Краткая сводка саморефлексии"""
         performance = self.analyze_performance(days=7)
-        
+
         summary = f"""
 🪞 Самоосознание MIRAI
 
@@ -582,7 +612,7 @@ def main():
 
     print("\n" + "=" * 70)
     print("\n💡 КОНКРЕТНЫЕ ПРЕДЛОЖЕНИЯ ПО УЛУЧШЕНИЮ:\n")
-    
+
     improvements = awareness.propose_improvements()
     for i, imp in enumerate(improvements, 1):
         print(f"{i}. [{imp['priority'].upper()}] {imp['area']}")

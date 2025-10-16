@@ -67,6 +67,12 @@ class AutonomousService:
         self.awareness = SelfAwareness()
         logger.info("✅ Self-Awareness готова!")
 
+        logger.info("📋 Инициализация Auto-Planner...")
+        from core.auto_planner import AutoPlanner
+
+        self.planner = AutoPlanner()
+        logger.info("✅ Auto-Planner готов!")
+
         self.running = True
         self.cycle_count = 0
 
@@ -348,27 +354,66 @@ class AutonomousService:
             # Каждые 48 циклов (~4 часа) - саморефлексия
             if self.cycle_count % 48 == 0:
                 logger.info("🪞 Провожу саморефлексию...")
-                
+
                 # Краткая сводка
                 awareness_summary = self.awareness.get_summary()
                 for line in awareness_summary.split("\n"):
                     logger.info(f"   {line}")
-                
+
                 # Предложения по улучшению
                 improvements = self.awareness.propose_improvements()
                 if improvements:
                     logger.info("   💡 Топ-3 предложения по улучшению:")
                     for i, imp in enumerate(improvements[:3], 1):
-                        logger.info(f"      {i}. [{imp['priority']}] {imp['area']}: {imp['suggestion']}")
-                
+                        logger.info(
+                            f"      {i}. [{imp['priority']}] {imp['area']}: {imp['suggestion']}"
+                        )
+
                 # Записываем решение о самоулучшении
-                if improvements and improvements[0]['priority'] in ['критичный', 'высокий']:
+                if improvements and improvements[0]["priority"] in [
+                    "критичный",
+                    "высокий",
+                ]:
                     decision_id = self.memory.record_decision(
                         context=f"Саморефлексия выявила: {improvements[0]['issue']}",
                         decision=f"Применить: {improvements[0]['suggestion']}",
-                        reasoning=f"Критичность: {improvements[0]['priority']}"
+                        reasoning=f"Критичность: {improvements[0]['priority']}",
                     )
-                    logger.info(f"   📝 Решение о самоулучшении записано (ID: {decision_id})")
+                    logger.info(
+                        f"   📝 Решение о самоулучшении записано (ID: {decision_id})"
+                    )
+
+            # Каждое утро (первый цикл дня) - создаём план на день
+            current_hour = datetime.now().hour
+            if current_hour >= 6 and current_hour < 7:  # Между 6 и 7 утра
+                if self.cycle_count % 12 == 0:  # Раз в час проверяем
+                    logger.info("📋 Создаю план на день...")
+                    daily_plan = self.planner.create_daily_plan()
+                    logger.info(f"   Фокус дня: {daily_plan['focus_area']}")
+                    logger.info(f"   Задач: {daily_plan['total_tasks']}")
+                    logger.info(f"   Часов: {daily_plan['estimated_hours']:.1f}")
+
+            # Каждое воскресенье - создаём план на неделю
+            if datetime.now().weekday() == 6:  # Воскресенье
+                if self.cycle_count % 24 == 0:  # Раз в 2 часа проверяем
+                    logger.info("📆 Создаю план на неделю...")
+                    weekly_plan = self.planner.create_weekly_plan()
+                    logger.info(f"   Стратегия: {weekly_plan['strategy']}")
+                    logger.info(f"   Целей: {weekly_plan['total_goals']}")
+
+            # Каждый вечер (около 22:00) - ревью выполнения плана
+            if current_hour >= 22 and current_hour < 23:
+                if self.cycle_count % 12 == 0:
+                    logger.info("📊 Анализирую выполнение плана...")
+                    review = self.planner.review_plan_execution()
+                    if review.get("status") != "no_plan":
+                        logger.info(f"   Completion Rate: {review['completion_rate']:.1f}%")
+                        logger.info(f"   Статус: {review['status']}")
+                        logger.info(f"   Достижений сегодня: {review['achievements_today']}")
+                        
+                        # Адаптируем план на завтра
+                        adaptation = self.planner.adapt_plan()
+                        logger.info(f"   💡 Адаптация: {adaptation['message']}")
 
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])
