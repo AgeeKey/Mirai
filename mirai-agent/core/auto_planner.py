@@ -6,10 +6,10 @@
 
 import json
 import sqlite3
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
-from dataclasses import dataclass
 
 
 @dataclass
@@ -111,7 +111,9 @@ class AutoPlanner:
         improvements = awareness.propose_improvements()
 
         # 3. Определяем стратегию недели
-        strategy = self._determine_weekly_strategy(active_goals, performance, improvements)
+        strategy = self._determine_weekly_strategy(
+            active_goals, performance, improvements
+        )
 
         # 4. Распределяем задачи по дням недели
         weekly_tasks = self._distribute_tasks_by_days(active_goals, strategy)
@@ -132,7 +134,9 @@ class AutoPlanner:
 
         return plan
 
-    def _determine_daily_focus(self, performance: Dict, improvements: List[Dict]) -> str:
+    def _determine_daily_focus(
+        self, performance: Dict, improvements: List[Dict]
+    ) -> str:
         """Определить фокус дня на основе анализа"""
 
         # Если есть критичные проблемы - фокус на них
@@ -187,7 +191,9 @@ class AutoPlanner:
         tasks = []
 
         # 1. Критичные задачи из improvements (если есть)
-        critical = [i for i in improvements if i["priority"] in ["критичный", "высокий"]]
+        critical = [
+            i for i in improvements if i["priority"] in ["критичный", "высокий"]
+        ]
         for imp in critical[:2]:  # Максимум 2 критичные задачи в день
             tasks.append(
                 {
@@ -239,7 +245,15 @@ class AutoPlanner:
 
     def _distribute_tasks_by_days(self, goals: List, strategy: str) -> Dict:
         """Распределить задачи по дням недели"""
-        days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+        days = [
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье",
+        ]
 
         weekly_plan = {}
 
@@ -288,7 +302,11 @@ class AutoPlanner:
 
                 # + регулярные задачи
                 tasks_per_day.append(
-                    {"title": "Мониторинг и обучение", "priority": 6, "estimated_hours": 1.5}
+                    {
+                        "title": "Мониторинг и обучение",
+                        "priority": 6,
+                        "estimated_hours": 1.5,
+                    }
                 )
 
                 weekly_plan[day] = tasks_per_day

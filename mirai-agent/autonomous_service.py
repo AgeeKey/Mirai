@@ -73,6 +73,13 @@ class AutonomousService:
         self.planner = AutoPlanner()
         logger.info("✅ Auto-Planner готов!")
 
+        logger.info("🔧 Инициализация Self-Modification...")
+        from core.self_modification import SelfModification
+
+        self.self_mod = SelfModification()
+        logger.info("✅ Self-Modification готова!")
+        logger.info("⚠️ ПОЛНЫЕ ПРАВА НА МОДИФИКАЦИЮ ПОЛУЧЕНЫ!")
+
         self.running = True
         self.cycle_count = 0
 
@@ -407,13 +414,53 @@ class AutonomousService:
                     logger.info("📊 Анализирую выполнение плана...")
                     review = self.planner.review_plan_execution()
                     if review.get("status") != "no_plan":
-                        logger.info(f"   Completion Rate: {review['completion_rate']:.1f}%")
+                        logger.info(
+                            f"   Completion Rate: {review['completion_rate']:.1f}%"
+                        )
                         logger.info(f"   Статус: {review['status']}")
-                        logger.info(f"   Достижений сегодня: {review['achievements_today']}")
-                        
+                        logger.info(
+                            f"   Достижений сегодня: {review['achievements_today']}"
+                        )
+
                         # Адаптируем план на завтра
                         adaptation = self.planner.adapt_plan()
                         logger.info(f"   💡 Адаптация: {adaptation['message']}")
+
+                # 7. 🔧 Самомодификация (раз в 7 дней = каждые 2016 циклов по 5 минут)
+                # ИЛИ раз в неделю в воскресенье вечером
+                if datetime.now().weekday() == 6:  # Воскресенье
+                    if current_hour >= 23 and current_hour < 24:  # 23:00-24:00
+                        if self.cycle_count % 12 == 0:  # Раз в час в это время
+                            logger.info(
+                                "🔧 ЗАПУСК САМОМОДИФИКАЦИИ (раз в неделю, воскресенье вечером)"
+                            )
+                            try:
+                                summary = self.self_mod.run_self_improvement_cycle()
+                                logger.info(
+                                    f"   ✅ Цикл завершён за {summary['duration_seconds']:.1f}с"
+                                )
+                                logger.info(
+                                    f"   📊 Проанализировано: {summary['analysis']['files_analyzed']} файлов"
+                                )
+                                logger.info(
+                                    f"   ⚠️ Проблем: {summary['analysis']['total_issues']} ({summary['analysis']['high_priority_issues']} критичных)"
+                                )
+                                logger.info(
+                                    f"   💡 Предложено: {summary['improvements_proposed']} улучшений"
+                                )
+                                logger.info(
+                                    f"   🔧 Применено: {summary['improvements_applied']} улучшений"
+                                )
+
+                                if summary["improvements_applied"] > 0:
+                                    for mod in summary["applied"]:
+                                        logger.info(
+                                            f"   ✅ PR #{mod['pr_number']}: {mod['improvement']['solution'][:50]}..."
+                                        )
+                            except Exception as e:
+                                logger.error(
+                                    f"❌ Ошибка самомодификации: {e}", exc_info=True
+                                )
 
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])
