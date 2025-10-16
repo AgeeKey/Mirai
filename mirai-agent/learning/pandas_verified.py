@@ -2,71 +2,63 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-16T12:53:26.874469
+Learned: 2025-10-16T13:09:58.336203
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict, Any
+from pandas import DataFrame
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[DataFrame]:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
-        file_path (str): Path to the CSV file.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+        Optional[DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file {file_path} is empty.")
+    except pd.errors.ParserError:
+        print(f"Error: There was a parsing error in the file {file_path}.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    
+    return None
 
-def summarize_data(df: pd.DataFrame) -> Dict[str, Any]:
+def analyze_data(df: DataFrame) -> None:
     """
-    Summarize the given DataFrame by providing basic statistics.
+    Perform basic analysis on the DataFrame.
 
     Args:
-        df (pd.DataFrame): DataFrame to summarize.
-
-    Returns:
-        Dict[str, Any]: Dictionary containing summary statistics.
+        df (DataFrame): The DataFrame to analyze.
     """
-    summary = {
-        'shape': df.shape,
-        'columns': df.columns.tolist(),
-        'head': df.head().to_dict(orient='records'),
-        'describe': df.describe(include='all').to_dict()
-    }
-    return summary
+    if df is not None:
+        print("Data Overview:")
+        print(df.head())  # Display the first few rows of the DataFrame
+        print("\nSummary Statistics:")
+        print(df.describe())  # Show summary statistics for numerical columns
+    else:
+        print("No data to analyze.")
 
-def main(file_path: str) -> None:
+def main() -> None:
     """
-    Main function to load data and summarize it.
-
-    Args:
-        file_path (str): Path to the CSV file.
+    Main function to execute the data loading and analysis.
     """
-    df = load_data(file_path)  # Load the data
-    summary = summarize_data(df)  # Summarize the data
-    print("Data Summary:")
-    print(summary)
+    file_path = 'data.csv'  # Replace with your actual file path
+    data = load_data(file_path)
+    analyze_data(data)
 
 if __name__ == "__main__":
-    # Example file path (update this to a valid CSV file path)
-    example_file_path = 'data/example.csv'
-    main(example_file_path)
+    main()
