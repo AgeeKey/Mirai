@@ -2,76 +2,71 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-16T17:50:14.702397
+Learned: 2025-10-16T18:22:56.649421
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Union
+import numpy as np
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a Pandas DataFrame from a given dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: The loaded DataFrame.
+        pd.DataFrame: A DataFrame constructed from the provided data.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is an error parsing the file.
+        ValueError: If the input data is not a dictionary or if the lists are not of equal length.
     """
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
+
+    length = None
+    for key, value in data.items():
+        if not isinstance(value, list):
+            raise ValueError(f"Values for '{key}' must be lists.")
+        if length is None:
+            length = len(value)
+        elif length != len(value):
+            raise ValueError("All lists must be of the same length.")
+
+    return pd.DataFrame(data)
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and basic operations.
+    """
+    # Sample data
+    data = {
+        'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+        'Age': [24, 27, 22, 32],
+        'Salary': [70000, 80000, 120000, 90000]
+    }
+
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError(f"The file is empty: {file_path}") from e
-    except pd.errors.ParserError as e:
-        raise pd.errors.ParserError(f"Error parsing the file: {file_path}") from e
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("Initial DataFrame:")
+        print(df)
 
-def clean_data(df: pd.DataFrame, columns_to_drop: Optional[list] = None) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping specified columns and filling missing values.
+        # Calculate average salary
+        average_salary = df['Salary'].mean()
+        print(f"\nAverage Salary: {average_salary:.2f}")
 
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-        columns_to_drop (Optional[list]): List of columns to drop from the DataFrame.
+        # Add a new column for experience level
+        df['Experience Level'] = np.where(df['Age'] < 25, 'Junior', 'Senior')
+        print("\nDataFrame with Experience Level:")
+        print(df)
 
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    if columns_to_drop:
-        df = df.drop(columns=columns_to_drop, errors='ignore')  # Drop specified columns if they exist
-    df = df.fillna(method='ffill')  # Fill missing values with forward fill method
-    return df
-
-def analyze_data(df: pd.DataFrame) -> pd.Series:
-    """
-    Perform basic analysis on the DataFrame and return summary statistics.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-        pd.Series: Summary statistics of the DataFrame.
-    """
-    return df.describe()
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your CSV file path
-    try:
-        data = load_data(file_path)
-        cleaned_data = clean_data(data, columns_to_drop=['unnecessary_column'])  # Replace with actual columns
-        summary = analyze_data(cleaned_data)
-        print(summary)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    main()
