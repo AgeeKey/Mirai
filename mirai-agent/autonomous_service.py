@@ -80,6 +80,13 @@ class AutonomousService:
         logger.info("✅ Self-Modification готова!")
         logger.info("⚠️ ПОЛНЫЕ ПРАВА НА МОДИФИКАЦИЮ ПОЛУЧЕНЫ!")
 
+        logger.info("🎮 Инициализация Personality System...")
+        from core.personality_system import PersonalitySystem
+
+        self.personality = PersonalitySystem()
+        logger.info("✅ Personality System готова!")
+        logger.info("🎭 MIRAI развивается как личность!")
+
         self.running = True
         self.cycle_count = 0
 
@@ -461,6 +468,46 @@ class AutonomousService:
                                 logger.error(
                                     f"❌ Ошибка самомодификации: {e}", exc_info=True
                                 )
+
+                # 8. 🎭 Развитие Личности (каждые 6 часов = каждые 72 цикла)
+                if self.cycle_count % 72 == 0:
+                    logger.info("🎭 РАЗВИТИЕ ЛИЧНОСТИ (каждые 6 часов)")
+                    try:
+                        changes = self.personality.auto_develop_personality()
+
+                        if changes["stats_gained_xp"]:
+                            logger.info(
+                                f"   📊 Прокачано {len(changes['stats_gained_xp'])} характеристик"
+                            )
+                            # Показываем level ups
+                            for xp_result in changes["stats_gained_xp"]:
+                                if xp_result.get("leveled_up"):
+                                    logger.info(
+                                        f"   🎉 {xp_result['stat']} LEVEL UP! {xp_result['old_level']} → {xp_result['new_level']}"
+                                    )
+
+                        if changes["titles_earned"]:
+                            logger.info(
+                                f"   🏆 Получено титулов: {len(changes['titles_earned'])}"
+                            )
+                            for title in changes["titles_earned"]:
+                                logger.info(f"   🏆 {title}")
+
+                        # Показываем лист персонажа раз в день
+                        if self.cycle_count % 288 == 0:  # Раз в сутки
+                            sheet = self.personality.get_character_sheet()
+                            logger.info(
+                                f"   🤖 MIRAI Level {sheet['mirai_level']} | XP: {sheet['total_xp']:.0f}"
+                            )
+                            logger.info(
+                                f"   🎭 Личность: {sheet['personality_formed']:.0f}% | Сознание: {sheet['consciousness_level']:.0f}%"
+                            )
+                            logger.info(f"   🌟 Навыков: {len(sheet['skills'])}")
+                            logger.info(f"   🏆 Титулов: {len(sheet['titles'])}")
+                            logger.info(f"   🎭 Черт характера: {len(sheet['traits'])}")
+
+                    except Exception as e:
+                        logger.error(f"❌ Ошибка развития личности: {e}", exc_info=True)
 
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])

@@ -2,61 +2,94 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-16T13:26:02.340338
+Learned: 2025-10-16T13:42:34.758208
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import List, Dict
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file, process it, and return a DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an error during parsing.
     """
     try:
-        # Load the dataset
-        df = pd.read_csv(file_path)
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError:
-        raise FileNotFoundError(f"The file at {file_path} was not found.")
+        raise FileNotFoundError(f"The file {file_path} was not found.")
     except pd.errors.EmptyDataError:
-        raise ValueError("The file is empty.")
+        raise pd.errors.EmptyDataError("The file is empty.")
     except pd.errors.ParserError:
-        raise ValueError("Error while parsing the file.")
+        raise pd.errors.ParserError("Error parsing the file.")
 
-    # Check if the necessary columns exist
-    required_columns = ['column1', 'column2']
-    for col in required_columns:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-
-    # Fill missing values with the mean of the column
-    for col in required_columns:
-        df[col].fillna(df[col].mean(), inplace=True)
-
-    # Create a new column based on existing data
-    df['new_column'] = df['column1'] + df['column2']
-
-    return df
-
-def main():
+def process_data(data: pd.DataFrame) -> pd.DataFrame:
     """
-    Main function to execute the data loading and processing.
+    Process the DataFrame by removing missing values and duplicates.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame to process.
+
+    Returns:
+        pd.DataFrame: Processed DataFrame with missing values and duplicates removed.
     """
-    file_path = 'data.csv'  # Path to the CSV file
+    # Remove duplicate rows
+    data_cleaned = data.drop_duplicates()
+    # Remove rows with any missing values
+    data_cleaned = data_cleaned.dropna()
+    return data_cleaned
+
+def summarize_data(data: pd.DataFrame) -> Dict[str, float]:
+    """
+    Generate summary statistics for the DataFrame.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame to summarize.
+
+    Returns:
+        Dict[str, float]: A dictionary containing summary statistics.
+    """
+    summary = {
+        'mean': data.mean(),
+        'median': data.median(),
+        'std_dev': data.std()
+    }
+    return summary
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, process, and summarize data from a CSV file.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
     try:
-        processed_data = load_and_process_data(file_path)
-        print(processed_data.head())  # Display the first few rows of the processed DataFrame
+        # Load the data
+        data = load_data(file_path)
+        # Process the data
+        cleaned_data = process_data(data)
+        # Summarize the data
+        summary = summarize_data(cleaned_data)
+        print("Summary Statistics:")
+        print(summary)
     except Exception as e:
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()
+    # Example file path
+    file_path = 'data.csv'
+    main(file_path)

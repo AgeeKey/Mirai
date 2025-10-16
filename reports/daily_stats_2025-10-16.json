@@ -1,10 +1,10 @@
 {
-  "total_lines": 11746,
-  "error_count": 23,
-  "warning_count": 306,
-  "info_count": 7836,
-  "autonomous_cycles": 268,
-  "todo_count": 244,
+  "total_lines": 12255,
+  "error_count": 30,
+  "warning_count": 312,
+  "info_count": 7957,
+  "autonomous_cycles": 269,
+  "todo_count": 220,
   "errors": [
     "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
     "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
@@ -18,84 +18,60 @@
     "Это действие сейчас эффективно, потому что проблемы в тестах могут корениться в ошибках, которые нужно исправить для обеспечения стабильности CI/CD процесса. Устранение причин сбоев тестов позволит по"
   ],
   "warnings": [
-    "2025-10-15 11:37:51,634 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 11:42:55,150 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 11:49:02,556 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 11:54:05,341 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 11:59:10,825 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 12:05:27,482 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 12:10:30,810 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 12:15:34,078 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 12:21:49,692 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 12:26:53,047 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-15 13:47:53,697 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 13:52:59,072 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 13:58:57,508 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:04:01,687 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:09:05,593 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:15:21,602 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:20:28,503 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:25:32,398 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:31:33,582 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 14:36:37,584 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
       "message": "✅ Phase 3/6: Quality Validation...",
-      "count": 178
+      "count": 174
     },
     {
       "message": "✅ LEARNING COMPLETE: pandas",
-      "count": 76
+      "count": 75
     },
     {
       "message": "✅ LEARNING COMPLETE: scikit-learn",
-      "count": 69
+      "count": 67
     },
     {
       "message": "✅ Метрики обновлены: /root/mirai/metrics/latest.json",
-      "count": 12
+      "count": 37
     },
     {
       "message": "✅ Dashboard создан: /root/mirai/web/dashboard.html",
-      "count": 12
-    },
-    {
-      "message": "✅ LEARNING COMPLETE: TensorFlow",
-      "count": 7
+      "count": 37
     },
     {
       "message": "✅ LEARNING COMPLETE: schedule",
+      "count": 7
+    },
+    {
+      "message": "✅ LEARNING COMPLETE: TensorFlow",
       "count": 6
     },
     {
-      "message": "✅ LEARNING COMPLETE: requests",
-      "count": 5
+      "message": "Stopping mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System...",
+      "count": 6
     },
     {
-      "message": "✅ LEARNING COMPLETE: Pandas",
-      "count": 2
+      "message": "Stopped mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System.",
+      "count": 6
     },
     {
-      "message": "✅ LEARNING COMPLETE: selenium",
-      "count": 2
+      "message": "Started mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System.",
+      "count": 6
     }
   ],
   "cycle_numbers": [
-    236,
-    237,
-    238,
-    239,
-    240,
-    241,
-    242,
-    243,
-    244,
-    245,
-    246,
-    247,
-    248,
-    249,
-    250,
-    251,
-    252,
-    253,
-    254,
-    255,
-    256,
-    257,
-    258,
-    259,
     260,
     261,
     262,
@@ -339,16 +315,41 @@
     9,
     10,
     11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    3,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
     12
   ],
   "timestamp_first": [
     "Oct",
     "15",
-    "11:37:51"
+    "13:47:53"
   ],
   "timestamp_last": [
     "Oct",
     "16",
-    "11:37:12"
+    "13:43:12"
   ]
 }

@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-10-16T13:36:51.931813",
-  "cycles_last_hour": 12,
+  "timestamp": "2025-10-16T13:48:16.679799",
+  "cycles_last_hour": 11,
   "db_size_bytes": 196608,
   "db_size_human": "192.0 KB",
-  "log_lines_last_hour": 708,
-  "errors_last_hour": 1,
+  "log_lines_last_hour": 617,
+  "errors_last_hour": 2,
   "warnings_last_hour": 15
 }
