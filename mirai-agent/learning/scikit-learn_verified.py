@@ -1,80 +1,66 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.87
+Quality Grade: C
+Overall Score: 0.76
 Tests Passed: 0/1
-Learned: 2025-10-16T06:37:05.341419
+Learned: 2025-10-16T06:53:08.337525
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
-from typing import Tuple
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from typing import Any, Dict, Tuple
 
 def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the iris dataset and return features and target.
-    
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
-    """
-    try:
-        iris = load_iris()
-        return iris.data, iris.target
-    except Exception as e:
-        raise RuntimeError(f"Failed to load data: {e}")
+    """Load the Iris dataset and return features and target."""
+    iris = load_iris()
+    return iris.data, iris.target
 
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """Train a RandomForestClassifier on the provided data.
-    
-    Args:
-        X (np.ndarray): Feature data.
-        y (np.ndarray): Target data.
-    
-    Returns:
-        RandomForestClassifier: Trained classifier.
-    """
-    try:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X, y)
-        return model
-    except Exception as e:
-        raise RuntimeError(f"Model training failed: {e}")
+def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model and print the accuracy and classification report.
-    
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (np.ndarray): Test feature data.
-        y_test (np.ndarray): Test target data.
-    """
-    try:
-        predictions = model.predict(X_test)
-        accuracy = accuracy_score(y_test, predictions)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", classification_report(y_test, predictions))
-    except Exception as e:
-        raise RuntimeError(f"Model evaluation failed: {e}")
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest Classifier model."""
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Any]:
+    """Evaluate the trained model and return the accuracy and classification report."""
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred, output_dict=True)
+    confusion = confusion_matrix(y_test, y_pred)
+    return {
+        'accuracy': accuracy,
+        'report': report,
+        'confusion_matrix': confusion
+    }
 
 def main() -> None:
-    """Main function to execute the workflow of loading data, training, and evaluating a model."""
-    # Load dataset
-    X, y = load_data()
-
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Train the model
-    model = train_model(X_train, y_train)
-
-    # Evaluate the model
-    evaluate_model(model, X_test, y_test)
+    """Main function to execute the workflow."""
+    try:
+        features, target = load_data()
+        X_train, X_test, y_train, y_test = preprocess_data(features, target)
+        model = train_model(X_train, y_train)
+        evaluation_results = evaluate_model(model, X_test, y_test)
+        
+        print(f"Accuracy: {evaluation_results['accuracy']:.2f}")
+        print("Classification Report:")
+        print(evaluation_results['report'])
+        print("Confusion Matrix:")
+        print(evaluation_results['confusion_matrix'])
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()

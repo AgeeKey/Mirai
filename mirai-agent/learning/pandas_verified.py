@@ -1,78 +1,78 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.94
+Quality Grade: B
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-16T06:36:33.390177
+Learned: 2025-10-16T06:52:42.725879
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
-from typing import Optional
+from typing import Optional, Union
 
-def create_dataframe(data: dict, index: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
-    
-    Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
-        index (Optional[list]): An optional list to specify the index for the DataFrame.
-
-    Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
-    
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary do not match.
-    """
-    # Check if all lists in the dictionary have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) > 1:
-        raise ValueError("All columns must have the same number of rows.")
-    
-    # Create and return the DataFrame
-    return pd.DataFrame(data, index=index)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate basic statistics for each numeric column in the DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame for which to calculate statistics.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the mean and standard deviation of each numeric column.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if loading fails.
     """
-    # Calculate mean and standard deviation
-    stats = pd.DataFrame({
-        'mean': df.mean(),
-        'std_dev': df.std()
-    })
-    
-    return stats
-
-# Example usage
-if __name__ == "__main__":
     try:
-        # Sample data for DataFrame
-        sample_data = {
-            'A': [1, 2, 3, 4, 5],
-            'B': [10, 20, 30, 40, 50],
-            'C': [5.5, 6.5, 7.5, 8.5, 9.5]
-        }
-        
-        # Create DataFrame
-        df = create_dataframe(sample_data)
-        
-        # Calculate statistics
-        statistics = calculate_statistics(df)
-        
-        # Print results
-        print("DataFrame:")
-        print(df)
-        print("\nStatistics:")
-        print(statistics)
+        data = pd.read_csv(file_path)
+        return data
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error loading data: {e}")
+        return None
+
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Process the DataFrame by removing null values and resetting the index.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to process.
+
+    Returns:
+        pd.DataFrame: The processed DataFrame.
+    """
+    # Drop rows with any null values
+    df_cleaned = df.dropna()
+    # Resetting the index after dropping rows
+    df_cleaned.reset_index(drop=True, inplace=True)
+    return df_cleaned
+
+def save_data(df: pd.DataFrame, output_file: str) -> None:
+    """
+    Save the DataFrame to a CSV file.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to save.
+        output_file (str): The path to the output CSV file.
+    """
+    try:
+        df.to_csv(output_file, index=False)
+        print(f"Data saved to {output_file}")
+    except Exception as e:
+        print(f"Error saving data: {e}")
+
+def main(file_path: str, output_file: str) -> None:
+    """
+    Main function to load, process, and save data.
+
+    Args:
+        file_path (str): The path to the input CSV file.
+        output_file (str): The path to the output CSV file.
+    """
+    df = load_data(file_path)
+    if df is not None:
+        processed_df = process_data(df)
+        save_data(processed_df, output_file)
+
+if __name__ == "__main__":
+    input_file = 'input_data.csv'  # Replace with your input file path
+    output_file = 'output_data.csv'  # Replace with your desired output file path
+    main(input_file, output_file)
