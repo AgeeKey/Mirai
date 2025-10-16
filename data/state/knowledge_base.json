@@ -1809,6 +1809,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8059024688326611,
       "learned_at": "2025-10-16T15:56:58.276904"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.8215622263925112,
+      "learned_at": "2025-10-16T16:12:37.193745"
+    },
+    {
+      "name": "TensorFlow",
+      "proficiency": 0.8318613592340244,
+      "learned_at": "2025-10-16T16:13:14.943271"
     }
   ],
   "skills": [],

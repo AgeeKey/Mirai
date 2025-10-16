@@ -2,78 +2,84 @@
 TensorFlow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-16T07:58:14.684952
+Learned: 2025-10-16T16:13:14.942125
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import tensorflow as tf
-import numpy as np
-from sklearn.model_selection import train_test_split
+from tensorflow import keras
+from tensorflow.keras import layers
+from typing import Tuple
 
-def create_model(input_shape: tuple) -> tf.keras.Model:
-    """Creates a simple neural network model.
-    
+def create_model(input_shape: Tuple[int, int, int]) -> keras.Model:
+    """
+    Creates a convolutional neural network model.
+
     Args:
-        input_shape (tuple): Shape of the input data.
-    
+        input_shape (Tuple[int, int, int]): The shape of the input data.
+
     Returns:
-        tf.keras.Model: A compiled Keras model.
+        keras.Model: Compiled Keras model ready for training.
     """
-    model = tf.keras.Sequential([
-        tf.keras.layers.Dense(64, activation='relu', input_shape=input_shape),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(1, activation='sigmoid')  # Binary classification output
-    ])
-    
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    return model
-
-def load_data() -> tuple:
-    """Loads and prepares the dataset for training and testing.
-    
-    Returns:
-        tuple: Training and testing data and labels.
-    """
-    # Using a synthetic dataset for this example
-    X = np.random.rand(1000, 20)  # 1000 samples, 20 features
-    y = (np.random.rand(1000) > 0.5).astype(int)  # Binary labels
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    return (X_train, y_train), (X_test, y_test)
-
-def train_model(model: tf.keras.Model, data: tuple, epochs: int = 10) -> None:
-    """Trains the model on the provided data.
-    
-    Args:
-        model (tf.keras.Model): The model to be trained.
-        data (tuple): Training data and labels.
-        epochs (int): Number of training epochs.
-    """
-    X_train, y_train = data
     try:
-        model.fit(X_train, y_train, epochs=epochs, batch_size=32)
+        model = keras.Sequential([
+            layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(64, (3, 3), activation='relu'),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Flatten(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(10, activation='softmax')  # Assuming 10 classes for output
+        ])
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        return model
     except Exception as e:
-        print(f"An error occurred during training: {e}")
+        print(f"Error in creating model: {e}")
+        raise
 
-def evaluate_model(model: tf.keras.Model, data: tuple) -> None:
-    """Evaluates the model on the test data.
-    
-    Args:
-        model (tf.keras.Model): The trained model.
-        data (tuple): Test data and labels.
+def train_model(model: keras.Model, x_train: tf.Tensor, y_train: tf.Tensor, epochs: int = 10) -> None:
     """
-    X_test, y_test = data
+    Trains the model on the provided training data.
+
+    Args:
+        model (keras.Model): The Keras model to train.
+        x_train (tf.Tensor): Training input data.
+        y_train (tf.Tensor): Training labels.
+        epochs (int): Number of epochs to train the model.
+
+    Raises:
+        ValueError: If training data shapes do not match.
+    """
+    if x_train.shape[0] != y_train.shape[0]:
+        raise ValueError("The number of training samples must match the number of labels.")
+
     try:
-        loss, accuracy = model.evaluate(X_test, y_test)
-        print(f"Test Loss: {loss:.4f}, Test Accuracy: {accuracy:.4f}")
+        model.fit(x_train, y_train, epochs=epochs)
     except Exception as e:
-        print(f"An error occurred during evaluation: {e}")
+        print(f"Error during training: {e}")
+        raise
+
+def main() -> None:
+    """
+    Main function to run the model training example.
+    """
+    # Load and preprocess data (e.g., MNIST dataset)
+    try:
+        (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+        x_train = x_train.reshape((x_train.shape[0], 28, 28, 1)).astype('float32') / 255  # Normalize
+        x_test = x_test.reshape((x_test.shape[0], 28, 28, 1)).astype('float32') / 255  # Normalize
+
+        model = create_model(input_shape=(28, 28, 1))
+        train_model(model, x_train, y_train, epochs=10)
+
+        # Evaluate the model
+        test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+        print(f'\nTest accuracy: {test_acc}')
+    except Exception as e:
+        print(f"Error in main execution: {e}")
 
 if __name__ == "__main__":
-    (X_train, y_train), (X_test, y_test) = load_data()  # Load the data
-    model = create_model(input_shape=(20,))  # Create the model
-    train_model(model, (X_train, y_train), epochs=10)  # Train the model
-    evaluate_model(model, (X_test, y_test))  # Evaluate the model
+    main()
