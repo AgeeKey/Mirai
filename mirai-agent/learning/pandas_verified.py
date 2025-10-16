@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.94
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-16T14:02:01.715131
+Learned: 2025-10-16T14:51:33.583675
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,32 +12,19 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and perform basic processing.
-
-    Args:
+    Load data from a CSV file into a Pandas DataFrame.
+    
+    Parameters:
         file_path (str): The path to the CSV file.
-
+    
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if an error occurs.
+        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        # Load data from a CSV file
-        df = pd.read_csv(file_path)
-        
-        # Display the first few rows of the DataFrame
-        print("Data loaded successfully:")
-        print(df.head())
-        
-        # Drop rows with any missing values
-        df_cleaned = df.dropna()
-        
-        # Add a new column with the sum of numeric columns
-        df_cleaned['sum'] = df_cleaned.sum(axis=1)
-        
-        return df_cleaned
-    
+        df = pd.read_csv(file_path)  # Load the CSV file
+        return df
     except FileNotFoundError:
         print(f"Error: The file {file_path} was not found.")
         return None
@@ -45,18 +32,31 @@ def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
         print("Error: The file is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print("Error: Could not parse the file.")
         return None
 
-if __name__ == "__main__":
-    # Example usage of the function
-    file_path = 'data.csv'  # Replace with your actual file path
-    processed_data = load_and_process_data(file_path)
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame and print summary statistics.
     
-    if processed_data is not None:
-        # Save the processed data to a new CSV file
-        processed_data.to_csv('processed_data.csv', index=False)
-        print("Processed data saved to 'processed_data.csv'.")
+    Parameters:
+        df (pd.DataFrame): The DataFrame to analyze.
+    """
+    if df is not None:
+        print("Summary Statistics:")
+        print(df.describe())  # Print summary statistics
+        print("\nMissing Values:")
+        print(df.isnull().sum())  # Print count of missing values
+    else:
+        print("No data to analyze.")
+
+def main() -> None:
+    """
+    Main function to execute data loading and analysis.
+    """
+    file_path = 'data.csv'  # Path to the data file
+    df = load_data(file_path)  # Load the data
+    analyze_data(df)  # Analyze the data
+
+if __name__ == "__main__":
+    main()  # Run the main function
