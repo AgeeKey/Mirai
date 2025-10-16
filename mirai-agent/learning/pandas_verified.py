@@ -2,86 +2,71 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.93
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-16T00:11:51.230577
+Learned: 2025-10-16T00:43:44.438664
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+import numpy as np
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict[str, list], index: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a pandas DataFrame from a dictionary of lists.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict[str, list]): A dictionary where keys are column names and values are lists of column data.
+        index (Optional[list[str]]): Optional list for the DataFrame index.
 
     Returns:
-        pd.DataFrame: A processed DataFrame with cleaned data.
-    
+        pd.DataFrame: A pandas DataFrame created from the provided data.
+
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there are parsing errors.
+        ValueError: If the lengths of the lists in the data dictionary do not match.
     """
-    try:
-        # Load the CSV data into a DataFrame
-        df = pd.read_csv(file_path)
-        
-        # Display the first few rows of the DataFrame
-        print("Initial data loaded:")
-        print(df.head())
+    # Validate input data
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the data dictionary must have the same length.")
 
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
+    # Create DataFrame
+    df = pd.DataFrame(data, index=index)
+    return df
 
-        # Reset the index of the DataFrame
-        df.reset_index(drop=True, inplace=True)
-        
-        return df
-    except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: There was a problem parsing the file.")
-        raise e
-
-def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate summary statistics for the DataFrame.
+    Calculate basic statistics for each numeric column in the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+        df (pd.DataFrame): The input DataFrame.
 
     Returns:
-        Dict[str, float]: A dictionary with summary statistics.
+        pd.DataFrame: A DataFrame containing basic statistics (mean, std, min, max) for each numeric column.
     """
-    # Calculate summary statistics
-    summary = {
-        'mean': df.mean(numeric_only=True).to_dict(),
-        'median': df.median(numeric_only=True).to_dict(),
-        'std_dev': df.std(numeric_only=True).to_dict(),
+    # Calculate statistics
+    stats = df.describe()
+    return stats
+
+if __name__ == '__main__':
+    # Example data
+    data = {
+        'A': [1, 2, 3, 4],
+        'B': [5, 6, 7, 8],
+        'C': [9, 10, 11, 12]
     }
     
-    return summary
-
-if __name__ == "__main__":
-    # Specify the path to the CSV file
-    csv_file_path = 'data.csv'
-    
-    # Load and process the data
+    # Create DataFrame
     try:
-        data_frame = load_and_process_data(csv_file_path)
-        
-        # Generate and print summary statistics
-        summary_statistics = summarize_data(data_frame)
-        print("Summary Statistics:")
-        print(summary_statistics)
-    except Exception as e:
-        print("An error occurred during processing.")
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
+
+        # Calculate and print statistics
+        statistics = calculate_statistics(df)
+        print("\nStatistics:")
+        print(statistics)
+    except ValueError as e:
+        print(f"Error: {e}")

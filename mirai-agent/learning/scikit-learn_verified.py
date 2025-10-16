@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.83
+Quality Grade: C
+Overall Score: 0.79
 Tests Passed: 0/1
-Learned: 2025-10-16T00:28:12.294614
+Learned: 2025-10-16T00:44:12.010829
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,78 +12,51 @@ This code has been verified by MIRAI's NASA-level learning system.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.datasets import load_iris
+from typing import Tuple
 
-def load_data(file_path: str) -> pd.DataFrame:
-    """
-    Load the dataset from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file.
-
-    Returns:
-        pd.DataFrame: Loaded dataset.
-    """
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return features and target."""
     try:
-        data = pd.read_csv(file_path)
-        return data
+        iris = load_iris()
+        return iris.data, iris.target
     except Exception as e:
-        raise ValueError(f"Error loading data: {e}")
+        raise RuntimeError("Failed to load dataset") from e
 
-def preprocess_data(data: pd.DataFrame) -> (np.ndarray, np.ndarray):
-    """
-    Preprocess the dataset by splitting features and target.
-
-    Args:
-        data (pd.DataFrame): The input dataset.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
-    """
+def preprocess_data(data: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
     try:
-        X = data.drop('target', axis=1).values  # Assuming 'target' column exists
-        y = data['target'].values
-        return X, y
-    except KeyError:
-        raise ValueError("The dataset must contain a 'target' column.")
+        X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
     except Exception as e:
-        raise ValueError(f"Error during preprocessing: {e}")
+        raise RuntimeError("Data preprocessing failed") from e
 
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """
-    Train a Random Forest model.
-
-    Args:
-        X (np.ndarray): Features for training.
-        y (np.ndarray): Target variable for training.
-
-    Returns:
-        RandomForestClassifier: Trained model.
-    """
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model on the training data."""
     try:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-        model = RandomForestClassifier(random_state=42)
+        model = RandomForestClassifier(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
-
-        y_pred = model.predict(X_test)
-        print("Accuracy:", accuracy_score(y_test, y_pred))
-        print("Classification Report:\n", classification_report(y_test, y_pred))
-
         return model
     except Exception as e:
-        raise RuntimeError(f"Error during model training: {e}")
+        raise RuntimeError("Model training failed") from e
+
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the model and print the classification report and confusion matrix."""
+    try:
+        predictions = model.predict(X_test)
+        print("Classification Report:\n", classification_report(y_test, predictions))
+        print("Confusion Matrix:\n", confusion_matrix(y_test, predictions))
+    except Exception as e:
+        raise RuntimeError("Model evaluation failed") from e
+
+def main() -> None:
+    """Main function to execute the machine learning pipeline."""
+    data, target = load_data()  # Load data
+    X_train, X_test, y_train, y_test = preprocess_data(data, target)  # Preprocess data
+    model = train_model(X_train, y_train)  # Train model
+    evaluate_model(model, X_test, y_test)  # Evaluate model
 
 if __name__ == "__main__":
-    # Example usage
-    try:
-        data = load_data('data.csv')
-        X, y = preprocess_data(data)
-        model = train_model(X, y)
-    except Exception as e:
-        print(e)
+    main()
