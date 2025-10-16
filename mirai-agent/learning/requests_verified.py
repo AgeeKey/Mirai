@@ -4,41 +4,43 @@ requests - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.82
 Tests Passed: 1/1
-Learned: 2025-10-16T16:12:37.192625
+Learned: 2025-10-16T17:17:51.609434
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
-from requests.exceptions import HTTPError, RequestException
+from requests.exceptions import RequestException
+from typing import Dict, Any
 
-def fetch_data(url: str) -> dict:
+def fetch_data(url: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
     """
-    Fetch data from the given URL and return it as a dictionary.
+    Fetches data from the specified URL with optional query parameters.
 
-    :param url: The URL to fetch data from.
-    :return: A dictionary containing the JSON response.
-    :raises ValueError: If the response is not JSON.
-    :raises RequestException: For general request-related errors.
+    Args:
+        url (str): The URL to fetch data from.
+        params (Dict[str, Any], optional): A dictionary of query parameters to include in the request.
+
+    Returns:
+        Dict[str, Any]: The JSON response data from the server.
+
+    Raises:
+        RequestException: An error occurred while making the request.
     """
     try:
-        response = requests.get(url)  # Send a GET request to the URL
+        response = requests.get(url, params=params)  # Send a GET request
         response.raise_for_status()  # Raise an error for bad responses
-        return response.json()  # Return the JSON response as a dictionary
-    except HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")  # Log HTTP errors
-        raise
-    except ValueError as json_err:
-        print(f"JSON decoding error: {json_err}")  # Log JSON decoding errors
-        raise ValueError("Response content is not valid JSON.")
-    except RequestException as req_err:
-        print(f"Request error occurred: {req_err}")  # Log other request-related errors
-        raise
+        return response.json()  # Return the JSON response
+    except RequestException as e:
+        print(f"An error occurred: {e}")  # Print the error message
+        raise  # Re-raise the exception for further handling
 
 if __name__ == "__main__":
-    url = "https://api.example.com/data"  # Replace with a valid URL
+    url = "https://api.example.com/data"  # Example API endpoint
+    query_params = {"key": "value"}  # Example query parameters
+
     try:
-        data = fetch_data(url)  # Fetch data from the URL
+        data = fetch_data(url, query_params)  # Fetch data from the API
         print(data)  # Print the fetched data
     except Exception as e:
-        print(f"An error occurred: {e}")  # Handle any exceptions raised
+        print(f"Failed to fetch data: {e}")  # Handle any exceptions
