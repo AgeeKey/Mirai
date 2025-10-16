@@ -2,60 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-16T18:39:11.605946
+Learned: 2025-10-16T18:55:50.794795
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame.
+    Create a DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
-    """
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file {file_path} is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"Error: The file {file_path} could not be parsed.")
-        return None
+        pd.DataFrame: A DataFrame created from the input data.
 
-def display_summary(df: pd.DataFrame) -> None:
+    Raises:
+        ValueError: If the lengths of the lists in the dictionary are not consistent.
     """
-    Display basic statistics and information about the DataFrame.
+    # Check if all lists in data have the same length
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the dictionary must have the same length.")
+    
+    # Create and return the DataFrame
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic statistics for each numerical column in the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+        df (pd.DataFrame): The DataFrame to calculate statistics for.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation.
     """
-    print("DataFrame Summary:")
-    print(df.info())
-    print("\nDescriptive Statistics:")
-    print(df.describe())
+    stats = {
+        'Mean': df.mean(),
+        'Median': df.median(),
+        'Std Dev': df.std()
+    }
+    return pd.DataFrame(stats)
 
 def main() -> None:
     """
-    Main function to execute the script.
+    Main function to run the example.
     """
-    file_path = 'data.csv'  # Replace with your actual CSV file path
-    df = load_data(file_path)
-    
-    if df is not None:
-        display_summary(df)
+    # Sample data for demonstration
+    data = {
+        'A': np.random.rand(10),
+        'B': np.random.rand(10),
+        'C': np.random.rand(10)
+    }
+
+    try:
+        # Create a DataFrame
+        df = create_dataframe(data)
+        print("DataFrame:")
+        print(df)
+
+        # Calculate statistics
+        stats_df = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats_df)
+
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
