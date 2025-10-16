@@ -1319,6 +1319,11 @@
       "name": "scikit-learn",
       "proficiency": 0.9897068437224226,
       "learned_at": "2025-10-16T02:04:21.090395"
+    },
+    {
+      "name": "scrapy",
+      "proficiency": 0.815298508038422,
+      "learned_at": "2025-10-16T02:19:47.806384"
     }
   ],
   "skills": [],
