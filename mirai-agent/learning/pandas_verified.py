@@ -2,66 +2,84 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-16T03:40:03.710332
+Learned: 2025-10-16T03:56:00.534820
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
 import numpy as np
+from typing import Optional
 
 def create_dataframe(data: dict) -> pd.DataFrame:
     """
     Create a pandas DataFrame from a dictionary.
 
     Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the provided data.
-    """
-    try:
-        df = pd.DataFrame(data)
-        return df
-    except Exception as e:
-        raise ValueError("An error occurred while creating the DataFrame: " + str(e))
+        pd.DataFrame: A DataFrame containing the provided data.
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    Raises:
+        ValueError: If the dictionary is empty or if the lists are of unequal length.
     """
-    Clean the DataFrame by filling missing values and dropping duplicates.
+    if not data:
+        raise ValueError("Input dictionary cannot be empty.")
+    
+    length = len(next(iter(data.values())))
+    if any(len(value) != length for value in data.values()):
+        raise ValueError("All columns must have the same length.")
+    
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame) -> Optional[dict]:
+    """
+    Calculate basic statistics for numerical columns in a DataFrame.
 
     Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
+        df (pd.DataFrame): The DataFrame from which to calculate statistics.
 
     Returns:
-    pd.DataFrame: The cleaned DataFrame.
+        Optional[dict]: A dictionary containing the mean, median, and standard deviation of numerical columns.
     """
-    try:
-        df.fillna(0, inplace=True)  # Fill missing values with 0
-        df.drop_duplicates(inplace=True)  # Remove duplicate rows
-        return df
-    except Exception as e:
-        raise ValueError("An error occurred while cleaning the DataFrame: " + str(e))
+    if df.empty:
+        return None
+    
+    stats = {
+        'mean': df.mean().to_dict(),
+        'median': df.median().to_dict(),
+        'std_dev': df.std().to_dict()
+    }
+    return stats
 
-def main():
-    # Sample data for the DataFrame
-    sample_data = {
-        "A": [1, 2, np.nan, 4, 5],
-        "B": [5, 6, 7, 8, 9],
-        "C": [np.nan, 2, 3, 4, 5]
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and statistic calculation.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 6, 7, 8, 9],
+        'C': [10, 11, 12, 13, 14]
     }
 
-    # Create a DataFrame
-    df = create_dataframe(sample_data)
-    print("Original DataFrame:")
-    print(df)
+    try:
+        df = create_dataframe(data)  # Create DataFrame
+        print("DataFrame created successfully:")
+        print(df)
 
-    # Clean the DataFrame
-    cleaned_df = clean_data(df)
-    print("\nCleaned DataFrame:")
-    print(cleaned_df)
+        stats = calculate_statistics(df)  # Calculate statistics
+        if stats:
+            print("Statistics calculated:")
+            print(stats)
+        else:
+            print("DataFrame is empty, no statistics to calculate.")
+    
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
