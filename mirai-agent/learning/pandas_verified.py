@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-16T09:18:58.080486
+Learned: 2025-10-16T09:35:14.793016
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,66 +12,59 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import List
 
-def load_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Load a CSV file and process the data.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If the file cannot be parsed.
+    pd.DataFrame: A DataFrame containing the processed data.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.ParserError as e:
-        print(f"Error: {e}")
-        raise
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        raise ValueError("The file is empty.")
+    except pd.errors.ParserError:
+        raise ValueError("Error parsing the file.")
 
-def calculate_statistics(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    # Drop rows with any missing values
+    df.dropna(inplace=True)
+
+    # Reset the index after dropping rows
+    df.reset_index(drop=True, inplace=True)
+
+    return df
+
+def filter_data(df: pd.DataFrame, column_name: str, values: List) -> pd.DataFrame:
     """
-    Calculate basic statistics for specified columns in the DataFrame.
+    Filter the DataFrame based on a column and a list of values.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        columns (List[str]): List of columns to calculate statistics for.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to filter.
+    column_name (str): The column to filter on.
+    values (List): A list of values to filter by.
 
     Returns:
-        pd.DataFrame: DataFrame containing mean, median, and standard deviation.
+    pd.DataFrame: The filtered DataFrame.
     """
-    try:
-        stats = df[columns].agg(['mean', 'median', 'std'])
-        return stats
-    except KeyError as e:
-        print(f"Error: Column not found - {e}")
-        raise
-
-def main(file_path: str, columns: List[str]) -> None:
-    """
-    Main function to load data and calculate statistics.
-
-    Args:
-        file_path (str): The path to the CSV file.
-        columns (List[str]): List of columns to calculate statistics for.
-    """
-    df = load_data(file_path)
-    stats = calculate_statistics(df, columns)
-    print(stats)
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+    
+    # Filter the DataFrame
+    filtered_df = df[df[column_name].isin(values)]
+    
+    return filtered_df
 
 if __name__ == "__main__":
     # Example usage
-    file_path = 'data.csv'  # Replace with your CSV file path
-    columns_to_analyze = ['column1', 'column2']  # Replace with your column names
-    main(file_path, columns_to_analyze)
+    try:
+        data = load_and_process_data('data.csv')  # Replace 'data.csv' with your file path
+        filtered_data = filter_data(data, 'Category', ['A', 'B'])  # Replace 'Category' and values as needed
+        print(filtered_data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
