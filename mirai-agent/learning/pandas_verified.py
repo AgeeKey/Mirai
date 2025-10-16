@@ -2,71 +2,60 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-16T18:22:56.649421
+Learned: 2025-10-16T18:39:11.605946
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a Pandas DataFrame from a given dictionary.
+    Load a CSV file into a Pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
-
-    Raises:
-        ValueError: If the input data is not a dictionary or if the lists are not of equal length.
+        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
     """
-    if not isinstance(data, dict):
-        raise ValueError("Input data must be a dictionary.")
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file {file_path} is empty.")
+        return None
+    except pd.errors.ParserError:
+        print(f"Error: The file {file_path} could not be parsed.")
+        return None
 
-    length = None
-    for key, value in data.items():
-        if not isinstance(value, list):
-            raise ValueError(f"Values for '{key}' must be lists.")
-        if length is None:
-            length = len(value)
-        elif length != len(value):
-            raise ValueError("All lists must be of the same length.")
+def display_summary(df: pd.DataFrame) -> None:
+    """
+    Display basic statistics and information about the DataFrame.
 
-    return pd.DataFrame(data)
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+    """
+    print("DataFrame Summary:")
+    print(df.info())
+    print("\nDescriptive Statistics:")
+    print(df.describe())
 
 def main() -> None:
     """
-    Main function to demonstrate DataFrame creation and basic operations.
+    Main function to execute the script.
     """
-    # Sample data
-    data = {
-        'Name': ['Alice', 'Bob', 'Charlie', 'David'],
-        'Age': [24, 27, 22, 32],
-        'Salary': [70000, 80000, 120000, 90000]
-    }
-
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("Initial DataFrame:")
-        print(df)
-
-        # Calculate average salary
-        average_salary = df['Salary'].mean()
-        print(f"\nAverage Salary: {average_salary:.2f}")
-
-        # Add a new column for experience level
-        df['Experience Level'] = np.where(df['Age'] < 25, 'Junior', 'Senior')
-        print("\nDataFrame with Experience Level:")
-        print(df)
-
-    except ValueError as e:
-        print(f"Error: {e}")
+    file_path = 'data.csv'  # Replace with your actual CSV file path
+    df = load_data(file_path)
+    
+    if df is not None:
+        display_summary(df)
 
 if __name__ == "__main__":
     main()
