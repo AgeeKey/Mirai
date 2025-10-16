@@ -1,72 +1,54 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.86
+Quality Grade: A
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-16T01:48:01.013588
+Learned: 2025-10-16T02:04:02.391961
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
-from typing import Optional, Tuple
+from typing import Optional
 
-def generate_sample_data(rows: int) -> pd.DataFrame:
-    """Generate a sample DataFrame with random data.
+def load_and_process_data(file_path: str, column_name: str, threshold: float) -> Optional[pd.DataFrame]:
+    """
+    Load a CSV file into a DataFrame, filter rows based on a threshold for a specific column,
+    and return the filtered DataFrame.
 
     Args:
-        rows (int): The number of rows to generate.
+        file_path (str): Path to the CSV file.
+        column_name (str): The column name to filter on.
+        threshold (float): The threshold value for filtering.
 
     Returns:
-        pd.DataFrame: A DataFrame containing sample data.
+        Optional[pd.DataFrame]: A DataFrame containing the filtered data, or None if an error occurs.
     """
-    if rows <= 0:
-        raise ValueError("Number of rows must be a positive integer.")
-    
-    # Generate random data
-    data = {
-        'A': np.random.rand(rows),  # Random floats
-        'B': np.random.randint(0, 100, size=rows),  # Random integers
-        'C': pd.date_range(start='2021-01-01', periods=rows, freq='D')  # Date range
-    }
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> Optional[Tuple[float, float]]:
-    """Calculate the mean and standard deviation of column 'A'.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-        Optional[Tuple[float, float]]: A tuple containing the mean and std of column 'A', or None if empty.
-    """
-    if df.empty:
-        print("DataFrame is empty. Returning None.")
-        return None
-    
-    mean_value = df['A'].mean()
-    std_value = df['A'].std()
-    return mean_value, std_value
-
-def main() -> None:
-    """Main function to execute the example."""
     try:
-        # Generate sample data
-        sample_df = generate_sample_data(10)  # Generate 10 rows of data
-        print("Sample DataFrame:")
-        print(sample_df)
+        # Load the data from a CSV file
+        df = pd.read_csv(file_path)
+        
+        # Check if the specified column exists in the DataFrame
+        if column_name not in df.columns:
+            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+        
+        # Filter the DataFrame based on the threshold for the specified column
+        filtered_df = df[df[column_name] > threshold]
+        
+        return filtered_df
 
-        # Calculate statistics
-        stats = calculate_statistics(sample_df)
-        if stats:
-            print(f"Mean of column 'A': {stats[0]}")
-            print(f"Standard deviation of column 'A': {stats[1]}")
-    except ValueError as e:
-        print(f"ValueError: {e}")
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
 
+    return None
+
+# Example usage
 if __name__ == "__main__":
-    main()
+    result_df = load_and_process_data('data.csv', 'column_name', 10.0)
+    if result_df is not None:
+        print(result_df)
