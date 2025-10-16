@@ -1,52 +1,58 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 1.00
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-16T07:09:14.540609
+Learned: 2025-10-16T07:24:59.329218
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, delimiter: str = ',', index_col: Optional[int] = None) -> pd.DataFrame:
     """
     Load data from a CSV file and perform basic processing.
 
     Parameters:
-    file_path (str): The path to the CSV file.
+    - file_path (str): The path to the CSV file.
+    - delimiter (str): The delimiter used in the CSV file. Default is ','.
+    - index_col (Optional[int]): Column to set as index. Default is None.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
+    - pd.DataFrame: A DataFrame containing the processed data.
+    
+    Raises:
+    - FileNotFoundError: If the file does not exist.
+    - pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"The file {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        raise ValueError("The file is empty.")
-    except pd.errors.ParserError:
-        raise ValueError("Error parsing the file.")
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path, delimiter=delimiter, index_col=index_col)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file at {file_path} was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise ValueError("The file is empty.") from e
 
-    # Display initial DataFrame shape
-    initial_shape = df.shape
-    print(f"Initial DataFrame shape: {initial_shape}")
+    # Basic data processing: drop rows with any missing values
+    df.dropna(inplace=True)
 
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-
-    # Convert column names to lowercase
-    df.columns = [col.lower() for col in df.columns]
-
-    # Display final DataFrame shape
-    final_shape = df.shape
-    print(f"Final DataFrame shape after processing: {final_shape}")
-
+    # Return the processed DataFrame
     return df
 
-# Example usage: Uncomment the line below to run with your specific CSV file path.
-# df = load_and_process_data("path/to/your/data.csv")
+def main():
+    """
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Update with your CSV file path
+    try:
+        df_processed = load_and_process_data(file_path)
+        print("Data loaded and processed successfully:")
+        print(df_processed)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == '__main__':
+    main()
