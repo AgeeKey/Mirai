@@ -1,60 +1,75 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-16T05:16:16.116667
+Learned: 2025-10-16T05:48:05.985955
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Union
+from typing import Optional, List
 
-def load_and_process_data(file_path: str, index_col: Optional[Union[int, str]] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it into a pandas DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
     Args:
-        file_path (str): The path to the CSV file to be loaded.
-        index_col (Optional[Union[int, str]]): Column to set as index. Default is None.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: Processed DataFrame with appropriate data types.
+        pd.DataFrame: DataFrame containing the loaded data.
 
     Raises:
-        FileNotFoundError: If the specified file path does not exist.
+        FileNotFoundError: If the file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
-        Exception: For any other exceptions encountered during file reading.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path, index_col=index_col)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"File not found: {file_path}") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError("No data in file") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError("Error parsing the file") from e
 
-        # Convert columns to appropriate data types
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')  # Convert 'date' column to datetime
-        df['value'] = pd.to_numeric(df['value'], errors='coerce')  # Convert 'value' column to numeric
+def filter_data(data: pd.DataFrame, column: str, value: Optional[str] = None) -> pd.DataFrame:
+    """
+    Filter the DataFrame based on a specified column and value.
 
-        # Drop rows with NaN values in critical columns
-        df.dropna(subset=['date', 'value'], inplace=True)
+    Args:
+        data (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to filter on.
+        value (Optional[str]): The value to filter by. If None, returns the original DataFrame.
 
-        return df
-    
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        raise
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        raise
+    Returns:
+        pd.DataFrame: Filtered DataFrame.
+    """
+    if value is not None:
+        filtered_data = data[data[column] == value]
+        return filtered_data
+    return data
+
+def main() -> None:
+    """
+    Main function to execute the data loading and filtering process.
+    """
+    file_path = 'data.csv'  # Path to CSV file
+    try:
+        # Load the data
+        df = load_data(file_path)
+        
+        # Filter the data for a specific value
+        result = filter_data(df, 'column_name', 'desired_value')
+        
+        # Display the result
+        print(result)
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        raise
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    try:
-        df = load_and_process_data('data.csv', index_col='id')
-        print(df.head())  # Display the first few rows of the DataFrame
-    except Exception as e:
-        print("Failed to load and process data.")
+    main()
