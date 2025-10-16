@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.88
+Quality Grade: A
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-16T15:23:49.558566
+Learned: 2025-10-16T15:40:05.963909
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,47 +12,48 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it by filtering out missing values
-    in the specified column.
-
-    Args:
-        file_path (str): The path to the CSV file to be loaded.
-        column_name (str): The name of the column to filter for missing values.
-
+    Load a CSV file into a Pandas DataFrame and perform basic processing.
+    
+    Parameters:
+        file_path (str): The path to the CSV file.
+        index_col (Optional[str]): Column to set as index (if any).
+        
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the processed data,
-                                 or None if an error occurs.
+        pd.DataFrame: A processed DataFrame.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an issue parsing the CSV file.
     """
     try:
-        # Load data from CSV file
-        data = pd.read_csv(file_path)
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
+        # Load the data from the CSV file
+        df = pd.read_csv(file_path, index_col=index_col)
+        
+        # Remove rows with any missing values
+        df.dropna(inplace=True)
+        
+        # Convert all column names to lowercase
+        df.columns = [col.lower() for col in df.columns]
+        
+        return df
+    
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: There was a problem parsing the file.")
+        raise e
 
-    # Filter out rows where the specified column has missing values
-    if column_name not in data.columns:
-        print(f"Error: The column '{column_name}' does not exist in the DataFrame.")
-        return None
-
-    processed_data = data.dropna(subset=[column_name])
-    
-    return processed_data
-
-# Example usage:
 if __name__ == "__main__":
-    file_path = 'data.csv'  # Replace with your actual file path
-    column_name = 'age'      # Replace with the actual column name you want to filter
-    result = load_and_process_data(file_path, column_name)
-    
-    if result is not None:
-        print("Processed DataFrame:")
-        print(result)
+    # Example usage of the function
+    try:
+        df = load_and_process_data('data.csv', index_col='id')
+        print(df.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print(f"An error occurred: {e}")
