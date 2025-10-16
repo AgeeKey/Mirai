@@ -1,10 +1,10 @@
 {
-  "total_lines": 12780,
+  "total_lines": 12913,
   "error_count": 36,
-  "warning_count": 321,
-  "info_count": 8089,
+  "warning_count": 323,
+  "info_count": 8111,
   "autonomous_cycles": 270,
-  "todo_count": 187,
+  "todo_count": 177,
   "errors": [
     "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
     "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
@@ -18,16 +18,16 @@
     "Это действие сейчас эффективно, потому что проблемы в тестах могут корениться в ошибках, которые нужно исправить для обеспечения стабильности CI/CD процесса. Устранение причин сбоев тестов позволит по"
   ],
   "warnings": [
-    "2025-10-15 17:03:53,166 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 17:03:57,376 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
-    "2025-10-15 17:03:57,376 [WARNING]    ❌ MIRAI CI/CD Pipeline #1",
-    "2025-10-15 17:08:57,725 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 17:15:06,153 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 17:20:09,783 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 17:20:14,375 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
-    "2025-10-15 17:20:14,375 [WARNING]    ❌ MIRAI CI/CD Pipeline #1",
-    "2025-10-15 17:25:14,776 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-15 17:31:20,961 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-15 18:08:50,969 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:13:54,338 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:20:22,050 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:25:28,262 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:30:33,363 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:36:21,816 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:41:24,443 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-15 18:41:28,762 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
+    "2025-10-15 18:41:28,762 [WARNING]    ❌ MIRAI CI/CD Pipeline #1",
+    "2025-10-15 18:46:29,560 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
@@ -35,24 +35,32 @@
       "count": 174
     },
     {
-      "message": "✅ LEARNING COMPLETE: pandas",
-      "count": 75
-    },
-    {
       "message": "✅ Метрики обновлены: /root/mirai/metrics/latest.json",
-      "count": 74
+      "count": 86
     },
     {
       "message": "✅ Dashboard создан: /root/mirai/web/dashboard.html",
-      "count": 74
+      "count": 86
+    },
+    {
+      "message": "✅ LEARNING COMPLETE: pandas",
+      "count": 73
     },
     {
       "message": "✅ LEARNING COMPLETE: scikit-learn",
-      "count": 66
+      "count": 65
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
-      "count": 8
+      "count": 10
+    },
+    {
+      "message": "🤖 Начинаю автоисправление кода...",
+      "count": 9
+    },
+    {
+      "message": "✅ LEARNING COMPLETE: schedule",
+      "count": 7
     },
     {
       "message": "✅ LEARNING COMPLETE: TensorFlow",
@@ -61,29 +69,9 @@
     {
       "message": "Stopping mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System...",
       "count": 7
-    },
-    {
-      "message": "Stopped mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System.",
-      "count": 7
-    },
-    {
-      "message": "Started mirai.service - MIRAI AI Agent - Autonomous Trading and Self-Improvement System.",
-      "count": 7
     }
   ],
   "cycle_numbers": [
-    296,
-    297,
-    298,
-    299,
-    300,
-    301,
-    302,
-    303,
-    304,
-    305,
-    306,
-    307,
     308,
     309,
     310,
@@ -341,16 +329,28 @@
     33,
     34,
     35,
-    36
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
   ],
   "timestamp_first": [
     "Oct",
     "15",
-    "17:03:52"
+    "18:08:50"
   ],
   "timestamp_last": [
     "Oct",
     "16",
-    "17:02:12"
+    "18:06:58"
   ]
 }
