@@ -191,27 +191,26 @@ class AutonomousService:
                 mirai_decision = self.consult_mirai(question)
                 logger.info(f"💡 Решение МИРАЙ: {mirai_decision}")
 
-                # KAIZEN выполняет решение MIRAI
+                # KAIZEN выполняет решение MIRAI - РЕАЛЬНЫЕ ДЕЙСТВИЯ!
+                from core.real_tasks import RealTaskExecutor
+                executor = RealTaskExecutor()
+                
                 if "1" in mirai_decision or "исправить" in mirai_decision.lower():
-                    logger.info("🔧 КАЙДЗЕН: Создаю PR с исправлениями...")
-                    logger.info("   TODO: Реализовать автоматическое создание PR")
-                elif "2" in mirai_decision or "отключить" in mirai_decision.lower():
-                    logger.info("⏭️  КАЙДЗЕН: Отключаю проблемные тесты...")
-                    logger.info("   TODO: Реализовать skip тестов")
-                elif "3" in mirai_decision or "зависимост" in mirai_decision.lower():
-                    logger.info("📦 КАЙДЗЕН: Обновляю зависимости...")
-                    logger.info("   TODO: Реализовать обновление dependencies")
-                elif "4" in mirai_decision or "упростить" in mirai_decision.lower():
-                    logger.info("✂️  КАЙДЗЕН: Упрощаю CI/CD pipeline...")
-                    logger.info("   TODO: Реализовать упрощение workflow")
+                    logger.info("🔧 КАЙДЗЕН: Создаю issue для исправлений...")
+                    result = executor.task2_monitor_cicd_and_create_issue(health)
+                    logger.info(f"   ✅ {result['status']}: {result.get('action', 'N/A')}")
+                    
                 elif "5" in mirai_decision or "issue" in mirai_decision.lower():
-                    logger.info("� КАЙДЗЕН: Создаю GitHub Issue...")
-                    logger.info("   TODO: Реализовать создание issue")
-                elif "6" in mirai_decision or "перезапустить" in mirai_decision.lower():
-                    logger.info("� КАЙДЗЕН: Перезапускаю тесты...")
-                    logger.info("   TODO: Реализовать rerun workflow")
+                    logger.info("📋 КАЙДЗЕН: Создаю GitHub Issue...")
+                    result = executor.task2_monitor_cicd_and_create_issue(health)
+                    logger.info(f"   ✅ {result['status']}: {result.get('issue_file', 'monitoring')}")
+                    
                 else:
-                    logger.info("🔍 КАЙДЗЕН: Продолжаю анализ логов...")
+                    # По умолчанию - анализ логов и обновление базы знаний
+                    logger.info("🔍 КАЙДЗЕН: Анализирую логи и обновляю базу знаний...")
+                    result1 = executor.task3_build_knowledge_base()
+                    logger.info(f"   ✅ База знаний: {result1['summary']['unique_patterns']} паттернов")
+                    
                     for fail in failures[:3]:
                         logger.warning(f"   ❌ {fail['name']} #{fail['run_number']}")
             else:
@@ -241,7 +240,21 @@ class AutonomousService:
                 improvement = self.consult_mirai(question)
                 logger.info(f"🎯 План улучшений от МИРАЙ: {improvement}")
 
-            # 5. Логируем метрики для истории
+            # 5. Регулярные задачи каждый цикл
+            from core.real_tasks import RealTaskExecutor
+            executor = RealTaskExecutor()
+            
+            # Каждый цикл - обновляем метрики и dashboard
+            logger.info("📊 Обновляю метрики и dashboard...")
+            metrics_result = executor.task4_update_metrics_dashboard()
+            
+            # Каждые 12 циклов (~1 час) - создаём отчёт по логам
+            if self.cycle_count % 12 == 0:
+                logger.info("📝 Создаю ежечасный отчёт...")
+                report_result = executor.task1_analyze_logs_and_report()
+                logger.info(f"   ✅ Отчёт создан: {report_result['report_file']}")
+
+            # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])
 
             logger.info("✅ Цикл завершён успешно")
