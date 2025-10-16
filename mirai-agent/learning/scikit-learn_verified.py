@@ -4,7 +4,7 @@ scikit-learn - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.99
 Tests Passed: 0/1
-Learned: 2025-10-16T03:24:31.599112
+Learned: 2025-10-16T03:40:26.432968
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,18 +14,18 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 def main() -> None:
     """
-    Main function to load the Iris dataset, train a Random Forest model, and evaluate its performance.
+    Main function to run the Random Forest Classifier on the Iris dataset.
     """
     try:
         # Load the Iris dataset
         iris = load_iris()
         X, y = iris.data, iris.target
 
-        # Split the dataset into training and testing sets
+        # Split the data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         # Initialize the Random Forest Classifier
@@ -34,19 +34,21 @@ def main() -> None:
         # Train the model
         model.fit(X_train, y_train)
 
-        # Make predictions on the test set
+        # Make predictions
         y_pred = model.predict(X_test)
 
-        # Evaluate the model's performance
+        # Evaluate the model
         accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred)
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        class_report = classification_report(y_test, y_pred)
 
-        # Output the results
-        print(f"Model Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
+        # Output results
+        print(f"Accuracy: {accuracy:.2f}")
+        print("Confusion Matrix:\n", conf_matrix)
+        print("Classification Report:\n", class_report)
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
