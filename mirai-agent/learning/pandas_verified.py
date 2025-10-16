@@ -4,57 +4,75 @@ pandas - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-16T11:03:37.198496
+Learned: 2025-10-16T11:19:59.154678
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict[str, list]) -> pd.DataFrame:
     """
-    Load data from a CSV file, clean it, and return a DataFrame.
+    Create a pandas DataFrame from a dictionary.
 
     Parameters:
-    file_path (str): The path to the CSV file.
+    data (dict[str, list]): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the cleaned data, or None if an error occurs.
+    pd.DataFrame: A DataFrame constructed from the input data.
+
+    Raises:
+    ValueError: If the lengths of the lists in the dictionary do not match.
     """
-    try:
-        # Load the data from the CSV file
-        data = pd.read_csv(file_path)
+    # Check if all lists in the dictionary are of the same length
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the dictionary must have the same length.")
+    
+    # Create and return the DataFrame
+    return pd.DataFrame(data)
 
-        # Display the first few rows of the dataframe
-        print("Initial data loaded:")
-        print(data.head())
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic statistics for numeric columns in the DataFrame.
 
-        # Drop rows with any missing values
-        cleaned_data = data.dropna()
+    Parameters:
+    df (pd.DataFrame): The DataFrame for which to calculate statistics.
 
-        # Reset index after dropping rows
-        cleaned_data.reset_index(drop=True, inplace=True)
+    Returns:
+    pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each numeric column.
+    """
+    # Check if the DataFrame is empty
+    if df.empty:
+        raise ValueError("The DataFrame is empty. Statistics cannot be calculated.")
+    
+    # Calculate statistics
+    stats = {
+        'mean': df.mean(),
+        'median': df.median(),
+        'std_dev': df.std()
+    }
+    
+    return pd.DataFrame(stats)
 
-        print("Data cleaned and index reset.")
-        return cleaned_data
-
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error while reading the file.")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
-
-# Example usage
 if __name__ == "__main__":
-    df = load_and_process_data("data.csv")
-    if df is not None:
-        print("Processed DataFrame:")
+    # Example data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 4, 3, 2, 1],
+        'C': [10, 20, 30, 40, 50]
+    }
+    
+    try:
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created:")
         print(df)
+        
+        # Calculate and print statistics
+        stats_df = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats_df)
+    except ValueError as e:
+        print(f"Error: {e}")
