@@ -4,7 +4,7 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-16T14:51:33.583675
+Learned: 2025-10-16T15:07:41.399998
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,49 +14,51 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a Pandas DataFrame.
-    
-    Parameters:
+    Load data from a CSV file into a DataFrame.
+
+    Args:
         file_path (str): The path to the CSV file.
-    
+
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)  # Load the CSV file
+        df = pd.read_csv(file_path)
         return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
+    except Exception as e:
+        print(f"Error loading data: {e}")
         return None
 
-def analyze_data(df: pd.DataFrame) -> None:
+def filter_data(df: pd.DataFrame, column: str, value: str) -> pd.DataFrame:
     """
-    Perform basic analysis on the DataFrame and print summary statistics.
+    Filter the DataFrame based on a specific column and value.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to filter on.
+        value (str): The value to filter by.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame.
+    """
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
     
-    Parameters:
-        df (pd.DataFrame): The DataFrame to analyze.
-    """
-    if df is not None:
-        print("Summary Statistics:")
-        print(df.describe())  # Print summary statistics
-        print("\nMissing Values:")
-        print(df.isnull().sum())  # Print count of missing values
-    else:
-        print("No data to analyze.")
+    return df[df[column] == value]
 
 def main() -> None:
     """
-    Main function to execute data loading and analysis.
+    Main function to execute the data loading and filtering process.
     """
-    file_path = 'data.csv'  # Path to the data file
-    df = load_data(file_path)  # Load the data
-    analyze_data(df)  # Analyze the data
+    file_path = 'data.csv'  # Specify your CSV file path here
+    df = load_data(file_path)
+
+    if df is not None:
+        try:
+            filtered_df = filter_data(df, 'category', 'A')  # Replace 'category' and 'A' with your own values
+            print(filtered_df)
+        except ValueError as e:
+            print(e)
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()
