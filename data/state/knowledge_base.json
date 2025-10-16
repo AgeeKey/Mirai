@@ -1659,6 +1659,16 @@
       "name": "scikit-learn",
       "proficiency": 0.7866632934027363,
       "learned_at": "2025-10-16T11:20:48.314429"
+    },
+    {
+      "name": "airflow",
+      "proficiency": 0.8479607034938242,
+      "learned_at": "2025-10-16T11:36:30.859274"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8475801016912182,
+      "learned_at": "2025-10-16T11:37:11.854630"
     }
   ],
   "skills": [],
