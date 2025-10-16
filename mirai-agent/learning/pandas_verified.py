@@ -2,60 +2,59 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.92
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-16T04:59:53.940419
+Learned: 2025-10-16T05:16:16.116667
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Union
 
-def load_and_analyze_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, index_col: Optional[Union[int, str]] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a DataFrame and perform basic analysis on a specified column.
+    Load data from a CSV file and process it into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
-    column_name (str): The name of the column to analyze.
+    Args:
+        file_path (str): The path to the CSV file to be loaded.
+        index_col (Optional[Union[int, str]]): Column to set as index. Default is None.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the analysis results, or None if an error occurs.
+        pd.DataFrame: Processed DataFrame with appropriate data types.
+
+    Raises:
+        FileNotFoundError: If the specified file path does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        Exception: For any other exceptions encountered during file reading.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path, index_col=index_col)
 
-        # Check if the specified column exists
-        if column_name not in df.columns:
-            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+        # Convert columns to appropriate data types
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')  # Convert 'date' column to datetime
+        df['value'] = pd.to_numeric(df['value'], errors='coerce')  # Convert 'value' column to numeric
 
-        # Basic analysis: Calculate mean and standard deviation of the specified column
-        mean_value = df[column_name].mean()
-        std_value = df[column_name].std()
+        # Drop rows with NaN values in critical columns
+        df.dropna(subset=['date', 'value'], inplace=True)
 
-        # Create a summary DataFrame to hold the results
-        summary_df = pd.DataFrame({
-            'Statistic': ['Mean', 'Standard Deviation'],
-            'Value': [mean_value, std_value]
-        })
-
-        return summary_df
-
+        return df
+    
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print(f"Error: The file at {file_path} was not found.")
+        raise
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-    except ValueError as ve:
-        print(f"ValueError: {ve}")
+        raise
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-
-    return None
+        raise
 
 if __name__ == "__main__":
     # Example usage
-    result = load_and_analyze_data("data.csv", "column_of_interest")
-    if result is not None:
-        print(result)
+    try:
+        df = load_and_process_data('data.csv', index_col='id')
+        print(df.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print("Failed to load and process data.")

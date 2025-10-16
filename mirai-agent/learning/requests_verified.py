@@ -1,44 +1,46 @@
 """
 requests - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.82
+Quality Grade: A
+Overall Score: 0.93
 Tests Passed: 1/1
-Learned: 2025-10-15T20:08:32.576420
+Learned: 2025-10-16T05:15:55.620162
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
-from requests.exceptions import RequestException
-from typing import Optional, Dict, Any
+from requests.exceptions import HTTPError, RequestException
+from typing import Optional
 
-def fetch_data(url: str, params: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+def fetch_data(url: str) -> Optional[dict]:
     """
-    Fetch data from a given URL with optional query parameters.
+    Fetches data from the specified URL using an HTTP GET request.
 
     Args:
         url (str): The URL to fetch data from.
-        params (Optional[Dict[str, Any]]): A dictionary of query parameters.
 
     Returns:
-        Optional[Dict[str, Any]]: The JSON response as a dictionary, or None if an error occurs.
+        Optional[dict]: The JSON response if the request is successful, None otherwise.
     """
     try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise an error for bad HTTP status codes
-        return response.json()  # Return the response as a JSON dictionary
-    except RequestException as e:
-        print(f"Error occurred while fetching data: {e}")
-        return None
+        # Send a GET request to the URL
+        response = requests.get(url)
+        # Raise an exception for HTTP errors
+        response.raise_for_status()
+        # Return the JSON response as a dictionary
+        return response.json()
+    except HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")  # Print HTTP error
+    except RequestException as req_err:
+        print(f"Request error occurred: {req_err}")  # Print general request error
+    except ValueError as json_err:
+        print(f"JSON decode error: {json_err}")  # Print JSON decoding error
+    return None
 
 if __name__ == "__main__":
-    url = "https://api.example.com/data"
-    parameters = {"key": "value"}
-    
-    result = fetch_data(url, params=parameters)
-    
-    if result is not None:
-        print("Data fetched successfully:", result)
-    else:
-        print("Failed to fetch data.")
+    # Example usage
+    url = "https://api.github.com/repos/psf/requests"
+    data = fetch_data(url)
+    if data:
+        print(data)  # Print the fetched data
