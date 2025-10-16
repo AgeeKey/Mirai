@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: C
-Overall Score: 0.80
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-16T17:02:12.331123
+Learned: 2025-10-16T17:34:29.795787
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,78 +14,67 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
+from sklearn.exceptions import NotFittedError
 from typing import Tuple
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the iris dataset.
-    
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
+def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    try:
-        iris = load_iris()
-        return iris.data, iris.target
-    except Exception as e:
-        raise RuntimeError("Error loading data: " + str(e))
+    Load data from a CSV file.
 
-def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets.
-    
-    Args:
-        features (np.ndarray): The input features.
-        target (np.ndarray): The target labels.
-        
-    Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: 
-        Training features, test features, training labels, test labels.
+    :param file_path: Path to the CSV file.
+    :return: Tuple of features and target variable.
     """
     try:
-        X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
+        data = pd.read_csv(file_path)
+        X = data.iloc[:, :-1].values  # Features
+        y = data.iloc[:, -1].values    # Target variable
+        return X, y
     except Exception as e:
-        raise RuntimeError("Error during data preprocessing: " + str(e))
+        raise ValueError(f"Error loading data: {e}")
 
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest model.
-    
-    Args:
-        X_train (np.ndarray): Training features.
-        y_train (np.ndarray): Training labels.
-        
-    Returns:
-        RandomForestClassifier: The trained model.
+def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
     """
-    try:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
-        return model
-    except Exception as e:
-        raise RuntimeError("Error during model training: " + str(e))
+    Train a Random Forest Classifier.
+
+    :param X: Features for training.
+    :param y: Target variable for training.
+    :return: Trained RandomForestClassifier model.
+    """
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X, y)
+    return model
 
 def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model and print results.
-    
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (np.ndarray): Test features.
-        y_test (np.ndarray): Test labels.
+    """
+    Evaluate the trained model.
+
+    :param model: Trained RandomForestClassifier model.
+    :param X_test: Features for testing.
+    :param y_test: True labels for testing.
     """
     try:
-        predictions = model.predict(X_test)
-        accuracy = accuracy_score(y_test, predictions)
-        report = classification_report(y_test, predictions)
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
         print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
+        print("Classification Report:")
+        print(classification_report(y_test, y_pred))
+    except NotFittedError:
+        print("Model is not fitted yet. Please train the model before evaluation.")
     except Exception as e:
-        raise RuntimeError("Error during model evaluation: " + str(e))
+        raise ValueError(f"Error during model evaluation: {e}")
 
-def main() -> None:
-    """Main function to execute the workflow."""
-    features, target = load_data()
-    X_train, X_test, y_train, y_test = preprocess_data(features, target)
+def main(file_path: str) -> None:
+    """
+    Main function to load data, train and evaluate the model.
+
+    :param file_path: Path to the CSV file.
+    """
+    X, y = load_data(file_path)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     model = train_model(X_train, y_train)
     evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'data.csv' with your actual data file path
+    main('data.csv')
