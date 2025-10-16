@@ -1324,6 +1324,11 @@
       "name": "scrapy",
       "proficiency": 0.815298508038422,
       "learned_at": "2025-10-16T02:19:47.806384"
+    },
+    {
+      "name": "fastapi",
+      "proficiency": 0.6614605501575465,
+      "learned_at": "2025-10-16T02:20:14.335380"
     }
   ],
   "skills": [],
