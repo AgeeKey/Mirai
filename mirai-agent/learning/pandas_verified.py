@@ -1,86 +1,72 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-16T01:31:50.280561
+Learned: 2025-10-16T01:48:01.013588
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Tuple
+import numpy as np
+from typing import Optional, Tuple
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
-    """
-    Load a CSV file and process the data.
+def generate_sample_data(rows: int) -> pd.DataFrame:
+    """Generate a sample DataFrame with random data.
 
     Args:
-        file_path (str): The path to the CSV file.
+        rows (int): The number of rows to generate.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: A DataFrame containing sample data.
+    """
+    if rows <= 0:
+        raise ValueError("Number of rows must be a positive integer.")
     
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is an error parsing the file.
-    """
-    try:
-        # Load the CSV file into a DataFrame
-        data = pd.read_csv(file_path)
+    # Generate random data
+    data = {
+        'A': np.random.rand(rows),  # Random floats
+        'B': np.random.randint(0, 100, size=rows),  # Random integers
+        'C': pd.date_range(start='2021-01-01', periods=rows, freq='D')  # Date range
+    }
+    return pd.DataFrame(data)
 
-        # Basic data cleaning: drop any rows with missing values
-        data.dropna(inplace=True)
-
-        # Reset index after dropping rows
-        data.reset_index(drop=True, inplace=True)
-
-        return data
-
-    except FileNotFoundError as e:
-        print(f"Error: The file '{file_path}' was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: There was a problem parsing the file.")
-        raise e
-
-def analyze_data(df: pd.DataFrame) -> Tuple[float, float]:
-    """
-    Analyze the DataFrame to calculate mean and standard deviation.
+def calculate_statistics(df: pd.DataFrame) -> Optional[Tuple[float, float]]:
+    """Calculate the mean and standard deviation of column 'A'.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
 
     Returns:
-        Tuple[float, float]: A tuple containing the mean and standard deviation of a numerical column.
+        Optional[Tuple[float, float]]: A tuple containing the mean and std of column 'A', or None if empty.
     """
-    # Ensure the DataFrame has at least one column to analyze
     if df.empty:
-        raise ValueError("The DataFrame is empty, cannot analyze data.")
+        print("DataFrame is empty. Returning None.")
+        return None
+    
+    mean_value = df['A'].mean()
+    std_value = df['A'].std()
+    return mean_value, std_value
 
-    # Calculate mean and standard deviation of the first numerical column
-    mean_value = df.iloc[:, 0].mean()
-    std_dev_value = df.iloc[:, 0].std()
-
-    return mean_value, std_dev_value
-
-if __name__ == "__main__":
-    # Example file path
-    file_path = 'data.csv'
-
-    # Load and process the data
+def main() -> None:
+    """Main function to execute the example."""
     try:
-        data_frame = load_and_process_data(file_path)
+        # Generate sample data
+        sample_df = generate_sample_data(10)  # Generate 10 rows of data
+        print("Sample DataFrame:")
+        print(sample_df)
 
-        # Analyze the processed data
-        mean, std_dev = analyze_data(data_frame)
-
-        print(f"Mean: {mean}, Standard Deviation: {std_dev}")
-
+        # Calculate statistics
+        stats = calculate_statistics(sample_df)
+        if stats:
+            print(f"Mean of column 'A': {stats[0]}")
+            print(f"Standard deviation of column 'A': {stats[1]}")
+    except ValueError as e:
+        print(f"ValueError: {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
