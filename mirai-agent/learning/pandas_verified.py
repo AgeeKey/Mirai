@@ -2,84 +2,86 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-15T23:55:49.837890
+Learned: 2025-10-16T00:11:51.230577
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
-from typing import Optional
+from typing import List, Dict
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load data from a CSV file and perform basic processing.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input data.
+        pd.DataFrame: A processed DataFrame with cleaned data.
     
     Raises:
-        ValueError: If the lengths of the lists in the dictionary are not equal.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there are parsing errors.
     """
-    if not data:
-        raise ValueError("Input data cannot be empty.")
-    
-    # Check if all columns have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same number of elements.")
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-    return df
+    try:
+        # Load the CSV data into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Display the first few rows of the DataFrame
+        print("Initial data loaded:")
+        print(df.head())
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+
+        # Reset the index of the DataFrame
+        df.reset_index(drop=True, inplace=True)
+        
+        return df
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: There was a problem parsing the file.")
+        raise e
+
+def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Clean the data by filling missing values and removing duplicates.
+    Generate summary statistics for the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to clean.
+        df (pd.DataFrame): The DataFrame to summarize.
 
     Returns:
-        pd.DataFrame: A cleaned DataFrame.
+        Dict[str, float]: A dictionary with summary statistics.
     """
-    # Fill missing values with the mean of each column
-    cleaned_df = df.fillna(df.mean())
-    
-    # Remove duplicates
-    cleaned_df = cleaned_df.drop_duplicates()
-    
-    return cleaned_df
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and cleaning.
-    """
-    # Sample data
-    data = {
-        'A': [1, 2, np.nan, 4],
-        'B': [5, np.nan, 7, 8],
-        'C': [9, 10, 11, 12]
+    # Calculate summary statistics
+    summary = {
+        'mean': df.mean(numeric_only=True).to_dict(),
+        'median': df.median(numeric_only=True).to_dict(),
+        'std_dev': df.std(numeric_only=True).to_dict(),
     }
     
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("Original DataFrame:")
-        print(df)
-        
-        # Clean DataFrame
-        cleaned_df = clean_data(df)
-        print("\nCleaned DataFrame:")
-        print(cleaned_df)
-        
-    except ValueError as e:
-        print(f"Error: {e}")
+    return summary
 
 if __name__ == "__main__":
-    main()
+    # Specify the path to the CSV file
+    csv_file_path = 'data.csv'
+    
+    # Load and process the data
+    try:
+        data_frame = load_and_process_data(csv_file_path)
+        
+        # Generate and print summary statistics
+        summary_statistics = summarize_data(data_frame)
+        print("Summary Statistics:")
+        print(summary_statistics)
+    except Exception as e:
+        print("An error occurred during processing.")

@@ -1239,6 +1239,16 @@
       "name": "beautifulsoup4",
       "proficiency": 0.8388260081545412,
       "learned_at": "2025-10-15T23:56:13.376066"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.9253060856639509,
+      "learned_at": "2025-10-16T00:11:51.231441"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.7861836639828761,
+      "learned_at": "2025-10-16T00:12:13.974998"
     }
   ],
   "skills": [],
