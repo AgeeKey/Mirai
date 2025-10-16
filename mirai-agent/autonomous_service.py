@@ -61,6 +61,12 @@ class AutonomousService:
         self.memory = LongTermMemory()
         logger.info("✅ Long-Term Memory готова!")
 
+        logger.info("🪞 Инициализация Self-Awareness...")
+        from core.self_awareness import SelfAwareness
+
+        self.awareness = SelfAwareness()
+        logger.info("✅ Self-Awareness готова!")
+
         self.running = True
         self.cycle_count = 0
 
@@ -338,6 +344,31 @@ class AutonomousService:
                 summary = self.memory.get_summary()
                 for line in summary.split("\n"):
                     logger.info(f"   {line}")
+
+            # Каждые 48 циклов (~4 часа) - саморефлексия
+            if self.cycle_count % 48 == 0:
+                logger.info("🪞 Провожу саморефлексию...")
+                
+                # Краткая сводка
+                awareness_summary = self.awareness.get_summary()
+                for line in awareness_summary.split("\n"):
+                    logger.info(f"   {line}")
+                
+                # Предложения по улучшению
+                improvements = self.awareness.propose_improvements()
+                if improvements:
+                    logger.info("   💡 Топ-3 предложения по улучшению:")
+                    for i, imp in enumerate(improvements[:3], 1):
+                        logger.info(f"      {i}. [{imp['priority']}] {imp['area']}: {imp['suggestion']}")
+                
+                # Записываем решение о самоулучшении
+                if improvements and improvements[0]['priority'] in ['критичный', 'высокий']:
+                    decision_id = self.memory.record_decision(
+                        context=f"Саморефлексия выявила: {improvements[0]['issue']}",
+                        decision=f"Применить: {improvements[0]['suggestion']}",
+                        reasoning=f"Критичность: {improvements[0]['priority']}"
+                    )
+                    logger.info(f"   📝 Решение о самоулучшении записано (ID: {decision_id})")
 
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])

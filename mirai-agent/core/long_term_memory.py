@@ -4,11 +4,11 @@
 Хранение целей, достижений, решений и обучение на истории
 """
 
+import json
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
-import json
 
 
 class Goal:
@@ -53,7 +53,9 @@ class LongTermMemory:
     - Решения (decisions)
     """
 
-    def __init__(self, db_path: str = "/root/mirai/mirai-agent/data/long_term_memory.db"):
+    def __init__(
+        self, db_path: str = "/root/mirai/mirai-agent/data/long_term_memory.db"
+    ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
@@ -293,7 +295,9 @@ class LongTermMemory:
             return True
         return False
 
-    def record_achievement(self, description: str, result: str = "", goal_id: Optional[int] = None):
+    def record_achievement(
+        self, description: str, result: str = "", goal_id: Optional[int] = None
+    ):
         """Записать достижение (может быть не связано с целью)"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -311,9 +315,7 @@ class LongTermMemory:
 
         print(f"🏆 Достижение записано: {description}")
 
-    def record_decision(
-        self, context: str, decision: str, reasoning: str = ""
-    ) -> int:
+    def record_decision(self, context: str, decision: str, reasoning: str = "") -> int:
         """Записать принятое решение"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
