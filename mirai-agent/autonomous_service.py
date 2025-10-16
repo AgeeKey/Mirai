@@ -193,24 +193,31 @@ class AutonomousService:
 
                 # KAIZEN выполняет решение MIRAI - РЕАЛЬНЫЕ ДЕЙСТВИЯ!
                 from core.real_tasks import RealTaskExecutor
+
                 executor = RealTaskExecutor()
-                
+
                 if "1" in mirai_decision or "исправить" in mirai_decision.lower():
                     logger.info("🔧 КАЙДЗЕН: Создаю issue для исправлений...")
                     result = executor.task2_monitor_cicd_and_create_issue(health)
-                    logger.info(f"   ✅ {result['status']}: {result.get('action', 'N/A')}")
-                    
+                    logger.info(
+                        f"   ✅ {result['status']}: {result.get('action', 'N/A')}"
+                    )
+
                 elif "5" in mirai_decision or "issue" in mirai_decision.lower():
                     logger.info("📋 КАЙДЗЕН: Создаю GitHub Issue...")
                     result = executor.task2_monitor_cicd_and_create_issue(health)
-                    logger.info(f"   ✅ {result['status']}: {result.get('issue_file', 'monitoring')}")
-                    
+                    logger.info(
+                        f"   ✅ {result['status']}: {result.get('issue_file', 'monitoring')}"
+                    )
+
                 else:
                     # По умолчанию - анализ логов и обновление базы знаний
                     logger.info("🔍 КАЙДЗЕН: Анализирую логи и обновляю базу знаний...")
                     result1 = executor.task3_build_knowledge_base()
-                    logger.info(f"   ✅ База знаний: {result1['summary']['unique_patterns']} паттернов")
-                    
+                    logger.info(
+                        f"   ✅ База знаний: {result1['summary']['unique_patterns']} паттернов"
+                    )
+
                     for fail in failures[:3]:
                         logger.warning(f"   ❌ {fail['name']} #{fail['run_number']}")
             else:
@@ -242,12 +249,13 @@ class AutonomousService:
 
             # 5. Регулярные задачи каждый цикл
             from core.real_tasks import RealTaskExecutor
+
             executor = RealTaskExecutor()
-            
+
             # Каждый цикл - обновляем метрики и dashboard
             logger.info("📊 Обновляю метрики и dashboard...")
             metrics_result = executor.task4_update_metrics_dashboard()
-            
+
             # Каждые 12 циклов (~1 час) - создаём отчёт по логам
             if self.cycle_count % 12 == 0:
                 logger.info("📝 Создаю ежечасный отчёт...")

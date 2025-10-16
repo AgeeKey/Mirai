@@ -284,61 +284,63 @@ class RealTaskExecutor:
         report += "---\n\n*Отчёт сгенерирован автоматически MIRAI Real Task Executor*\n"
 
         return report
-    
+
     def task2_monitor_cicd_and_create_issue(self, health_data: Dict) -> Dict:
         """
         ЗАДАЧА 2: Мониторинг CI/CD и Создание GitHub Issue
-        
+
         Измеримый результат: Issue создан в GitHub или записан в файл
         """
         print("🔍 Мониторю CI/CD и создаю issue при проблемах...")
-        
-        status = health_data.get('status', 'UNKNOWN')
-        grade = health_data.get('grade', 'N/A')
-        
+
+        status = health_data.get("status", "UNKNOWN")
+        grade = health_data.get("grade", "N/A")
+
         # Проверяем счётчик проблем
         counter_file = self.metrics_dir / "cicd_unhealthy_counter.json"
-        
+
         if counter_file.exists():
             counter_data = json.loads(counter_file.read_text())
-            count = counter_data.get('count', 0)
-            last_issue_date = counter_data.get('last_issue_date', None)
+            count = counter_data.get("count", 0)
+            last_issue_date = counter_data.get("last_issue_date", None)
         else:
             count = 0
             last_issue_date = None
-        
+
         # Увеличиваем счётчик если unhealthy
         if status == "UNHEALTHY":
             count += 1
         else:
             count = 0  # Сбрасываем если здоров
-        
+
         # Сохраняем счётчик
         counter_data = {
-            'count': count,
-            'last_check': datetime.now().isoformat(),
-            'last_issue_date': last_issue_date
+            "count": count,
+            "last_check": datetime.now().isoformat(),
+            "last_issue_date": last_issue_date,
         }
         counter_file.write_text(json.dumps(counter_data, indent=2))
-        
+
         # Создаём issue если 3+ раза unhealthy подряд
-        if count >= 3 and (not last_issue_date or 
-                          (datetime.now() - datetime.fromisoformat(last_issue_date)).days >= 1):
-            
+        if count >= 3 and (
+            not last_issue_date
+            or (datetime.now() - datetime.fromisoformat(last_issue_date)).days >= 1
+        ):
+
             issue_data = self._create_cicd_issue_file(health_data, count)
-            
+
             # Обновляем дату последнего issue
-            counter_data['last_issue_date'] = datetime.now().isoformat()
-            counter_data['count'] = 0  # Сбрасываем после создания issue
+            counter_data["last_issue_date"] = datetime.now().isoformat()
+            counter_data["count"] = 0  # Сбрасываем после создания issue
             counter_file.write_text(json.dumps(counter_data, indent=2))
-            
+
             result = {
                 "task": "monitor_cicd_and_create_issue",
                 "status": "ISSUE_CREATED",
                 "timestamp": datetime.now().isoformat(),
-                "issue_file": issue_data['file'],
+                "issue_file": issue_data["file"],
                 "unhealthy_count": count,
-                "action": "Issue created due to persistent problems"
+                "action": "Issue created due to persistent problems",
             }
             print(f"✅ Issue создан: {issue_data['file']}")
         else:
@@ -347,20 +349,20 @@ class RealTaskExecutor:
                 "status": "MONITORING",
                 "timestamp": datetime.now().isoformat(),
                 "unhealthy_count": count,
-                "action": f"Monitoring (need {3-count} more to create issue)"
+                "action": f"Monitoring (need {3-count} more to create issue)",
             }
             print(f"📊 Мониторинг: {count}/3 проблем")
-        
+
         return result
-    
+
     def _create_cicd_issue_file(self, health_data: Dict, count: int) -> Dict:
         """Создаёт файл с данными issue"""
         issues_dir = self.base_dir / "issues"
         issues_dir.mkdir(exist_ok=True)
-        
+
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         issue_file = issues_dir / f"cicd_problem_{timestamp}.json"
-        
+
         issue_content = {
             "title": f"🔴 CI/CD Unhealthy: {health_data.get('grade', 'N/A')}",
             "body": f"""
@@ -385,39 +387,39 @@ Please investigate and fix the failing tests or workflows.
 """,
             "labels": ["bug", "ci-cd", "automated"],
             "created_at": datetime.now().isoformat(),
-            "unhealthy_count": count
+            "unhealthy_count": count,
         }
-        
+
         issue_file.write_text(json.dumps(issue_content, indent=2, ensure_ascii=False))
-        
+
         return {"file": str(issue_file), "content": issue_content}
-    
+
     def task3_build_knowledge_base(self) -> Dict:
         """
         ЗАДАЧА 3: Построение Базы Знаний из Логов
-        
+
         Измеримый результат: knowledge_base/errors.json обновлён
         """
         print("📚 Строю базу знаний из паттернов ошибок...")
-        
+
         # Читаем логи за неделю
         logs = self._read_journalctl_logs(since="7 days ago")
-        
+
         # Извлекаем ошибки
         error_patterns = self._extract_error_patterns(logs)
-        
+
         # Загружаем существующую базу знаний
         kb_file = self.knowledge_dir / "errors.json"
-        
+
         if kb_file.exists():
             kb = json.loads(kb_file.read_text())
         else:
             kb = {
                 "error_patterns": {},
                 "last_updated": None,
-                "total_errors_analyzed": 0
+                "total_errors_analyzed": 0,
             }
-        
+
         # Обновляем паттерны
         for pattern, data in error_patterns.items():
             if pattern in kb["error_patterns"]:
@@ -427,18 +429,20 @@ Please investigate and fix the failing tests or workflows.
             else:
                 # Добавляем новый паттерн
                 kb["error_patterns"][pattern] = data
-        
+
         kb["last_updated"] = datetime.now().isoformat()
-        kb["total_errors_analyzed"] = sum(p["count"] for p in kb["error_patterns"].values())
-        
+        kb["total_errors_analyzed"] = sum(
+            p["count"] for p in kb["error_patterns"].values()
+        )
+
         # Сохраняем обновлённую базу знаний
         kb_file.write_text(json.dumps(kb, indent=2, ensure_ascii=False))
-        
+
         # Генерируем FAQ
         faq_file = self.knowledge_dir / "FAQ.md"
         faq_content = self._generate_faq_from_kb(kb)
         faq_file.write_text(faq_content)
-        
+
         result = {
             "task": "build_knowledge_base",
             "status": "COMPLETED",
@@ -448,30 +452,30 @@ Please investigate and fix the failing tests or workflows.
             "summary": {
                 "unique_patterns": len(kb["error_patterns"]),
                 "total_errors": kb["total_errors_analyzed"],
-                "new_patterns": len(error_patterns)
-            }
+                "new_patterns": len(error_patterns),
+            },
         }
-        
+
         print(f"✅ База знаний обновлена: {len(kb['error_patterns'])} паттернов")
         print(f"✅ FAQ сгенерирован: {faq_file}")
-        
+
         return result
-    
+
     def _extract_error_patterns(self, logs: List[str]) -> Dict:
         """Извлекает паттерны ошибок из логов"""
         patterns = {}
-        
-        error_regex = re.compile(r'(ERROR|error|ошибка|failed|failure)', re.IGNORECASE)
-        
+
+        error_regex = re.compile(r"(ERROR|error|ошибка|failed|failure)", re.IGNORECASE)
+
         for line in logs:
             if error_regex.search(line):
                 # Извлекаем суть ошибки (убираем временные метки и специфичные данные)
-                error_msg = line.split(':', 3)[-1].strip()[:150]
-                
+                error_msg = line.split(":", 3)[-1].strip()[:150]
+
                 # Нормализуем (убираем числа, пути и т.д.)
-                normalized = re.sub(r'\d+', 'N', error_msg)
-                normalized = re.sub(r'/[\w/]+', '/PATH', normalized)
-                
+                normalized = re.sub(r"\d+", "N", error_msg)
+                normalized = re.sub(r"/[\w/]+", "/PATH", normalized)
+
                 if normalized and len(normalized) > 20:
                     if normalized in patterns:
                         patterns[normalized]["count"] += 1
@@ -480,11 +484,11 @@ Please investigate and fix the failing tests or workflows.
                             "count": 1,
                             "example": error_msg,
                             "first_seen": datetime.now().isoformat(),
-                            "last_seen": datetime.now().isoformat()
+                            "last_seen": datetime.now().isoformat(),
                         }
-        
+
         return patterns
-    
+
     def _generate_faq_from_kb(self, kb: Dict) -> str:
         """Генерирует FAQ из базы знаний"""
         faq = f"""# 🤔 FAQ - Частые Ошибки и Решения
@@ -498,14 +502,12 @@ Please investigate and fix the failing tests or workflows.
 ## Топ-10 Частых Ошибок
 
 """
-        
+
         # Сортируем по частоте
         sorted_patterns = sorted(
-            kb['error_patterns'].items(),
-            key=lambda x: x[1]['count'],
-            reverse=True
+            kb["error_patterns"].items(), key=lambda x: x[1]["count"], reverse=True
         )[:10]
-        
+
         for i, (pattern, data) in enumerate(sorted_patterns, 1):
             faq += f"""
 ### {i}. Ошибка (встречалась {data['count']} раз)
@@ -526,66 +528,66 @@ Please investigate and fix the failing tests or workflows.
 
 ---
 """
-        
+
         faq += "\n*FAQ автоматически сгенерирован MIRAI Real Task Executor*\n"
-        
+
         return faq
-    
+
     def task4_update_metrics_dashboard(self) -> Dict:
         """
         ЗАДАЧА 4: Обновление Метрик и Dashboard
-        
+
         Измеримый результат: metrics/latest.json и web/dashboard.html обновлены
         """
         print("📊 Обновляю метрики и генерирую dashboard...")
-        
+
         # Собираем метрики
         metrics = self._collect_current_metrics()
-        
+
         # Сохраняем метрики
         metrics_file = self.metrics_dir / "latest.json"
         metrics_file.write_text(json.dumps(metrics, indent=2, ensure_ascii=False))
-        
+
         # Добавляем в историю
         history_file = self.metrics_dir / "history.jsonl"
-        with open(history_file, 'a') as f:
-            f.write(json.dumps(metrics, ensure_ascii=False) + '\n')
-        
+        with open(history_file, "a") as f:
+            f.write(json.dumps(metrics, ensure_ascii=False) + "\n")
+
         # Генерируем HTML dashboard
         web_dir = self.base_dir / "web"
         web_dir.mkdir(exist_ok=True)
-        
+
         dashboard_file = web_dir / "dashboard.html"
         dashboard_html = self._generate_dashboard_html(metrics)
         dashboard_file.write_text(dashboard_html)
-        
+
         result = {
             "task": "update_metrics_dashboard",
             "status": "COMPLETED",
             "timestamp": datetime.now().isoformat(),
             "metrics_file": str(metrics_file),
             "dashboard_file": str(dashboard_file),
-            "summary": metrics
+            "summary": metrics,
         }
-        
+
         print(f"✅ Метрики обновлены: {metrics_file}")
         print(f"✅ Dashboard создан: {dashboard_file}")
-        
+
         return result
-    
+
     def _collect_current_metrics(self) -> Dict:
         """Собирает текущие метрики системы"""
-        
+
         # Получаем статистику из journalctl
         logs = self._read_journalctl_logs(since="1 hour ago")
-        
+
         # Подсчитываем циклы
-        cycles = len([l for l in logs if 'АВТОНОМНЫЙ ЦИКЛ' in l])
-        
+        cycles = len([l for l in logs if "АВТОНОМНЫЙ ЦИКЛ" in l])
+
         # Проверяем память БД
         db_file = self.base_dir / "mirai-agent" / "data" / "mirai_memory.db"
         db_size = db_file.stat().st_size if db_file.exists() else 0
-        
+
         # Собираем метрики
         metrics = {
             "timestamp": datetime.now().isoformat(),
@@ -593,24 +595,26 @@ Please investigate and fix the failing tests or workflows.
             "db_size_bytes": db_size,
             "db_size_human": self._human_readable_size(db_size),
             "log_lines_last_hour": len(logs),
-            "errors_last_hour": len([l for l in logs if 'ERROR' in l or 'error' in l]),
-            "warnings_last_hour": len([l for l in logs if 'WARNING' in l or 'warning' in l])
+            "errors_last_hour": len([l for l in logs if "ERROR" in l or "error" in l]),
+            "warnings_last_hour": len(
+                [l for l in logs if "WARNING" in l or "warning" in l]
+            ),
         }
-        
+
         return metrics
-    
+
     def _human_readable_size(self, size_bytes: int) -> str:
         """Конвертирует байты в человеко-читаемый формат"""
         size = float(size_bytes)
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ["B", "KB", "MB", "GB"]:
             if size < 1024.0:
                 return f"{size:.1f} {unit}"
             size /= 1024.0
         return f"{size:.1f} TB"
-    
+
     def _generate_dashboard_html(self, metrics: Dict) -> str:
         """Генерирует HTML dashboard"""
-        
+
         html = f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -733,49 +737,44 @@ Please investigate and fix the failing tests or workflows.
 </body>
 </html>
 """
-        
+
         return html
 
 
 def main():
     """Запуск всех задач для тестирования"""
     executor = RealTaskExecutor()
-    
+
     print("🚀 Запускаю все РЕАЛЬНЫЕ задачи MIRAI\n")
-    
+
     # Задача 1: Анализ логов
     result1 = executor.task1_analyze_logs_and_report()
     print(f"\n1️⃣ {result1['task']}: {result1['status']}")
-    
+
     # Задача 2: Мониторинг CI/CD (для примера)
     mock_health = {
         "status": "UNHEALTHY",
         "grade": "D (50%)",
         "success_rate": "50%",
-        "report": "2/4 workflows failed"
+        "report": "2/4 workflows failed",
     }
     result2 = executor.task2_monitor_cicd_and_create_issue(mock_health)
     print(f"\n2️⃣ {result2['task']}: {result2['status']}")
-    
+
     # Задача 3: База знаний
     result3 = executor.task3_build_knowledge_base()
     print(f"\n3️⃣ {result3['task']}: {result3['status']}")
-    
+
     # Задача 4: Dashboard
     result4 = executor.task4_update_metrics_dashboard()
     print(f"\n4️⃣ {result4['task']}: {result4['status']}")
-    
+
     print("\n" + "=" * 60)
     print("✅ ВСЕ 4 ЗАДАЧИ ВЫПОЛНЕНЫ!")
     print("=" * 60)
-    
-    summary = {
-        "task1": result1,
-        "task2": result2,
-        "task3": result3,
-        "task4": result4
-    }
-    
+
+    summary = {"task1": result1, "task2": result2, "task3": result3, "task4": result4}
+
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
