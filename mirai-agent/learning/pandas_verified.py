@@ -4,76 +4,54 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-16T18:55:50.794795
+Learned: 2025-10-16T19:11:28.220114
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from pandas import DataFrame
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> DataFrame:
     """
-    Create a DataFrame from a dictionary.
-
-    Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
-
-    Returns:
-        pd.DataFrame: A DataFrame created from the input data.
-
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary are not consistent.
-    """
-    # Check if all lists in data have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All lists in the dictionary must have the same length.")
+    Load data from a CSV file and perform basic processing.
     
-    # Create and return the DataFrame
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate basic statistics for each numerical column in the DataFrame.
-
     Args:
-        df (pd.DataFrame): The DataFrame to calculate statistics for.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation.
+        DataFrame: A processed DataFrame with no missing values.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
-    stats = {
-        'Mean': df.mean(),
-        'Median': df.median(),
-        'Std Dev': df.std()
-    }
-    return pd.DataFrame(stats)
+    try:
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty. {e}")
+        raise
+    
+    # Drop rows with any missing values
+    df_cleaned = df.dropna()
+    
+    return df_cleaned
 
 def main() -> None:
     """
-    Main function to run the example.
+    Main function to execute the data loading and processing.
     """
-    # Sample data for demonstration
-    data = {
-        'A': np.random.rand(10),
-        'B': np.random.rand(10),
-        'C': np.random.rand(10)
-    }
-
+    file_path = 'data.csv'  # Specify the path to your CSV file
     try:
-        # Create a DataFrame
-        df = create_dataframe(data)
-        print("DataFrame:")
-        print(df)
-
-        # Calculate statistics
-        stats_df = calculate_statistics(df)
-        print("\nStatistics:")
-        print(stats_df)
-
-    except ValueError as e:
-        print(f"Error: {e}")
+        # Load and process the data
+        processed_data = load_and_process_data(file_path)
+        print(processed_data.head())  # Display the first few rows of the processed data
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
