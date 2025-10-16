@@ -1,0 +1,1024 @@
+{
+  "timestamp": "2025-10-16T13:57:39.484745",
+  "files_checked": 50,
+  "total_issues": 132,
+  "critical_issues": 3,
+  "warnings": 58,
+  "files_ok": 40,
+  "files_with_errors": [
+    "master_agent.py",
+    "ai_engine.py",
+    "path_to_your_code_file.py"
+  ],
+  "files_with_warnings": [
+    "real_tasks.py",
+    "self_evolution.py",
+    "long_term_memory.py",
+    "memory_manager.py",
+    "personality_system.py",
+    "self_modification.py",
+    "advanced_logger.py"
+  ],
+  "files_perfect": [
+    "logger.py",
+    "autonomous_improvement.py",
+    "config.py",
+    "config_loader.py",
+    "database_manager.py",
+    "cicd_monitor.py",
+    "memory.py",
+    "web_scraper.py",
+    "github_integration.py",
+    "validation.py",
+    "self_awareness.py",
+    "rag_system.py",
+    "ai_tools.py",
+    "multi_language_executor.py",
+    "autonomous_agent.py",
+    "auto_planner.py",
+    "self_improvement.py",
+    "self_diagnostic.py",
+    "simple_monitor.py",
+    "ask_mirai_about_models.py",
+    "debug_ai.py",
+    "ask_mirai.py",
+    "agent_server.py",
+    "deep_mirai_interview.py",
+    "kaizen_terminal.py",
+    "autonomous_work.py",
+    "create_showcase.py",
+    "run_mirai.py",
+    "simple_server.py",
+    "mirai_autonomous.py",
+    "autonomous_service.py",
+    "autonomous_mode.py",
+    "main.py",
+    "dashboard_server.py",
+    "generate_readme.py",
+    "quick_test_phase3.py",
+    "boss_mode.py",
+    "autonomous_work.py",
+    "autonomous_service.py",
+    "autonomous_mode.py"
+  ],
+  "detailed_report": {
+    "real_tasks.py": {
+      "file": "real_tasks.py",
+      "path": "/root/mirai/mirai-agent/core/real_tasks.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 20: __init__"
+        ],
+        "long_functions": [
+          "Line 185: _generate_report (101 lines)",
+          "Line 615: _generate_dashboard_html (126 lines)",
+          "Line 743: task5_auto_fix_code (169 lines)"
+        ],
+        "complex_functions": [
+          "Line 93: _analyze_logs (90 lines)",
+          "Line 288: task2_monitor_cicd_and_create_issue (68 lines)",
+          "Line 397: task3_build_knowledge_base (65 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (6 times): \"timestamp\": datetime.now().isoformat(),..."
+        ]
+      },
+      "lines_of_code": 704,
+      "complexity_score": 8
+    },
+    "logger.py": {
+      "file": "logger.py",
+      "path": "/root/mirai/mirai-agent/core/logger.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 54: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 448,
+      "complexity_score": 1
+    },
+    "self_evolution.py": {
+      "file": "self_evolution.py",
+      "path": "/root/mirai/mirai-agent/core/self_evolution.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 20: __init__",
+          "Line 86: __init__",
+          "Line 192: __init__",
+          "Line 274: __init__",
+          "Line 356: __init__",
+          "Line 414: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 109: generate_goals (73 lines)",
+          "Line 196: learn_technology (60 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 363,
+      "complexity_score": 8
+    },
+    "autonomous_improvement.py": {
+      "file": "autonomous_improvement.py",
+      "path": "/root/mirai/mirai-agent/core/autonomous_improvement.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 17: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 127,
+      "complexity_score": 1
+    },
+    "config.py": {
+      "file": "config.py",
+      "path": "/root/mirai/mirai-agent/core/config.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 91,
+      "complexity_score": 0
+    },
+    "long_term_memory.py": {
+      "file": "long_term_memory.py",
+      "path": "/root/mirai/mirai-agent/core/long_term_memory.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 17: __init__",
+          "Line 35: to_dict",
+          "Line 56: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 480: main (62 lines)",
+          "Line 63: _init_database (81 lines)",
+          "Line 365: learn_from_history (80 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (10 times): conn = sqlite3.connect(self.db_path)..."
+        ]
+      },
+      "lines_of_code": 442,
+      "complexity_score": 7
+    },
+    "config_loader.py": {
+      "file": "config_loader.py",
+      "path": "/root/mirai/mirai-agent/core/config_loader.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 302: load (54 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 395,
+      "complexity_score": 1
+    },
+    "database_manager.py": {
+      "file": "database_manager.py",
+      "path": "/root/mirai/mirai-agent/core/database_manager.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 16: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 273,
+      "complexity_score": 1
+    },
+    "cicd_monitor.py": {
+      "file": "cicd_monitor.py",
+      "path": "/root/mirai/mirai-agent/core/cicd_monitor.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 17: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 179,
+      "complexity_score": 1
+    },
+    "memory.py": {
+      "file": "memory.py",
+      "path": "/root/mirai/mirai-agent/core/memory.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 40: _create_tables (83 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 422,
+      "complexity_score": 1
+    },
+    "web_scraper.py": {
+      "file": "web_scraper.py",
+      "path": "/root/mirai/mirai-agent/core/web_scraper.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 285,
+      "complexity_score": 0
+    },
+    "memory_manager.py": {
+      "file": "memory_manager.py",
+      "path": "/root/mirai/mirai-agent/core/memory_manager.py",
+      "status": "needs_attention",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 50: __post_init__",
+          "Line 73: __post_init__",
+          "Line 81: to_dict",
+          "Line 101: __post_init__",
+          "Line 105: to_dict",
+          "Line 129: __post_init__",
+          "Line 133: to_dict",
+          "Line 156: __post_init__",
+          "Line 162: to_dict"
+        ],
+        "long_functions": [
+          "Line 229: _init_database (105 lines)"
+        ],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (18 times): with self._get_connection() as conn:..."
+        ]
+      },
+      "lines_of_code": 827,
+      "complexity_score": 11
+    },
+    "github_integration.py": {
+      "file": "github_integration.py",
+      "path": "/root/mirai/mirai-agent/core/github_integration.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 16: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 264: create_or_update_file (53 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (7 times): return {\"error\": f\"HTTP {response.status_code}: {response.te..."
+        ]
+      },
+      "lines_of_code": 316,
+      "complexity_score": 3
+    },
+    "master_agent.py": {
+      "file": "master_agent.py",
+      "path": "/root/mirai/mirai-agent/core/master_agent.py",
+      "status": "critical",
+      "errors": [
+        "🔴 MISSING MODULE: modules.api.server"
+      ],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 27: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 27: __init__ (80 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 110,
+      "complexity_score": 3
+    },
+    "validation.py": {
+      "file": "validation.py",
+      "path": "/root/mirai/mirai-agent/core/validation.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 3: validate_python_code"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 7,
+      "complexity_score": 1
+    },
+    "personality_system.py": {
+      "file": "personality_system.py",
+      "path": "/root/mirai/mirai-agent/core/personality_system.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 120: __init__"
+        ],
+        "long_functions": [
+          "Line 144: _init_database (123 lines)",
+          "Line 662: get_character_sheet (109 lines)"
+        ],
+        "complex_functions": [
+          "Line 269: _init_base_stats (55 lines)",
+          "Line 326: gain_xp (92 lines)",
+          "Line 484: use_skill (64 lines)",
+          "Line 597: develop_trait (63 lines)",
+          "Line 773: auto_develop_personality (97 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (9 times): with sqlite3.connect(self.db_path) as conn:..."
+        ]
+      },
+      "lines_of_code": 773,
+      "complexity_score": 9
+    },
+    "self_awareness.py": {
+      "file": "self_awareness.py",
+      "path": "/root/mirai/mirai-agent/core/self_awareness.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 25: __init__"
+        ],
+        "long_functions": [
+          "Line 483: reflect_on_actions (102 lines)"
+        ],
+        "complex_functions": [
+          "Line 106: _analyze_achievements (51 lines)",
+          "Line 394: propose_improvements (87 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 468,
+      "complexity_score": 4
+    },
+    "rag_system.py": {
+      "file": "rag_system.py",
+      "path": "/root/mirai/mirai-agent/core/rag_system.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 286: main"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 286: main (64 lines)",
+          "Line 35: __init__ (60 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 263,
+      "complexity_score": 3
+    },
+    "ai_tools.py": {
+      "file": "ai_tools.py",
+      "path": "/root/mirai/mirai-agent/core/ai_tools.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 16: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 144,
+      "complexity_score": 1
+    },
+    "ai_engine.py": {
+      "file": "ai_engine.py",
+      "path": "/root/mirai/mirai-agent/core/ai_engine.py",
+      "status": "critical",
+      "errors": [
+        "🔴 MISSING MODULE: ai_tools"
+      ],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 27: __init__",
+          "Line 82: _request",
+          "Line 102: _request"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 100,
+      "complexity_score": 4
+    },
+    "multi_language_executor.py": {
+      "file": "multi_language_executor.py",
+      "path": "/root/mirai/mirai-agent/core/multi_language_executor.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 17: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (9 times): with tempfile.NamedTemporaryFile(..."
+        ]
+      },
+      "lines_of_code": 332,
+      "complexity_score": 2
+    },
+    "self_modification.py": {
+      "file": "self_modification.py",
+      "path": "/root/mirai/mirai-agent/core/self_modification.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 42: __init__",
+          "Line 158: __init__",
+          "Line 319: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 45: analyze_file (97 lines)",
+          "Line 163: generate_improvement (61 lines)",
+          "Line 399: apply_improvement (96 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 429,
+      "complexity_score": 6
+    },
+    "autonomous_agent.py": {
+      "file": "autonomous_agent.py",
+      "path": "/root/mirai/mirai-agent/core/autonomous_agent.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 43: __init__"
+        ],
+        "long_functions": [
+          "Line 43: __init__ (226 lines)",
+          "Line 574: think (116 lines)"
+        ],
+        "complex_functions": [
+          "Line 417: database_query (68 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 617,
+      "complexity_score": 4
+    },
+    "auto_planner.py": {
+      "file": "auto_planner.py",
+      "path": "/root/mirai/mirai-agent/core/auto_planner.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 38: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 187: _generate_daily_tasks (57 lines)",
+          "Line 246: _distribute_tasks_by_days (68 lines)",
+          "Line 362: review_plan_execution (66 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 400,
+      "complexity_score": 4
+    },
+    "self_improvement.py": {
+      "file": "self_improvement.py",
+      "path": "/root/mirai/mirai-agent/self_improvement.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 219,
+      "complexity_score": 0
+    },
+    "self_diagnostic.py": {
+      "file": "self_diagnostic.py",
+      "path": "/root/mirai/mirai-agent/self_diagnostic.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 33: __init__"
+        ],
+        "long_functions": [
+          "Line 277: generate_report (145 lines)"
+        ],
+        "complex_functions": [
+          "Line 100: check_code_quality (53 lines)",
+          "Line 222: scan_all_files (53 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 346,
+      "complexity_score": 4
+    },
+    "simple_monitor.py": {
+      "file": "simple_monitor.py",
+      "path": "/root/mirai/mirai-agent/simple_monitor.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 29: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 115,
+      "complexity_score": 1
+    },
+    "ask_mirai_about_models.py": {
+      "file": "ask_mirai_about_models.py",
+      "path": "/root/mirai/mirai-agent/ask_mirai_about_models.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [
+          "Line 20: ask_mirai_about_models (210 lines)"
+        ],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 191,
+      "complexity_score": 1
+    },
+    "debug_ai.py": {
+      "file": "debug_ai.py",
+      "path": "/root/mirai/mirai-agent/debug_ai.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 20,
+      "complexity_score": 0
+    },
+    "ask_mirai.py": {
+      "file": "ask_mirai.py",
+      "path": "/root/mirai/mirai-agent/ask_mirai.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 20: main"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 20: main (89 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 77,
+      "complexity_score": 2
+    },
+    "advanced_logger.py": {
+      "file": "advanced_logger.py",
+      "path": "/root/mirai/mirai-agent/advanced_logger.py",
+      "status": "warnings",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 5: JSONFormatter",
+          "Line 17: AdvancedLogger",
+          "Line 6: format",
+          "Line 18: __init__",
+          "Line 27: debug",
+          "Line 30: info",
+          "Line 33: warning",
+          "Line 36: error",
+          "Line 40: mask_api_keys"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 32,
+      "complexity_score": 9
+    },
+    "agent_server.py": {
+      "file": "agent_server.py",
+      "path": "/root/mirai/mirai-agent/agent_server.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 38: TaskRequest"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 355,
+      "complexity_score": 1
+    },
+    "path_to_your_code_file.py": {
+      "file": "path_to_your_code_file.py",
+      "path": "/root/mirai/mirai-agent/path_to_your_code_file.py",
+      "status": "critical",
+      "errors": [
+        "🔴 SYNTAX ERROR: Line 40: expected an indented block after 'if' statement on line 39"
+      ],
+      "warnings": [],
+      "quality_issues": {},
+      "lines_of_code": 0,
+      "complexity_score": 0
+    },
+    "deep_mirai_interview.py": {
+      "file": "deep_mirai_interview.py",
+      "path": "/root/mirai/mirai-agent/deep_mirai_interview.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 25: __init__"
+        ],
+        "long_functions": [
+          "Line 66: interview (131 lines)"
+        ],
+        "complex_functions": [
+          "Line 199: generate_report (59 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 251,
+      "complexity_score": 3
+    },
+    "kaizen_terminal.py": {
+      "file": "kaizen_terminal.py",
+      "path": "/root/mirai/mirai-agent/kaizen_terminal.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 34: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 34: __init__ (54 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 288,
+      "complexity_score": 2
+    },
+    "autonomous_work.py": {
+      "file": "autonomous_work.py",
+      "path": "/root/mirai/mirai-agent/autonomous_work.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 19: Kaizen",
+          "Line 50: main",
+          "Line 20: __init__"
+        ],
+        "long_functions": [
+          "Line 50: main (122 lines)"
+        ],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 128,
+      "complexity_score": 4
+    },
+    "create_showcase.py": {
+      "file": "create_showcase.py",
+      "path": "/root/mirai/mirai-agent/create_showcase.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 16: main"
+        ],
+        "long_functions": [
+          "Line 16: main (478 lines)"
+        ],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 359,
+      "complexity_score": 2
+    },
+    "run_mirai.py": {
+      "file": "run_mirai.py",
+      "path": "/root/mirai/mirai-agent/run_mirai.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 55,
+      "complexity_score": 0
+    },
+    "simple_server.py": {
+      "file": "simple_server.py",
+      "path": "/root/mirai/mirai-agent/simple_server.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 305,
+      "complexity_score": 0
+    },
+    "mirai_autonomous.py": {
+      "file": "mirai_autonomous.py",
+      "path": "/root/mirai/mirai-agent/mirai_autonomous.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 34: __init__",
+          "Line 130: __init__"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 60: get_updates (64 lines)",
+          "Line 241: check_human_messages (69 lines)",
+          "Line 312: autonomous_cycle (89 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 353,
+      "complexity_score": 5
+    },
+    "autonomous_service.py": {
+      "file": "autonomous_service.py",
+      "path": "/root/mirai/mirai-agent/autonomous_service.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 35: __init__"
+        ],
+        "long_functions": [
+          "Line 214: autonomous_cycle (304 lines)"
+        ],
+        "complex_functions": [
+          "Line 35: __init__ (60 lines)",
+          "Line 157: autonomous_learning (55 lines)",
+          "Line 533: run (75 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 477,
+      "complexity_score": 5
+    },
+    "autonomous_mode.py": {
+      "file": "autonomous_mode.py",
+      "path": "/root/mirai/mirai-agent/autonomous_mode.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 107,
+      "complexity_score": 0
+    },
+    "main.py": {
+      "file": "main.py",
+      "path": "/root/mirai/mirai-agent/main.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 0,
+      "complexity_score": 0
+    },
+    "dashboard_server.py": {
+      "file": "dashboard_server.py",
+      "path": "/root/mirai/mirai-agent/dashboard_server.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 27: start_task_manager"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 129: nasa_learn (55 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (20 times): return jsonify({\"success\": False, \"error\": str(e)}), 500..."
+        ]
+      },
+      "lines_of_code": 415,
+      "complexity_score": 3
+    },
+    "generate_readme.py": {
+      "file": "generate_readme.py",
+      "path": "/root/mirai/mirai-agent/generate_readme.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 5: generate_readme"
+        ],
+        "long_functions": [],
+        "complex_functions": [],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 16,
+      "complexity_score": 1
+    },
+    "quick_test_phase3.py": {
+      "file": "quick_test_phase3.py",
+      "path": "/root/mirai/mirai-agent/quick_test_phase3.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 144: main"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 144: main (62 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": [
+          "Duplicated code (6 times): assert response.status_code == 200, f\"Expected 200, got {res..."
+        ]
+      },
+      "lines_of_code": 142,
+      "complexity_score": 3
+    },
+    "boss_mode.py": {
+      "file": "boss_mode.py",
+      "path": "/root/mirai/mirai-agent/boss_mode.py",
+      "status": "good",
+      "errors": [],
+      "warnings": [],
+      "quality_issues": {
+        "missing_docstrings": [
+          "Line 19: main"
+        ],
+        "long_functions": [],
+        "complex_functions": [
+          "Line 19: main (94 lines)"
+        ],
+        "unused_imports": [],
+        "code_smells": []
+      },
+      "lines_of_code": 86,
+      "complexity_score": 2
+    }
+  }
+}
