@@ -2,54 +2,66 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-16T19:11:28.220114
+Learned: 2025-10-16T19:43:48.381270
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from pandas import DataFrame
+from typing import Optional, Tuple
 
-def load_and_process_data(file_path: str) -> DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Load data from a CSV file into a Pandas DataFrame.
     
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        DataFrame: A processed DataFrame with no missing values.
-    
+        pd.DataFrame: DataFrame containing the loaded data.
+
     Raises:
         FileNotFoundError: If the file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
     except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
+        print(f"Error: {e}")
         raise
+
+def summarize_data(df: pd.DataFrame) -> Tuple[int, pd.DataFrame]:
+    """
+    Summarize the DataFrame by providing its shape and basic statistics.
     
-    # Drop rows with any missing values
-    df_cleaned = df.dropna()
-    
-    return df_cleaned
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+
+    Returns:
+        Tuple[int, pd.DataFrame]: A tuple containing the number of rows and a DataFrame 
+        with basic statistics.
+    """
+    num_rows = df.shape[0]
+    statistics = df.describe(include='all')  # Include all columns for summary
+    return num_rows, statistics
 
 def main() -> None:
     """
-    Main function to execute the data loading and processing.
+    Main function to load data and summarize it.
     """
     file_path = 'data.csv'  # Specify the path to your CSV file
     try:
-        # Load and process the data
-        processed_data = load_and_process_data(file_path)
-        print(processed_data.head())  # Display the first few rows of the processed data
+        df = load_data(file_path)  # Load the data
+        num_rows, statistics = summarize_data(df)  # Summarize the data
+        
+        print(f"Number of rows: {num_rows}")  # Print number of rows
+        print("\nStatistics:\n", statistics)  # Print summary statistics
     except Exception as e:
         print(f"An error occurred: {e}")
 
