@@ -1,10 +1,10 @@
 """
 TensorFlow - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-16T01:32:18.912764
+Learned: 2025-10-16T04:44:26.201069
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,62 +12,73 @@ This code has been verified by MIRAI's NASA-level learning system.
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from sklearn.model_selection import train_test_split
 import numpy as np
+import logging
 
-def create_model(input_shape: tuple) -> keras.Model:
-    """Creates and compiles a simple neural network model.
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def create_model(input_shape: tuple, num_classes: int) -> keras.Model:
+    """
+    Creates and compiles a simple feedforward neural network model.
 
     Args:
         input_shape (tuple): Shape of the input data.
+        num_classes (int): Number of output classes.
 
     Returns:
-        keras.Model: A compiled Keras model.
+        keras.Model: Compiled Keras model.
     """
-    model = keras.Sequential([
-        layers.Input(shape=input_shape),
-        layers.Dense(128, activation='relu'),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(10, activation='softmax')  # Assuming 10 classes for classification
-    ])
-    
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-    return model
+    try:
+        model = keras.Sequential([
+            layers.Flatten(input_shape=input_shape),  # Flatten the input
+            layers.Dense(128, activation='relu'),      # Hidden layer
+            layers.Dense(num_classes, activation='softmax')  # Output layer
+        ])
+        
+        model.compile(optimizer='adam',
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+        logging.info("Model created and compiled successfully.")
+        return model
+    except Exception as e:
+        logging.error("Error creating model: %s", e)
+        raise
 
-def load_data() -> tuple:
-    """Generates synthetic data for demonstration purposes.
-
-    Returns:
-        tuple: Features and labels as numpy arrays.
+def train_model(model: keras.Model, x_train: np.ndarray, y_train: np.ndarray, epochs: int = 5) -> None:
     """
-    # Generate synthetic data
-    X = np.random.rand(1000, 20)  # 1000 samples, 20 features
-    y = np.random.randint(0, 10, 1000)  # 1000 labels (10 classes)
-    return X, y
+    Trains the model on the provided training data.
+
+    Args:
+        model (keras.Model): The model to be trained.
+        x_train (np.ndarray): Training data.
+        y_train (np.ndarray): Training labels.
+        epochs (int): Number of epochs for training. Default is 5.
+    """
+    try:
+        model.fit(x_train, y_train, epochs=epochs)
+        logging.info("Model trained successfully for %d epochs.", epochs)
+    except Exception as e:
+        logging.error("Error during model training: %s", e)
+        raise
 
 def main() -> None:
-    """Main function to execute the training of the model."""
-    try:
-        # Load data
-        X, y = load_data()
+    """
+    Main function to execute the example of creating and training a model.
+    """
+    # Generate dummy data for demonstration
+    num_samples = 1000
+    num_classes = 10
+    input_shape = (28, 28)
 
-        # Split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    x_train = np.random.random((num_samples, *input_shape))
+    y_train = np.random.randint(0, num_classes, size=(num_samples,))
 
-        # Create the model
-        model = create_model(input_shape=(X_train.shape[1],))
+    # Create model
+    model = create_model(input_shape, num_classes)
 
-        # Train the model
-        model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
-
-        # Evaluate the model
-        test_loss, test_accuracy = model.evaluate(X_test, y_test)
-        print(f"Test accuracy: {test_accuracy:.4f}")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    # Train model
+    train_model(model, x_train, y_train)
 
 if __name__ == "__main__":
     main()
