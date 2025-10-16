@@ -4,67 +4,58 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-16T09:35:14.793016
+Learned: 2025-10-16T10:07:56.224363
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
     """
-    Load a CSV file and process the data.
+    Load and process data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
+        index_col (Optional[str]): Column to set as index. Defaults to None.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: A processed DataFrame with the data from the CSV file.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        raise ValueError("The file is empty.")
-    except pd.errors.ParserError:
-        raise ValueError("Error parsing the file.")
-
-    # Drop rows with any missing values
-    df.dropna(inplace=True)
-
-    # Reset the index after dropping rows
-    df.reset_index(drop=True, inplace=True)
-
-    return df
-
-def filter_data(df: pd.DataFrame, column_name: str, values: List) -> pd.DataFrame:
-    """
-    Filter the DataFrame based on a column and a list of values.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to filter.
-    column_name (str): The column to filter on.
-    values (List): A list of values to filter by.
-
-    Returns:
-    pd.DataFrame: The filtered DataFrame.
-    """
-    if column_name not in df.columns:
-        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-    
-    # Filter the DataFrame
-    filtered_df = df[df[column_name].isin(values)]
-    
-    return filtered_df
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path, index_col=index_col)
+        
+        # Print the first few rows of the DataFrame
+        print("Data loaded successfully. Here's a preview:")
+        print(df.head())
+        
+        # Basic data processing: drop any rows with missing values
+        df.dropna(inplace=True)
+        
+        return df
+    except FileNotFoundError as e:
+        print(f"Error: The file '{file_path}' was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: Could not parse the file.")
+        raise e
 
 if __name__ == "__main__":
-    # Example usage
+    # Example usage of the load_and_process_data function
+    file_path = 'data.csv'  # Replace with the path to your CSV file
     try:
-        data = load_and_process_data('data.csv')  # Replace 'data.csv' with your file path
-        filtered_data = filter_data(data, 'Category', ['A', 'B'])  # Replace 'Category' and values as needed
-        print(filtered_data)
+        df = load_and_process_data(file_path, index_col='id')  # Assuming 'id' is a column in your CSV
+        print("Processed DataFrame:")
+        print(df)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print("An error occurred during data loading and processing.")
