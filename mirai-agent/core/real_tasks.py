@@ -740,6 +740,174 @@ Please investigate and fix the failing tests or workflows.
 
         return html
 
+    def task5_auto_fix_code(self, issue_description: str | None = None) -> Dict:
+        """
+        ЗАДАЧА 5: Автоматическое Исправление Кода
+
+        Поток:
+        1. AI анализирует проблему и генерирует исправление
+        2. Создаёт новую ветку в GitHub
+        3. Коммитит исправленный код
+        4. Создаёт Pull Request с описанием
+
+        Измеримый результат: PR создан в GitHub
+        """
+        print("🤖 Начинаю автоисправление кода...")
+
+        try:
+            from core.autonomous_agent import AutonomousAgent
+            from core.github_integration import GitHubIntegration
+
+            # Инициализация
+            agent = AutonomousAgent()
+            gh = GitHubIntegration()
+
+            if not gh.is_authenticated():
+                return {
+                    "task": "task5_auto_fix_code",
+                    "status": "❌ FAILED",
+                    "error": "GitHub not authenticated",
+                }
+
+            # Если issue не указан, ищем в логах
+            if not issue_description:
+                logs = self._read_journalctl_logs(since="1 hour ago")
+                analysis = self._analyze_logs(logs)
+
+                if analysis["error_count"] == 0:
+                    return {
+                        "task": "task5_auto_fix_code",
+                        "status": "✅ SKIP",
+                        "reason": "No errors found in logs",
+                    }
+
+                # Берём самую частую ошибку
+                issue_description = f"Fix error: {analysis['top_errors'][0]}"
+
+            # AI генерирует исправление
+            prompt = f"""
+Анализируй эту проблему и предложи исправление:
+
+Проблема: {issue_description}
+
+Верни JSON:
+{{
+    "file_path": "путь к файлу который нужно исправить",
+    "fixed_content": "исправленный код целиком",
+    "explanation": "что именно исправлено"
+}}
+"""
+
+            print(f"💭 Спрашиваю AI как исправить: {issue_description[:80]}...")
+            ai_response = agent.think(prompt, max_iterations=1)
+
+            # Парсим ответ AI
+            try:
+                # Извлекаем JSON из ответа
+                import re
+
+                json_match = re.search(r"\{.*\}", ai_response, re.DOTALL)
+                if not json_match:
+                    raise ValueError("No JSON in AI response")
+
+                fix_data = json.loads(json_match.group())
+                file_path = fix_data["file_path"]
+                fixed_content = fix_data["fixed_content"]
+                explanation = fix_data["explanation"]
+
+            except Exception as e:
+                return {
+                    "task": "task5_auto_fix_code",
+                    "status": "❌ FAILED",
+                    "error": f"Failed to parse AI response: {e}",
+                }
+
+            # Создаём ветку
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            branch_name = f"autofix/{timestamp}"
+
+            print(f"🌿 Создаю ветку: {branch_name}")
+            branch_result = gh.create_branch(
+                owner="AgeeKey", repo="Mirai", branch_name=branch_name, from_branch="main"
+            )
+
+            if "error" in branch_result:
+                return {
+                    "task": "task5_auto_fix_code",
+                    "status": "❌ FAILED",
+                    "error": f"Failed to create branch: {branch_result['error']}",
+                }
+
+            # Коммитим исправление
+            print(f"💾 Коммичу исправление в {file_path}")
+            commit_result = gh.create_or_update_file(
+                owner="AgeeKey",
+                repo="Mirai",
+                path=file_path,
+                content=fixed_content,
+                message=f"🤖 Auto-fix: {issue_description[:50]}",
+                branch=branch_name,
+            )
+
+            if "error" in commit_result:
+                return {
+                    "task": "task5_auto_fix_code",
+                    "status": "❌ FAILED",
+                    "error": f"Failed to commit: {commit_result['error']}",
+                }
+
+            # Создаём Pull Request
+            pr_body = f"""
+## 🤖 Автоматическое Исправление
+
+**Проблема:**
+{issue_description}
+
+**Что исправлено:**
+{explanation}
+
+**Изменённый файл:**
+- `{file_path}`
+
+---
+*Создано автономным агентом MIRAI*
+"""
+
+            print(f"📬 Создаю Pull Request...")
+            pr_result = gh.create_pull_request(
+                owner="AgeeKey",
+                repo="Mirai",
+                title=f"🤖 Auto-fix: {issue_description[:60]}",
+                head=branch_name,
+                base="main",
+                body=pr_body,
+            )
+
+            if "error" in pr_result:
+                return {
+                    "task": "task5_auto_fix_code",
+                    "status": "⚠️ PARTIAL",
+                    "branch": branch_name,
+                    "commit": commit_result.get("sha"),
+                    "error": f"PR creation failed: {pr_result['error']}",
+                }
+
+            return {
+                "task": "task5_auto_fix_code",
+                "status": "✅ SUCCESS",
+                "pr_number": pr_result["number"],
+                "pr_url": pr_result["url"],
+                "branch": branch_name,
+                "file_fixed": file_path,
+            }
+
+        except Exception as e:
+            return {
+                "task": "task5_auto_fix_code",
+                "status": "❌ FAILED",
+                "error": str(e),
+            }
+
 
 def main():
     """Запуск всех задач для тестирования"""

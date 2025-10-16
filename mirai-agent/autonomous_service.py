@@ -262,6 +262,19 @@ class AutonomousService:
                 report_result = executor.task1_analyze_logs_and_report()
                 logger.info(f"   ✅ Отчёт создан: {report_result['report_file']}")
 
+            # Каждые 6 циклов (~30 минут) - автоисправление кода
+            if self.cycle_count % 6 == 0:
+                logger.info("🤖 Проверяю нужно ли исправить код...")
+                autofix_result = executor.task5_auto_fix_code()
+                if autofix_result["status"] == "✅ SUCCESS":
+                    logger.info(
+                        f"   ✅ PR создан: {autofix_result['pr_url']} (#{autofix_result['pr_number']})"
+                    )
+                elif autofix_result["status"] == "✅ SKIP":
+                    logger.info(f"   ⏭️ Пропущено: {autofix_result['reason']}")
+                else:
+                    logger.warning(f"   ⚠️ Не удалось: {autofix_result.get('error', 'Unknown')}")
+
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])
 

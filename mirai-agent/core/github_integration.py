@@ -211,6 +211,144 @@ class GitHubIntegration:
         except Exception as e:
             return [{"error": str(e)}]
 
+    def get_branch(self, owner: str, repo: str, branch: str = "main") -> Dict:
+        """Получить информацию о ветке"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/repos/{owner}/{repo}/branches/{branch}",
+                headers=self.headers,
+                timeout=10,
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    "success": True,
+                    "name": data["name"],
+                    "sha": data["commit"]["sha"],
+                }
+            else:
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_branch(
+        self, owner: str, repo: str, branch_name: str, from_branch: str = "main"
+    ) -> Dict:
+        """Создать новую ветку"""
+        if not self.authenticated:
+            return {"error": "Not authenticated"}
+
+        try:
+            # Получаем SHA базовой ветки
+            base = self.get_branch(owner, repo, from_branch)
+            if "error" in base:
+                return base
+
+            # Создаём ссылку на новую ветку
+            response = requests.post(
+                f"{self.base_url}/repos/{owner}/{repo}/git/refs",
+                headers=self.headers,
+                json={"ref": f"refs/heads/{branch_name}", "sha": base["sha"]},
+                timeout=10,
+            )
+
+            if response.status_code == 201:
+                return {"success": True, "branch": branch_name, "sha": base["sha"]}
+            else:
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_or_update_file(
+        self,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        message: str,
+        branch: str = "main",
+    ) -> Dict:
+        """Создать или обновить файл в репозитории"""
+        if not self.authenticated:
+            return {"error": "Not authenticated"}
+
+        try:
+            import base64
+
+            # Проверяем существует ли файл
+            existing = self.get_repo_content(owner, repo, path)
+            sha = existing.get("sha") if "sha" in existing else None
+
+            # Кодируем содержимое в base64
+            content_bytes = content.encode("utf-8")
+            content_base64 = base64.b64encode(content_bytes).decode("utf-8")
+
+            # Данные для запроса
+            data = {
+                "message": message,
+                "content": content_base64,
+                "branch": branch,
+            }
+
+            if sha:
+                data["sha"] = sha  # Обязательно для обновления
+
+            # Создаём/обновляем файл
+            response = requests.put(
+                f"{self.base_url}/repos/{owner}/{repo}/contents/{path}",
+                headers=self.headers,
+                json=data,
+                timeout=10,
+            )
+
+            if response.status_code in [200, 201]:
+                result = response.json()
+                return {
+                    "success": True,
+                    "path": path,
+                    "sha": result["content"]["sha"],
+                    "url": result["content"]["html_url"],
+                }
+            else:
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_pull_request(
+        self,
+        owner: str,
+        repo: str,
+        title: str,
+        head: str,
+        base: str = "main",
+        body: str = "",
+    ) -> Dict:
+        """Создать Pull Request"""
+        if not self.authenticated:
+            return {"error": "Not authenticated"}
+
+        try:
+            response = requests.post(
+                f"{self.base_url}/repos/{owner}/{repo}/pulls",
+                headers=self.headers,
+                json={"title": title, "head": head, "base": base, "body": body},
+                timeout=10,
+            )
+
+            if response.status_code == 201:
+                pr = response.json()
+                return {
+                    "success": True,
+                    "number": pr["number"],
+                    "url": pr["html_url"],
+                    "state": pr["state"],
+                }
+            else:
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
+        except Exception as e:
+            return {"error": str(e)}
+
 
 # Пример использования
 if __name__ == "__main__":
