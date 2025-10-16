@@ -3,10 +3,11 @@ GitHub API Integration для МИРАЙ
 Работа с репозиториями, issues, PR через GitHub API
 """
 
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
 import requests
-from typing import Dict, List, Optional, Any
 
 
 class GitHubIntegration:

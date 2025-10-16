@@ -828,7 +828,10 @@ Please investigate and fix the failing tests or workflows.
 
             print(f"🌿 Создаю ветку: {branch_name}")
             branch_result = gh.create_branch(
-                owner="AgeeKey", repo="Mirai", branch_name=branch_name, from_branch="main"
+                owner="AgeeKey",
+                repo="Mirai",
+                branch_name=branch_name,
+                from_branch="main",
             )
 
             if "error" in branch_result:

@@ -55,6 +55,12 @@ class AutonomousService:
         self.nasa_learning = NASALearningOrchestrator()
         logger.info("✅ NASA-Level Learning System готова!")
 
+        logger.info("🧠 Инициализация Long-Term Memory...")
+        from core.long_term_memory import LongTermMemory
+
+        self.memory = LongTermMemory()
+        logger.info("✅ Long-Term Memory готова!")
+
         self.running = True
         self.cycle_count = 0
 
@@ -66,6 +72,50 @@ class AutonomousService:
         """Graceful shutdown"""
         logger.info("🛑 Получен сигнал остановки...")
         self.running = False
+
+    def _init_initial_goals(self):
+        """Инициализация начальных целей при первом запуске"""
+        from datetime import timedelta
+
+        # Проверяем есть ли уже активные цели
+        active_goals = self.memory.get_active_goals()
+        if len(active_goals) > 0:
+            logger.info(f"🎯 Найдено {len(active_goals)} активных целей")
+            return
+
+        logger.info("🎯 Инициализация начальных целей...")
+
+        # Цель 1: Автономность
+        self.memory.set_goal(
+            title="Достичь полной автономности",
+            description="Автоматически создавать PR, исправлять код, обучаться новым технологиям",
+            priority=10,
+            deadline=(datetime.now() + timedelta(days=30)).isoformat(),
+        )
+
+        # Цель 2: Качество кода
+        self.memory.set_goal(
+            title="Поддерживать CI/CD success rate > 90%",
+            description="Мониторить GitHub Actions, автоматически исправлять падающие тесты",
+            priority=9,
+        )
+
+        # Цель 3: Обучение
+        self.memory.set_goal(
+            title="Изучить 10+ новых технологий",
+            description="Через NASA-Level Learning System изучать современные технологии",
+            priority=7,
+            deadline=(datetime.now() + timedelta(days=60)).isoformat(),
+        )
+
+        # Цель 4: База знаний
+        self.memory.set_goal(
+            title="Построить исчерпывающую базу знаний",
+            description="Каталогизировать все ошибки, решения, паттерны",
+            priority=6,
+        )
+
+        logger.info("✅ Начальные цели установлены!")
 
     def log_separator(self):
         """Красивый разделитель в логах"""
@@ -270,10 +320,24 @@ class AutonomousService:
                     logger.info(
                         f"   ✅ PR создан: {autofix_result['pr_url']} (#{autofix_result['pr_number']})"
                     )
+                    # Записываем достижение в долгосрочную память
+                    self.memory.record_achievement(
+                        description=f"Auto-fix PR #{autofix_result['pr_number']}",
+                        result=f"Fixed: {autofix_result.get('file_fixed', 'unknown file')}",
+                    )
                 elif autofix_result["status"] == "✅ SKIP":
                     logger.info(f"   ⏭️ Пропущено: {autofix_result['reason']}")
                 else:
-                    logger.warning(f"   ⚠️ Не удалось: {autofix_result.get('error', 'Unknown')}")
+                    logger.warning(
+                        f"   ⚠️ Не удалось: {autofix_result.get('error', 'Unknown')}"
+                    )
+
+            # Каждые 24 цикла (~2 часа) - показываем сводку памяти
+            if self.cycle_count % 24 == 0:
+                logger.info("🧠 Долгосрочная память:")
+                summary = self.memory.get_summary()
+                for line in summary.split("\n"):
+                    logger.info(f"   {line}")
 
             # 6. Логируем метрики для истории
             self.save_metrics(health["metrics"])
@@ -331,6 +395,9 @@ class AutonomousService:
                 interval=interval_seconds
             )
         )
+
+        # Инициализируем начальные цели при первом запуске
+        self._init_initial_goals()
 
         while self.running:
             try:
