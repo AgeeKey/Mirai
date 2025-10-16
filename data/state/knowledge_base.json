@@ -1989,6 +1989,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8485975172562185,
       "learned_at": "2025-10-16T20:49:09.547851"
+    },
+    {
+      "name": "apache-beam",
+      "proficiency": 0.8126266048996104,
+      "learned_at": "2025-10-16T21:04:47.071834"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8502774262969592,
+      "learned_at": "2025-10-16T21:05:18.998145"
     }
   ],
   "skills": [],
