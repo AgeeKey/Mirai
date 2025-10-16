@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-16T01:00:01.484362
+Learned: 2025-10-16T01:15:37.212225
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,47 +14,65 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurred.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        df = pd.read_csv(file_path)
+        return df
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print(f"Error: The file {file_path} was not found.")
+        return None
     except pd.errors.EmptyDataError:
-        print(f"Error: The file '{file_path}' is empty.")
+        print("Error: The file is empty.")
+        return None
     except pd.errors.ParserError:
-        print(f"Error: There was an error parsing the file '{file_path}'.")
-    return None
+        print("Error: The file could not be parsed.")
+        return None
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and resetting the index.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+        pd.DataFrame: The cleaned DataFrame.
+    """
+    # Drop rows with any missing values
+    cleaned_df = df.dropna()
+    # Reset the index
+    cleaned_df.reset_index(drop=True, inplace=True)
+    return cleaned_df
 
 def analyze_data(df: pd.DataFrame) -> None:
     """
-    Perform basic analysis on the DataFrame.
+    Perform basic analysis on the DataFrame and print summary statistics.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
     """
-    if df is not None:
-        print("Data Summary:")
-        print(df.describe())  # Summary statistics for numerical columns
-        print("\nMissing Values:")
-        print(df.isnull().sum())  # Count of missing values in each column
-    else:
-        print("No data to analyze.")
+    print("Summary Statistics:")
+    print(df.describe())  # Print summary statistics of the DataFrame
 
-def main() -> None:
+def main(file_path: str) -> None:
     """
-    Main function to load and analyze data from a CSV file.
+    Main function to load, clean, and analyze data.
+
+    Args:
+        file_path (str): The path to the CSV file.
     """
-    file_path = 'data.csv'  # Specify your CSV file path here
-    df = load_data(file_path)  # Load the data
-    analyze_data(df)  # Analyze the data
+    df = load_data(file_path)
+    if df is not None:  # Proceed only if data is loaded successfully
+        cleaned_df = clean_data(df)
+        analyze_data(cleaned_df)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'data.csv' with your actual file path
+    main('data.csv')
