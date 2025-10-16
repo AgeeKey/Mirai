@@ -1599,6 +1599,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8563955307183386,
       "learned_at": "2025-10-16T09:35:52.916153"
+    },
+    {
+      "name": "pyautogui",
+      "proficiency": 0.817194041408741,
+      "learned_at": "2025-10-16T09:51:39.428057"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8086572496762301,
+      "learned_at": "2025-10-16T09:52:13.915508"
     }
   ],
   "skills": [],
