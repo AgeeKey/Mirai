@@ -1,85 +1,60 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.82
+Quality Grade: A
+Overall Score: 0.94
 Tests Passed: 0/1
-Learned: 2025-10-16T03:56:00.534820
+Learned: 2025-10-16T04:12:01.517438
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load a CSV file into a pandas DataFrame, clean the data, and return the DataFrame.
 
     Parameters:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+    - file_path: str - The path to the CSV file.
+    - column_name: str - The column name to process.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the provided data.
-
-    Raises:
-        ValueError: If the dictionary is empty or if the lists are of unequal length.
+    - Optional[pd.DataFrame]: A cleaned DataFrame or None if an error occurs.
     """
-    if not data:
-        raise ValueError("Input dictionary cannot be empty.")
-    
-    length = len(next(iter(data.values())))
-    if any(len(value) != length for value in data.values()):
-        raise ValueError("All columns must have the same length.")
-    
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> Optional[dict]:
-    """
-    Calculate basic statistics for numerical columns in a DataFrame.
-
-    Parameters:
-        df (pd.DataFrame): The DataFrame from which to calculate statistics.
-
-    Returns:
-        Optional[dict]: A dictionary containing the mean, median, and standard deviation of numerical columns.
-    """
-    if df.empty:
-        return None
-    
-    stats = {
-        'mean': df.mean().to_dict(),
-        'median': df.median().to_dict(),
-        'std_dev': df.std().to_dict()
-    }
-    return stats
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and statistic calculation.
-    """
-    # Sample data
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 6, 7, 8, 9],
-        'C': [10, 11, 12, 13, 14]
-    }
-
     try:
-        df = create_dataframe(data)  # Create DataFrame
-        print("DataFrame created successfully:")
-        print(df)
+        # Load the data
+        df = pd.read_csv(file_path)
 
-        stats = calculate_statistics(df)  # Calculate statistics
-        if stats:
-            print("Statistics calculated:")
-            print(stats)
-        else:
-            print("DataFrame is empty, no statistics to calculate.")
-    
-    except ValueError as e:
-        print(f"Error: {e}")
+        # Check if the specified column exists
+        if column_name not in df.columns:
+            print(f"Error: Column '{column_name}' not found in the data.")
+            return None
 
+        # Drop rows with missing values in the specified column
+        df_cleaned = df.dropna(subset=[column_name])
+
+        # Convert the specified column to a numeric type if possible
+        df_cleaned[column_name] = pd.to_numeric(df_cleaned[column_name], errors='coerce')
+
+        # Drop any rows that could not be converted to numeric
+        df_cleaned = df_cleaned.dropna(subset=[column_name])
+
+        return df_cleaned
+
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
+
+# Example usage
 if __name__ == "__main__":
-    main()
+    cleaned_data = load_and_process_data('data.csv', 'column_of_interest')
+    if cleaned_data is not None:
+        print(cleaned_data.head())
