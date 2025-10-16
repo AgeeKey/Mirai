@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.82
+Quality Grade: C
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-16T14:35:48.937676
+Learned: 2025-10-16T15:24:19.307189
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,18 +12,11 @@ This code has been verified by MIRAI's NASA-level learning system.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
 def load_data(file_path: str) -> pd.DataFrame:
-    """Load dataset from a CSV file.
-    
-    Args:
-        file_path (str): Path to the CSV file.
-    
-    Returns:
-        pd.DataFrame: Loaded dataset as a DataFrame.
-    """
+    """Load dataset from a CSV file."""
     try:
         data = pd.read_csv(file_path)
         return data
@@ -31,57 +24,32 @@ def load_data(file_path: str) -> pd.DataFrame:
         raise ValueError(f"Error loading data: {e}")
 
 def preprocess_data(data: pd.DataFrame, target_column: str) -> tuple:
-    """Preprocess data for training.
-    
-    Args:
-        data (pd.DataFrame): Input DataFrame containing features and target.
-        target_column (str): Name of the target column.
-    
-    Returns:
-        tuple: Features (X) and target (y) as separate arrays.
-    """
+    """Preprocess the data for training."""
     if target_column not in data.columns:
-        raise ValueError(f"Target column '{target_column}' not found in DataFrame.")
+        raise ValueError(f"Target column '{target_column}' not found in DataFrame")
     
     X = data.drop(columns=[target_column])
     y = data[target_column]
+    
     return X, y
 
-def train_model(X: np.ndarray, y: np.ndarray) -> LogisticRegression:
-    """Train a logistic regression model.
-    
-    Args:
-        X (np.ndarray): Feature matrix.
-        y (np.ndarray): Target array.
-    
-    Returns:
-        LogisticRegression: Trained logistic regression model.
-    """
-    model = LogisticRegression(max_iter=200)
+def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
+    """Train a Random Forest classifier."""
+    model = RandomForestClassifier(random_state=42)
     model.fit(X, y)
     return model
 
-def evaluate_model(model: LogisticRegression, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model and print results.
-    
-    Args:
-        model (LogisticRegression): Trained model to evaluate.
-        X_test (np.ndarray): Test feature matrix.
-        y_test (np.ndarray): Test target array.
-    """
+def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
+    """Evaluate the trained model on test data."""
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f"Accuracy: {accuracy:.4f}")
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
+    report = classification_report(y_test, y_pred)
+    
+    print(f"Model Accuracy: {accuracy:.2f}")
+    print("Classification Report:\n", report)
 
 def main(file_path: str, target_column: str) -> None:
-    """Main function to execute the machine learning pipeline.
-    
-    Args:
-        file_path (str): Path to the input CSV file.
-        target_column (str): Name of the target column.
-    """
+    """Main function to load data, train and evaluate the model."""
     data = load_data(file_path)
     X, y = preprocess_data(data, target_column)
     
@@ -91,5 +59,5 @@ def main(file_path: str, target_column: str) -> None:
     evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    # Example usage
-    main("path/to/your/data.csv", "target_column_name")
+    # Example usage with a hypothetical CSV file and target column
+    main("data.csv", "target")

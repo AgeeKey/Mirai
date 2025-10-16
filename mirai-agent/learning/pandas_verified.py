@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-16T15:07:41.399998
+Learned: 2025-10-16T15:23:49.558566
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,53 +12,47 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a DataFrame.
+    Load data from a CSV file and process it by filtering out missing values
+    in the specified column.
 
     Args:
-        file_path (str): The path to the CSV file.
+        file_path (str): The path to the CSV file to be loaded.
+        column_name (str): The name of the column to filter for missing values.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
+        Optional[pd.DataFrame]: A DataFrame containing the processed data,
+                                 or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except Exception as e:
-        print(f"Error loading data: {e}")
+        # Load data from CSV file
+        data = pd.read_csv(file_path)
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
         return None
 
-def filter_data(df: pd.DataFrame, column: str, value: str) -> pd.DataFrame:
-    """
-    Filter the DataFrame based on a specific column and value.
+    # Filter out rows where the specified column has missing values
+    if column_name not in data.columns:
+        print(f"Error: The column '{column_name}' does not exist in the DataFrame.")
+        return None
 
-    Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column (str): The column name to filter on.
-        value (str): The value to filter by.
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame.
-    """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+    processed_data = data.dropna(subset=[column_name])
     
-    return df[df[column] == value]
+    return processed_data
 
-def main() -> None:
-    """
-    Main function to execute the data loading and filtering process.
-    """
-    file_path = 'data.csv'  # Specify your CSV file path here
-    df = load_data(file_path)
-
-    if df is not None:
-        try:
-            filtered_df = filter_data(df, 'category', 'A')  # Replace 'category' and 'A' with your own values
-            print(filtered_df)
-        except ValueError as e:
-            print(e)
-
+# Example usage:
 if __name__ == "__main__":
-    main()
+    file_path = 'data.csv'  # Replace with your actual file path
+    column_name = 'age'      # Replace with the actual column name you want to filter
+    result = load_and_process_data(file_path, column_name)
+    
+    if result is not None:
+        print("Processed DataFrame:")
+        print(result)
