@@ -1,18 +1,18 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-16T17:33:57.928294
+Learned: 2025-10-16T17:50:14.702397
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Union
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a pandas DataFrame.
 
@@ -20,58 +20,58 @@ def load_data(file_path: str) -> Optional[pd.DataFrame]:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: The loaded DataFrame.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an error parsing the file.
     """
     try:
         data = pd.read_csv(file_path)
         return data
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
-        return None
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"File not found: {file_path}") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError(f"The file is empty: {file_path}") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError(f"Error parsing the file: {file_path}") from e
 
-def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame, columns_to_drop: Optional[list] = None) -> pd.DataFrame:
     """
-    Preprocess the DataFrame by handling missing values and converting data types.
+    Clean the DataFrame by dropping specified columns and filling missing values.
 
     Args:
-        df (pd.DataFrame): The DataFrame to preprocess.
+        df (pd.DataFrame): The DataFrame to clean.
+        columns_to_drop (Optional[list]): List of columns to drop from the DataFrame.
 
     Returns:
-        pd.DataFrame: The preprocessed DataFrame.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    # Fill missing values with the mean of the column
-    df.fillna(df.mean(), inplace=True)
-    
-    # Convert data types if necessary (example: converting to float)
-    for column in df.select_dtypes(include=['int64']).columns:
-        df[column] = df[column].astype(float)
-    
+    if columns_to_drop:
+        df = df.drop(columns=columns_to_drop, errors='ignore')  # Drop specified columns if they exist
+    df = df.fillna(method='ffill')  # Fill missing values with forward fill method
     return df
 
-def main(file_path: str) -> None:
+def analyze_data(df: pd.DataFrame) -> pd.Series:
     """
-    Main function to load and preprocess data.
+    Perform basic analysis on the DataFrame and return summary statistics.
 
     Args:
-        file_path (str): The path to the CSV file.
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pd.Series: Summary statistics of the DataFrame.
     """
-    # Load the data
-    data = load_data(file_path)
-    
-    if data is not None:
-        # Preprocess the data
-        processed_data = preprocess_data(data)
-        
-        # Display the first few rows of the processed data
-        print(processed_data.head())
+    return df.describe()
 
 if __name__ == "__main__":
-    # Example file path (update to your actual file path)
-    example_file_path = 'data.csv'
-    main(example_file_path)
+    # Example usage
+    file_path = 'data.csv'  # Replace with your CSV file path
+    try:
+        data = load_data(file_path)
+        cleaned_data = clean_data(data, columns_to_drop=['unnecessary_column'])  # Replace with actual columns
+        summary = analyze_data(cleaned_data)
+        print(summary)
+    except Exception as e:
+        print(f"An error occurred: {e}")
