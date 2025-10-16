@@ -2009,6 +2009,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8074085674074863,
       "learned_at": "2025-10-16T21:21:33.294398"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8839518524391853,
+      "learned_at": "2025-10-16T21:37:14.090772"
+    },
+    {
+      "name": "tensorflow",
+      "proficiency": 0.8030294659356914,
+      "learned_at": "2025-10-16T21:37:51.821994"
     }
   ],
   "skills": [],

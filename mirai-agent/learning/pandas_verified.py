@@ -2,58 +2,79 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-16T21:20:53.185533
+Learned: 2025-10-16T21:37:14.089889
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load a CSV file into a DataFrame and process it by renaming columns if provided.
+    Create a DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file to be loaded.
-        column_names (Optional[list[str]]): Optional list of column names to rename the DataFrame columns.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: The processed DataFrame.
+        pd.DataFrame: A DataFrame created from the provided data.
 
     Raises:
-        FileNotFoundError: If the specified file path does not exist.
-        ValueError: If the number of provided column names does not match the number of columns in the DataFrame.
+        ValueError: If the input data is not a dictionary or if the lists are of unequal length.
     """
-    try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
+    
+    # Validate the lengths of the input lists
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the dictionary must be of the same length.")
 
-    # Rename columns if new names are provided
-    if column_names is not None:
-        if len(column_names) != df.shape[1]:
-            raise ValueError("The number of column names provided does not match the number of columns in the DataFrame.")
-        df.columns = column_names
+    return pd.DataFrame(data)
 
-    return df
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Analyze the DataFrame and return the mean of each numeric column.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pd.Series: A Series containing the mean of each numeric column.
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("Input must be a pandas DataFrame.")
+    
+    # Calculate the mean of numeric columns
+    return df.mean()
 
 def main() -> None:
     """
-    Main function to demonstrate loading and processing a CSV file.
+    Main function to demonstrate the creation and analysis of a DataFrame.
     """
-    file_path = 'data.csv'  # Path to the CSV file (ensure this file exists)
-    new_column_names = ['Column1', 'Column2', 'Column3']  # Example new column names
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4],
+        'B': [5.0, 6.5, 7.2, 8.1],
+        'C': ['x', 'y', 'z', 'w']
+    }
 
     try:
-        # Load and process the data
-        df = load_and_process_data(file_path, new_column_names)
-        print(df.head())  # Display the first few rows of the DataFrame
-    except Exception as e:
-        print(e)
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
 
-if __name__ == '__main__':
+        # Analyze DataFrame
+        means = analyze_data(df.select_dtypes(include=[np.number]))  # Only numeric columns
+        print("Mean values of numeric columns:")
+        print(means)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
     main()
