@@ -4,60 +4,74 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-16T09:02:39.186078
+Learned: 2025-10-16T09:18:58.080486
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: Could not parse the data.")
-    return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: {e}")
+        raise
 
-def analyze_data(df: pd.DataFrame) -> None:
+def calculate_statistics(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     """
-    Perform basic analysis on the DataFrame and print results.
+    Calculate basic statistics for specified columns in the DataFrame.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
-    """
-    if df is not None:
-        print("Basic Statistics:")
-        print(df.describe())  # Print summary statistics
-        print("\nMissing Values:")
-        print(df.isnull().sum())  # Print the count of missing values for each column
-    else:
-        print("No data to analyze.")
+        columns (List[str]): List of columns to calculate statistics for.
 
-def main(file_path: str) -> None:
+    Returns:
+        pd.DataFrame: DataFrame containing mean, median, and standard deviation.
     """
-    Main function to load and analyze data.
+    try:
+        stats = df[columns].agg(['mean', 'median', 'std'])
+        return stats
+    except KeyError as e:
+        print(f"Error: Column not found - {e}")
+        raise
+
+def main(file_path: str, columns: List[str]) -> None:
+    """
+    Main function to load data and calculate statistics.
 
     Args:
         file_path (str): The path to the CSV file.
+        columns (List[str]): List of columns to calculate statistics for.
     """
     df = load_data(file_path)
-    analyze_data(df)
+    stats = calculate_statistics(df, columns)
+    print(stats)
 
 if __name__ == "__main__":
     # Example usage
-    main("data.csv")
+    file_path = 'data.csv'  # Replace with your CSV file path
+    columns_to_analyze = ['column1', 'column2']  # Replace with your column names
+    main(file_path, columns_to_analyze)
