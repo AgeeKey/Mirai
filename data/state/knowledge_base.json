@@ -1929,6 +1929,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8103045338142835,
       "learned_at": "2025-10-16T19:12:00.119623"
+    },
+    {
+      "name": "PyAutoGUI",
+      "proficiency": 0.985492787230514,
+      "learned_at": "2025-10-16T19:27:35.918048"
+    },
+    {
+      "name": "TensorFlow",
+      "proficiency": 0.8553689901053035,
+      "learned_at": "2025-10-16T19:28:08.478396"
     }
   ],
   "skills": [],
