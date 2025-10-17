@@ -1,57 +1,78 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-17T07:01:06.288247
+Learned: 2025-10-17T07:17:23.099639
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it.
+    Create a pandas DataFrame from a given dictionary.
 
-    Parameters:
-    - file_path: str - The path to the CSV file.
-    - index_col: Optional[str] - Column to set as index (default is None).
+    Args:
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    - pd.DataFrame: Processed DataFrame.
-    
+        pd.DataFrame: A DataFrame containing the input data.
+
     Raises:
-    - FileNotFoundError: If the file does not exist.
-    - pd.errors.EmptyDataError: If the file is empty.
+        ValueError: If the input data is not a dictionary or if the lists have different lengths.
     """
-    try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path, index_col=index_col)
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        # Reset index to default integer index if no index_col provided
-        if index_col is None:
-            df.reset_index(drop=True, inplace=True)
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
 
-        return df
-    
-    except FileNotFoundError as e:
+    # Check if all lists have the same length
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the dictionary must have the same length.")
+
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic statistics for numeric columns in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation of numeric columns.
+    """
+    stats = {
+        'mean': df.mean(),
+        'median': df.median(),
+        'std_dev': df.std()
+    }
+    return pd.DataFrame(stats)
+
+def main():
+    # Sample data
+    data = {
+        'A': np.random.randint(1, 100, size=10),
+        'B': np.random.rand(10) * 100,
+        'C': np.random.randint(1, 100, size=10)
+    }
+
+    try:
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
+
+        # Calculate statistics
+        stats_df = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats_df)
+
+    except ValueError as e:
         print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
-        raise
 
-# Example usage
 if __name__ == "__main__":
-    try:
-        # Specify the path to your CSV file
-        data_frame = load_and_process_data('data.csv', index_col='id')
-        print(data_frame)
-    except Exception as e:
-        print("An error occurred while processing the data:", e)
+    main()
