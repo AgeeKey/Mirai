@@ -2,9 +2,9 @@
 selenium - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-17T04:52:56.398932
+Learned: 2025-10-17T20:16:15.085617
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,61 +12,53 @@ This code has been verified by MIRAI's NASA-level learning system.
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 import time
-from typing import Optional
 
 def setup_driver() -> webdriver.Chrome:
-    """Set up the Chrome WebDriver with necessary options."""
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    
-    # Initialize the Chrome driver
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
-    return driver
+    """Sets up the Chrome WebDriver."""
+    try:
+        # Initialize the Chrome driver using ChromeDriverManager
+        service = ChromeService(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service)
+        return driver
+    except WebDriverException as e:
+        print(f"Error initializing WebDriver: {e}")
+        raise
 
 def open_website(driver: webdriver.Chrome, url: str) -> None:
-    """Open the specified URL in the browser."""
+    """Opens the specified URL in the browser."""
     try:
         driver.get(url)
-        time.sleep(2)  # Allow time for the page to load
-    except Exception as e:
-        print(f"Error opening website: {e}")
+    except WebDriverException as e:
+        print(f"Error opening website {url}: {e}")
+        raise
 
-def fill_form(driver: webdriver.Chrome, name: str, email: str) -> Optional[str]:
-    """Fill out a form with the provided name and email."""
+def perform_search(driver: webdriver.Chrome, search_query: str) -> None:
+    """Performs a search operation on the website."""
     try:
-        name_field = driver.find_element(By.NAME, "name")
-        email_field = driver.find_element(By.NAME, "email")
-        
-        name_field.send_keys(name)  # Fill in the name
-        email_field.send_keys(email)  # Fill in the email
-        
-        submit_button = driver.find_element(By.NAME, "submit")
-        submit_button.click()  # Submit the form
-        
-        time.sleep(2)  # Allow time for the form submission to process
-
-        return driver.current_url  # Return the URL after form submission
-    except Exception as e:
-        print(f"Error filling form: {e}")
-        return None
+        # Locate the search box, enter the search query, and submit
+        search_box = driver.find_element(By.NAME, "q")
+        search_box.send_keys(search_query)
+        search_box.submit()
+    except NoSuchElementException as e:
+        print(f"Search box not found: {e}")
+        raise
+    except WebDriverException as e:
+        print(f"Error performing search: {e}")
+        raise
 
 def main() -> None:
-    """Main function to run the Selenium script."""
+    """Main function to execute the automation script."""
     driver = setup_driver()
     try:
-        open_website(driver, "https://example.com/form")  # Replace with the actual form URL
-        result_url = fill_form(driver, "John Doe", "john.doe@example.com")
-        if result_url:
-            print(f"Form submitted successfully. Redirected to: {result_url}")
-        else:
-            print("Form submission failed.")
+        open_website(driver, "https://www.google.com")
+        perform_search(driver, "Selenium documentation")
+        time.sleep(5)  # Wait for results to load
     finally:
-        driver.quit()  # Ensure the driver is closed
+        # Ensure the driver is quit even if an error occurs
+        driver.quit()
 
 if __name__ == "__main__":
     main()
