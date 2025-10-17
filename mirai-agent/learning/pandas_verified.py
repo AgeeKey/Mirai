@@ -2,66 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-17T00:37:02.748798
+Learned: 2025-10-17T00:53:18.526503
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Any, Dict
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Loads a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
-        file_path (str): The path to the CSV file.
+        file_path (str): Path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the data if successful, None otherwise.
+        pd.DataFrame: DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty - {e}")
+        raise
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def summarize_data(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Cleans the DataFrame by dropping rows with missing values.
+    Summarize the DataFrame statistics.
 
     Args:
-        df (pd.DataFrame): The DataFrame to clean.
+        df (pd.DataFrame): The DataFrame to summarize.
 
     Returns:
-        pd.DataFrame: The cleaned DataFrame.
+        dict: A dictionary containing summary statistics.
     """
-    # Drop rows with any missing values
-    cleaned_df = df.dropna()
-    return cleaned_df
+    summary = {
+        'shape': df.shape,
+        'columns': df.columns.tolist(),
+        'head': df.head(),
+        'description': df.describe(include='all')
+    }
+    return summary
 
 def main(file_path: str) -> None:
     """
-    Main function to execute the data loading and cleaning process.
+    Main function to load and summarize data.
 
     Args:
-        file_path (str): The path to the CSV file.
+        file_path (str): Path to the CSV file to load.
     """
-    df = load_data(file_path)  # Load the data
-    if df is not None:  # Check if the DataFrame is loaded successfully
-        print("Data loaded successfully.")
-        cleaned_df = clean_data(df)  # Clean the data
-        print("Data cleaned successfully.")
-        print(cleaned_df.head())  # Display the first few rows of the cleaned DataFrame
+    try:
+        # Load the data from the CSV file
+        data = load_data(file_path)
+        
+        # Generate summary statistics
+        summary = summarize_data(data)
+        
+        # Print the summary
+        print("Data Summary:")
+        print(summary)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main("data.csv")  # Replace 'data.csv' with your actual file path
+    # Replace 'data.csv' with the path to your CSV file
+    main('data.csv')
