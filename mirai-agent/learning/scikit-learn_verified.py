@@ -2,97 +2,97 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-17T00:04:38.012476
+Learned: 2025-10-17T00:21:16.721735
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.exceptions import NotFittedError
+from sklearn.datasets import load_iris
 from typing import Tuple
 
 def load_data() -> Tuple[np.ndarray, np.ndarray]:
     """
     Load the Iris dataset.
-
+    
     Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
+        Tuple containing features and target labels.
     """
-    iris = load_iris()
-    return iris.data, iris.target
+    try:
+        iris = load_iris()
+        return iris.data, iris.target
+    except Exception as e:
+        raise RuntimeError(f"Error loading data: {e}")
 
-def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Split the dataset into training and testing sets.
-
+    
     Args:
-        X (np.ndarray): Feature array.
-        y (np.ndarray): Target array.
-        test_size (float): Proportion of the dataset to include in the test split.
-        random_state (int): Random seed for reproducibility.
-
+        features: The feature set.
+        target: The target labels.
+    
     Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and testing features and target arrays.
+        Tuple containing training features, testing features, training target, and testing target.
     """
-    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
+    except Exception as e:
+        raise RuntimeError(f"Error in preprocessing data: {e}")
 
 def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
     """
-    Train a Random Forest Classifier.
-
+    Train the Random Forest model.
+    
     Args:
-        X_train (np.ndarray): Training feature array.
-        y_train (np.ndarray): Training target array.
-
+        X_train: Training features.
+        y_train: Training target labels.
+    
     Returns:
-        RandomForestClassifier: Trained model.
+        A trained Random Forest classifier.
     """
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    try:
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        return model
+    except Exception as e:
+        raise RuntimeError(f"Error training model: {e}")
 
 def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
     """
-    Evaluate the trained model.
-
+    Evaluate the model's performance.
+    
     Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (np.ndarray): Testing feature array.
-        y_test (np.ndarray): Testing target array.
-        
-    Raises:
-        NotFittedError: If the model is not fitted before evaluation.
+        model: The trained model.
+        X_test: Testing features.
+        y_test: Testing target labels.
     """
     try:
         y_pred = model.predict(X_test)
-        print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f"Accuracy: {accuracy:.2f}")
         print("Classification Report:\n", classification_report(y_test, y_pred))
-    except NotFittedError as e:
-        print("Model has not been fitted. Please train the model first.")
-        raise e
+    except Exception as e:
+        raise RuntimeError(f"Error evaluating model: {e}")
 
 def main() -> None:
     """
     Main function to execute the workflow.
     """
-    # Load data
-    X, y = load_data()
-    
-    # Split the data
-    X_train, X_test, y_train, y_test = split_data(X, y)
-    
-    # Train the model
-    model = train_model(X_train, y_train)
-    
-    # Evaluate the model
-    evaluate_model(model, X_test, y_test)
+    try:
+        features, target = load_data()
+        X_train, X_test, y_train, y_test = preprocess_data(features, target)
+        model = train_model(X_train, y_train)
+        evaluate_model(model, X_test, y_test)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()

@@ -2,75 +2,74 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-17T00:03:28.484408
+Learned: 2025-10-17T00:20:36.172516
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
 import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def generate_sample_data(num_rows: int) -> pd.DataFrame:
     """
-    Creates a pandas DataFrame from a dictionary.
-    
+    Generate a sample DataFrame with random data.
+
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
-        
+        num_rows (int): The number of rows to generate.
+
     Returns:
-        pd.DataFrame: A DataFrame containing the provided data.
-        
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary do not match.
+        pd.DataFrame: A DataFrame containing random sample data.
     """
-    if not all(len(v) == len(next(iter(data.values()))) for v in data.values()):
-        raise ValueError("All lists in the dictionary must have the same length.")
+    if num_rows <= 0:
+        raise ValueError("num_rows must be a positive integer.")
     
+    data = {
+        'A': np.random.randint(1, 100, num_rows),
+        'B': np.random.rand(num_rows),
+        'C': np.random.choice(['X', 'Y', 'Z'], num_rows)
+    }
     return pd.DataFrame(data)
 
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculates basic statistics for numeric columns in a DataFrame.
-    
+    Process the input DataFrame by adding a new column and filtering rows.
+
     Args:
-        df (pd.DataFrame): The DataFrame containing numeric data.
-        
+        df (pd.DataFrame): The DataFrame to process.
+
     Returns:
-        pd.DataFrame: A DataFrame with mean, median, and standard deviation of numeric columns.
+        pd.DataFrame: The processed DataFrame.
     """
-    stats = pd.DataFrame({
-        'mean': df.mean(),
-        'median': df.median(),
-        'std_dev': df.std()
-    })
-    return stats
+    if df.empty:
+        raise ValueError("Input DataFrame is empty.")
+    
+    # Add a new column 'D' which is the sum of columns 'A' and 'B'
+    df['D'] = df['A'] + df['B']
+    
+    # Filter the DataFrame where 'D' is greater than 50
+    filtered_df = df[df['D'] > 50]
+    
+    return filtered_df
 
 def main() -> None:
     """
-    Main function to execute the data creation and analysis.
+    Main function to execute the data generation and processing.
     """
-    # Sample data
-    data = {
-        'A': np.random.randint(1, 100, 10),
-        'B': np.random.rand(10),
-        'C': np.random.choice(['X', 'Y', 'Z'], 10)
-    }
-    
     try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("Original DataFrame:")
-        print(df)
-
-        # Calculate statistics for numeric columns
-        stats = calculate_statistics(df[['A', 'B']])
-        print("\nStatistics:")
-        print(stats)
+        # Generate sample data
+        sample_data = generate_sample_data(100)
+        
+        # Process the generated data
+        processed_data = process_data(sample_data)
+        
+        # Display the processed data
+        print(processed_data)
     
-    except ValueError as e:
-        print(f"Error: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
