@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.96
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-17T15:56:13.767104
+Learned: 2025-10-17T16:28:37.990256
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,50 +12,48 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file and process it to return a DataFrame with specified column.
+    Load and process the data from a CSV file.
 
-    Args:
-        file_path (str): Path to the CSV file.
-        column_name (str): The column to process.
+    Parameters:
+    - file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: Processed DataFrame or None if an error occurs.
+    - Optional[pd.DataFrame]: A DataFrame containing the processed data or None if an error occurs.
     """
     try:
-        # Load the dataset
+        # Load the data from a CSV file into a DataFrame
         df = pd.read_csv(file_path)
-        
-        # Check if the specified column exists in the DataFrame
-        if column_name not in df.columns:
-            raise ValueError(f"Column '{column_name}' not found in the DataFrame.")
-        
-        # Process the data: for example, drop any NaN values in the specified column
-        processed_df = df.dropna(subset=[column_name])
-        
-        return processed_df
 
+        # Check for missing values and fill them with the mean of the column
+        df.fillna(df.mean(), inplace=True)
+
+        # Convert string columns to categorical type
+        for col in df.select_dtypes(include=['object']).columns:
+            df[col] = df[col].astype('category')
+
+        return df
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print(f"Error: The file {file_path} was not found.")
+        return None
     except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except ValueError as ve:
-        print(f"ValueError: {ve}")
+        print(f"Error: The file {file_path} is empty.")
+        return None
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        return None
 
-    return None
+def main():
+    """
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data/sample_data.csv'  # Example file path
+    data = load_and_process_data(file_path)
 
-# Example usage
+    if data is not None:
+        print("Data loaded and processed successfully:")
+        print(data.head())  # Display the first few rows of the DataFrame
+
 if __name__ == "__main__":
-    # Specify the CSV file path and the column to process
-    csv_file_path = 'data.csv'
-    column_to_process = 'column_name'
-
-    # Load and process the data
-    result_df = load_and_process_data(csv_file_path, column_to_process)
-
-    # Display the result if the DataFrame was successfully created
-    if result_df is not None:
-        print(result_df)
+    main()
