@@ -2,80 +2,73 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-17T22:56:52.487272
+Learned: 2025-10-17T23:12:50.551573
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Union
+from typing import List, Dict
 
 def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a pandas DataFrame.
-    
+
     Args:
-        file_path (str): Path to the CSV file.
-        
+        file_path (str): The path to the CSV file.
+
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
-        
+        pd.DataFrame: A DataFrame containing the loaded data.
+
     Raises:
-        FileNotFoundError: If the specified file does not exist.
+        FileNotFoundError: If the file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If the file cannot be parsed.
+        pd.errors.ParserError: If there is an error parsing the file.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Error: The file '{file_path}' was not found.") from e
     except pd.errors.EmptyDataError as e:
         raise pd.errors.EmptyDataError("Error: The file is empty.") from e
     except pd.errors.ParserError as e:
-        raise pd.errors.ParserError("Error: Could not parse the file.") from e
+        raise pd.errors.ParserError("Error: There was an error parsing the file.") from e
 
-def filter_data(df: pd.DataFrame, column_name: str, threshold: Union[int, float]) -> pd.DataFrame:
+def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Filter the DataFrame based on a threshold for a specified column.
-    
+    Summarize the DataFrame by calculating basic statistics.
+
     Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column_name (str): The column to apply the filter on.
-        threshold (Union[int, float]): The threshold value for filtering.
-        
-    Returns:
-        pd.DataFrame: Filtered DataFrame.
-        
-    Raises:
-        KeyError: If the specified column does not exist in the DataFrame.
-    """
-    if column_name not in df.columns:
-        raise KeyError(f"Error: The column '{column_name}' does not exist in the DataFrame.")
-    
-    filtered_df = df[df[column_name] > threshold]
-    return filtered_df
+        df (pd.DataFrame): The DataFrame to summarize.
 
-def main() -> None:
+    Returns:
+        Dict[str, float]: A dictionary containing summary statistics (mean, median, std).
     """
-    Main function to execute data loading and filtering.
+    summary = {
+        "mean": df.mean().to_dict(),
+        "median": df.median().to_dict(),
+        "std_dev": df.std().to_dict()
+    }
+    return summary
+
+def main(file_path: str) -> None:
     """
-    file_path = 'data.csv'  # Specify the path to your CSV file here
+    Main function to load and summarize data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
     try:
-        # Load the data
-        data = load_data(file_path)
-        
-        # Filter the data based on a threshold
-        threshold_value = 50
-        filtered_data = filter_data(data, 'value_column', threshold_value)  # Replace 'value_column' with the actual column name
-        
-        # Print the filtered data
-        print(filtered_data)
-        
+        df = load_data(file_path)  # Load the data
+        summary = summarize_data(df)  # Summarize the data
+        print("Data Summary:")
+        print(summary)  # Output the summary
     except Exception as e:
         print(e)
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main("data.csv")  # Replace 'data.csv' with your actual file path
