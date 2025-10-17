@@ -2,66 +2,69 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-17T18:06:05.670626
+Learned: 2025-10-17T18:22:18.009613
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: Optional[np.ndarray] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a DataFrame from a numpy array or return a default DataFrame.
+    Load a CSV file into a pandas DataFrame.
 
     Args:
-        data (Optional[np.ndarray]): A 2D numpy array to create the DataFrame.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame created from the input data or a default one if no data is provided.
+        Optional[pd.DataFrame]: DataFrame containing the data or None if an error occurs.
     """
-    if data is None:
-        # Create a default DataFrame if no data is provided
-        data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    
     try:
-        df = pd.DataFrame(data, columns=['A', 'B', 'C'])
+        df = pd.read_csv(file_path)
         return df
-    except Exception as e:
-        print(f"Error creating DataFrame: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame on error
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-def calculate_statistics(df: pd.DataFrame) -> pd.Series:
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate basic statistics for the DataFrame.
+    Process the DataFrame by filling missing values and removing duplicates.
 
     Args:
-        df (pd.DataFrame): The DataFrame for which to calculate statistics.
+        df (pd.DataFrame): The DataFrame to process.
 
     Returns:
-        pd.Series: A Series containing the mean, median, and standard deviation of the DataFrame.
+        pd.DataFrame: Processed DataFrame.
     """
-    try:
-        stats = pd.Series({
-            'mean': df.mean(),
-            'median': df.median(),
-            'std_dev': df.std()
-        })
-        return stats
-    except Exception as e:
-        print(f"Error calculating statistics: {e}")
-        return pd.Series()  # Return an empty Series on error
+    # Fill missing values with the mean of each column
+    df.fillna(df.mean(), inplace=True)
+    
+    # Remove duplicate rows
+    df.drop_duplicates(inplace=True)
+    
+    return df
+
+def main(file_path: str) -> None:
+    """
+    Main function to load and process data.
+
+    Args:
+        file_path (str): The path to the CSV file to load.
+    """
+    df = load_data(file_path)
+    
+    if df is not None:
+        processed_df = process_data(df)
+        print(processed_df)
 
 if __name__ == "__main__":
-    # Create a sample DataFrame
-    df = create_dataframe()
-    print("DataFrame:")
-    print(df)
-
-    # Calculate statistics for the DataFrame
-    stats = calculate_statistics(df)
-    print("\nStatistics:")
-    print(stats)
+    main("data.csv")  # Replace 'data.csv' with your actual file path
