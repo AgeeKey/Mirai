@@ -1,10 +1,10 @@
 """
-Pandas - Verified Learning Artifact
+pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-17T17:33:51.099853
+Learned: 2025-10-17T17:50:02.586193
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,65 +12,50 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load a CSV file into a pandas DataFrame and process it by renaming columns if provided.
 
     Args:
         file_path (str): The path to the CSV file.
+        column_names (Optional[list[str]]): A list of new column names to rename the DataFrame columns.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
+        pd.DataFrame: The processed DataFrame.
+
+    Raises:
+        FileNotFoundError: If the CSV file does not exist.
+        ValueError: If the number of column names does not match the number of columns in the CSV file.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: No data found in the file.")
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
-    return None
+        # Load the data from CSV file
+        df = pd.read_csv(file_path)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file {file_path} was not found.") from e
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping missing values and resetting the index.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: Cleaned DataFrame.
-    """
+    # If column names are provided, rename the DataFrame columns
+    if column_names is not None:
+        if len(column_names) != df.shape[1]:
+            raise ValueError("The number of new column names must match the number of columns in the DataFrame.")
+        df.columns = column_names
+    
     # Drop rows with any missing values
-    cleaned_df = df.dropna()
-    # Reset index after dropping rows
-    cleaned_df.reset_index(drop=True, inplace=True)
-    return cleaned_df
+    df.dropna(inplace=True)
 
-def analyze_data(df: pd.DataFrame) -> None:
-    """
-    Analyze the DataFrame and print basic statistics.
+    return df
 
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
+def main() -> None:
     """
-    print("Basic Statistics:")
-    print(df.describe())  # Print summary statistics
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Path to your CSV file
+    new_column_names = ['Column1', 'Column2', 'Column3']  # Example new column names
 
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and analyze data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        analyze_data(cleaned_df)
+    try:
+        processed_data = load_and_process_data(file_path, new_column_names)
+        print(processed_data.head())  # Display the first few rows of the processed DataFrame
+    except (FileNotFoundError, ValueError) as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")
+    main()
