@@ -1,69 +1,88 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-17T20:00:07.655387
+Learned: 2025-10-17T20:32:34.724754
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    - file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    - Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the file at file_path does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an error parsing the file.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: {e}")
+        raise
 
 def summarize_data(df: pd.DataFrame) -> None:
     """
-    Print a summary of the DataFrame.
+    Print a summary of the DataFrame including basic statistics.
 
-    Parameters:
-    - df (pd.DataFrame): The DataFrame to summarize.
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
     """
-    # Print the first 5 rows of the DataFrame
-    print("First 5 rows of the DataFrame:")
-    print(df.head())
-    
-    # Print basic statistics of the DataFrame
-    print("\nSummary statistics:")
+    print("Summary of the DataFrame:")
     print(df.describe())
+    print("\nData Types:")
+    print(df.dtypes)
 
-def main() -> None:
+def filter_data(df: pd.DataFrame, column: str, threshold: float) -> pd.DataFrame:
     """
-    Main function to execute the data loading and summarization.
-    """
-    # Path to the CSV file
-    file_path = 'data.csv'  # Update with your actual file path
+    Filter the DataFrame based on a threshold for a specified column.
 
-    # Load the data
-    df = load_data(file_path)
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to apply the filter on.
+        threshold (float): The threshold value for filtering.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the filtered data.
+    """
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
     
-    # If the DataFrame is loaded successfully, summarize it
-    if df is not None:
-        summarize_data(df)
+    filtered_df = df[df[column] > threshold]
+    return filtered_df
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual file path
+
+    # Load the data
+    try:
+        data = load_data(file_path)
+        # Summarize the data
+        summarize_data(data)
+        
+        # Filter the data
+        filtered_data = filter_data(data, 'column_name', 10.0)  # Replace 'column_name' with your actual column name
+        print("\nFiltered Data:")
+        print(filtered_data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
