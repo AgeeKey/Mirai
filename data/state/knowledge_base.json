@@ -2489,6 +2489,16 @@
       "name": "scikit-learn",
       "proficiency": 0.7669128669990196,
       "learned_at": "2025-10-17T10:15:26.782372"
+    },
+    {
+      "name": "puppeteer",
+      "proficiency": 0.8561059190660956,
+      "learned_at": "2025-10-17T10:30:59.355342"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8090131793886471,
+      "learned_at": "2025-10-17T10:31:30.098026"
     }
   ],
   "skills": [],
