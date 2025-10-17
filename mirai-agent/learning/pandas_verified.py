@@ -2,62 +2,90 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-17T08:05:57.885735
+Learned: 2025-10-17T08:22:06.902171
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurred.
+    pd.DataFrame: DataFrame containing the loaded data.
     """
     try:
         data = pd.read_csv(file_path)
         return data
     except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
+        print(f"Error: The file {file_path} was not found.")
+        return pd.DataFrame()  # Return an empty DataFrame
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        return None
+        return pd.DataFrame()
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return pd.DataFrame()
 
-def summarize_data(df: pd.DataFrame) -> None:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Summarize the data by displaying basic statistics.
+    Clean the DataFrame by filling missing values and removing duplicates.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
-    """
-    if df is not None:
-        print("Data Summary:")
-        print(df.describe())  # Displays descriptive statistics
-    else:
-        print("No data to summarize.")
+    Parameters:
+    df (pd.DataFrame): The DataFrame to be cleaned.
 
-def main(file_path: str) -> None:
+    Returns:
+    pd.DataFrame: Cleaned DataFrame.
     """
-    Main function to load data and summarize it.
+    # Fill missing values with the mean of their respective columns
+    for column in df.select_dtypes(include=[np.number]).columns:
+        mean_value = df[column].mean()
+        df[column].fillna(mean_value, inplace=True)
 
-    Args:
-        file_path (str): The path to the CSV file.
+    # Remove duplicate rows
+    df.drop_duplicates(inplace=True)
+    
+    return df
+
+def save_data(df: pd.DataFrame, output_path: str) -> None:
     """
-    df = load_data(file_path)  # Load the data
-    summarize_data(df)         # Summarize the data
+    Save the cleaned DataFrame to a CSV file.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to save.
+    output_path (str): The path where the CSV will be saved.
+    """
+    try:
+        df.to_csv(output_path, index=False)
+        print(f"Data saved successfully to {output_path}.")
+    except Exception as e:
+        print(f"An error occurred while saving the data: {e}")
+
+def main(input_file: str, output_file: str) -> None:
+    """
+    Main function to load, clean, and save data.
+
+    Parameters:
+    input_file (str): Input CSV file path.
+    output_file (str): Output CSV file path.
+    """
+    df = load_data(input_file)
+    
+    if df.empty:
+        print("No data to process.")
+        return
+    
+    cleaned_df = clean_data(df)
+    save_data(cleaned_df, output_file)
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")  # Replace 'data.csv' with your actual file path
+    main('input_data.csv', 'cleaned_data.csv')
