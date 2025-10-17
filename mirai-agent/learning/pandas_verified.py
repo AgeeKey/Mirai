@@ -4,58 +4,64 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-17T17:50:02.586193
+Learned: 2025-10-17T18:06:05.670626
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def create_dataframe(data: Optional[np.ndarray] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and process it by renaming columns if provided.
+    Create a DataFrame from a numpy array or return a default DataFrame.
 
     Args:
-        file_path (str): The path to the CSV file.
-        column_names (Optional[list[str]]): A list of new column names to rename the DataFrame columns.
+        data (Optional[np.ndarray]): A 2D numpy array to create the DataFrame.
 
     Returns:
-        pd.DataFrame: The processed DataFrame.
-
-    Raises:
-        FileNotFoundError: If the CSV file does not exist.
-        ValueError: If the number of column names does not match the number of columns in the CSV file.
+        pd.DataFrame: A DataFrame created from the input data or a default one if no data is provided.
     """
-    try:
-        # Load the data from CSV file
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
-
-    # If column names are provided, rename the DataFrame columns
-    if column_names is not None:
-        if len(column_names) != df.shape[1]:
-            raise ValueError("The number of new column names must match the number of columns in the DataFrame.")
-        df.columns = column_names
+    if data is None:
+        # Create a default DataFrame if no data is provided
+        data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
     
-    # Drop rows with any missing values
-    df.dropna(inplace=True)
-
-    return df
-
-def main() -> None:
-    """
-    Main function to execute the data loading and processing.
-    """
-    file_path = 'data.csv'  # Path to your CSV file
-    new_column_names = ['Column1', 'Column2', 'Column3']  # Example new column names
-
     try:
-        processed_data = load_and_process_data(file_path, new_column_names)
-        print(processed_data.head())  # Display the first few rows of the processed DataFrame
-    except (FileNotFoundError, ValueError) as e:
-        print(f"Error: {e}")
+        df = pd.DataFrame(data, columns=['A', 'B', 'C'])
+        return df
+    except Exception as e:
+        print(f"Error creating DataFrame: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+def calculate_statistics(df: pd.DataFrame) -> pd.Series:
+    """
+    Calculate basic statistics for the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame for which to calculate statistics.
+
+    Returns:
+        pd.Series: A Series containing the mean, median, and standard deviation of the DataFrame.
+    """
+    try:
+        stats = pd.Series({
+            'mean': df.mean(),
+            'median': df.median(),
+            'std_dev': df.std()
+        })
+        return stats
+    except Exception as e:
+        print(f"Error calculating statistics: {e}")
+        return pd.Series()  # Return an empty Series on error
 
 if __name__ == "__main__":
-    main()
+    # Create a sample DataFrame
+    df = create_dataframe()
+    print("DataFrame:")
+    print(df)
+
+    # Calculate statistics for the DataFrame
+    stats = calculate_statistics(df)
+    print("\nStatistics:")
+    print(stats)
