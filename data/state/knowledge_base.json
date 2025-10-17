@@ -2699,6 +2699,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8225799868952707,
       "learned_at": "2025-10-17T15:56:45.488382"
+    },
+    {
+      "name": "huggingface-transformers",
+      "proficiency": 0.8488516447504106,
+      "learned_at": "2025-10-17T16:12:40.086468"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.906821332761004,
+      "learned_at": "2025-10-17T16:12:59.405514"
     }
   ],
   "skills": [],
