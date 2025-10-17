@@ -2,68 +2,62 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-17T07:49:48.492076
+Learned: 2025-10-17T08:05:57.885735
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def create_dataframe(data: List[dict]) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a Pandas DataFrame from a list of dictionaries.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
-        data (List[dict]): A list of dictionaries representing rows of data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input data.
-    
-    Raises:
-        ValueError: If the input data is empty or not a list of dictionaries.
+        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurred.
     """
-    if not isinstance(data, list) or not data:
-        raise ValueError("Input data must be a non-empty list of dictionaries.")
-    
-    for item in data:
-        if not isinstance(item, dict):
-            raise ValueError("All items in the list must be dictionaries.")
-    
-    df = pd.DataFrame(data)  # Create DataFrame from the list of dictionaries
-    return df
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and manipulation.
-    """
-    # Sample data
-    sample_data = [
-        {"name": "Alice", "age": 30, "city": "New York"},
-        {"name": "Bob", "age": 25, "city": "San Francisco"},
-        {"name": "Charlie", "age": 35, "city": "Los Angeles"}
-    ]
-
     try:
-        # Create a DataFrame using the sample data
-        df = create_dataframe(sample_data)
-        print("Original DataFrame:")
-        print(df)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a problem parsing the file.")
+        return None
 
-        # Add a new column for country
-        df['country'] = 'USA'
-        print("\nDataFrame after adding country column:")
-        print(df)
+def summarize_data(df: pd.DataFrame) -> None:
+    """
+    Summarize the data by displaying basic statistics.
 
-        # Filter the DataFrame for ages greater than 30
-        filtered_df = df[df['age'] > 30]
-        print("\nFiltered DataFrame (age > 30):")
-        print(filtered_df)
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+    """
+    if df is not None:
+        print("Data Summary:")
+        print(df.describe())  # Displays descriptive statistics
+    else:
+        print("No data to summarize.")
 
-    except ValueError as e:
-        print(f"Error: {e}")
+def main(file_path: str) -> None:
+    """
+    Main function to load data and summarize it.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)  # Load the data
+    summarize_data(df)         # Summarize the data
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main("data.csv")  # Replace 'data.csv' with your actual file path
