@@ -2,82 +2,98 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-17T15:23:58.511564
+Learned: 2025-10-17T15:40:29.773014
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import logging
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_iris
+from typing import Tuple
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-def load_data() -> pd.DataFrame:
-    """Load the Iris dataset and return it as a DataFrame."""
-    iris = load_iris()
-    return pd.DataFrame(data=iris.data, columns=iris.feature_names)
-
-def preprocess_data(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Preprocess the data by splitting into features and target, and scaling.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing the data.
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load the Iris dataset.
 
     Returns:
-        tuple[np.ndarray, np.ndarray]: The features and target arrays.
+        Tuple[np.ndarray, np.ndarray]: Features and target variable.
     """
-    X = df.values
-    y = load_iris().target
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    return X_scaled, y
+    try:
+        iris = load_iris()
+        return iris.data, iris.target
+    except Exception as e:
+        raise RuntimeError("Error loading the dataset") from e
 
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest Classifier on the provided data.
+def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Split the dataset into training and test sets.
 
     Args:
-        X (np.ndarray): The feature set.
-        y (np.ndarray): The target labels.
+        X (np.ndarray): Features.
+        y (np.ndarray): Target variable.
 
     Returns:
-        RandomForestClassifier: The trained model.
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and test sets for features and target.
     """
-    model = RandomForestClassifier()
-    model.fit(X, y)
-    return model
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
+    except Exception as e:
+        raise RuntimeError("Error during data preprocessing") from e
 
-def evaluate_model(model: RandomForestClassifier, X: np.ndarray, y: np.ndarray) -> None:
-    """Evaluate the trained model and print the classification report and confusion matrix.
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """
+    Train a Random Forest Classifier model.
 
     Args:
-        model (RandomForestClassifier): The trained model.
-        X (np.ndarray): The feature set.
-        y (np.ndarray): The target labels.
+        X_train (np.ndarray): Training features.
+        y_train (np.ndarray): Training target variable.
+
+    Returns:
+        RandomForestClassifier: Trained model.
     """
-    y_pred = model.predict(X)
-    logging.info("Classification Report:\n%s", classification_report(y, y_pred))
-    logging.info("Confusion Matrix:\n%s", confusion_matrix(y, y_pred))
+    try:
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        return model
+    except Exception as e:
+        raise RuntimeError("Error training the model") from e
+
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> float:
+    """
+    Evaluate the trained model on the test data.
+
+    Args:
+        model (RandomForestClassifier): Trained model.
+        X_test (np.ndarray): Test features.
+        y_test (np.ndarray): Test target variable.
+
+    Returns:
+        float: Accuracy of the model.
+    """
+    try:
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        return accuracy
+    except Exception as e:
+        raise RuntimeError("Error evaluating the model") from e
 
 def main() -> None:
-    """Main function to execute data loading, preprocessing, model training, and evaluation."""
-    try:
-        df = load_data()  # Load dataset
-        X, y = preprocess_data(df)  # Preprocess data
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        model = train_model(X_train, y_train)  # Train model
-        evaluate_model(model, X_test, y_test)  # Evaluate model
-    except Exception as e:
-        logging.error("An error occurred: %s", e)
+    """
+    Main function to execute the machine learning workflow.
+    """
+    X, y = load_data()
+    X_train, X_test, y_train, y_test = preprocess_data(X, y)
+    model = train_model(X_train, y_train)
+    accuracy = evaluate_model(model, X_test, y_test)
+    
+    print(f"Model Accuracy: {accuracy:.2f}")
 
 if __name__ == "__main__":
     main()
