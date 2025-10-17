@@ -4,90 +4,67 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-17T19:11:13.584242
+Learned: 2025-10-17T19:27:37.088403
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: Optional[dict] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
-    
-    Parameters:
-    - data (Optional[dict]): A dictionary containing data to create the DataFrame. 
-                             If None, an empty DataFrame will be created.
-                             
+    Loads data from a CSV file and processes it into a DataFrame.
+
+    Args:
+        file_path (str): The path to the CSV file.
+        column_names (Optional[list]): A list of column names to be used. If None, uses the first row as headers.
+
     Returns:
-    - pd.DataFrame: A pandas DataFrame object.
+        pd.DataFrame: A DataFrame containing the processed data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the column names do not match the data.
     """
-    if data is None:
-        data = {}
-    
     try:
-        df = pd.DataFrame(data)
+        # Load data from CSV
+        df = pd.read_csv(file_path, header=0 if column_names is None else None)
+
+        # If column names are provided, assign them to the DataFrame
+        if column_names:
+            if len(column_names) != df.shape[1]:
+                raise ValueError("Column names length does not match number of columns in data.")
+            df.columns = column_names
+
+        # Drop any rows with missing values
+        df.dropna(inplace=True)
+
         return df
+
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
     except Exception as e:
-        raise ValueError("Error creating DataFrame: " + str(e))
+        print(f"An error occurred: {e}")
+        raise e
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def main() -> None:
     """
-    Clean the DataFrame by filling missing values and removing duplicates.
-    
-    Parameters:
-    - df (pd.DataFrame): Input DataFrame to clean.
-    
-    Returns:
-    - pd.DataFrame: Cleaned DataFrame.
+    Main function to execute data loading and processing.
     """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-    
-    # Fill missing values with the mean of the column
-    df.fillna(df.mean(), inplace=True)
-    
-    # Remove duplicate rows
-    df.drop_duplicates(inplace=True)
-    
-    return df
+    file_path = 'data.csv'  # Specify the path to your CSV file
+    column_names = ['Name', 'Age', 'City']  # Define your column names
 
-def analyze_data(df: pd.DataFrame) -> pd.Series:
-    """
-    Analyze the DataFrame by calculating basic statistics.
-    
-    Parameters:
-    - df (pd.DataFrame): Input DataFrame for analysis.
-    
-    Returns:
-    - pd.Series: A Series containing the mean for each numeric column.
-    """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-    
-    return df.mean()
+    try:
+        # Load and process the data
+        data = load_and_process_data(file_path, column_names)
 
-# Example usage
+        # Display the first few rows of the DataFrame
+        print(data.head())
+        
+    except Exception as e:
+        print(f"Failed to process the data: {e}")
+
 if __name__ == "__main__":
-    # Sample data
-    sample_data = {
-        'A': [1, 2, np.nan, 4],
-        'B': [np.nan, 2, 3, 4],
-        'C': [1, 1, 1, 1]
-    }
-    
-    # Create DataFrame
-    df = create_dataframe(sample_data)
-    
-    # Clean DataFrame
-    cleaned_df = clean_data(df)
-    
-    # Analyze DataFrame
-    statistics = analyze_data(cleaned_df)
-    
-    print("Cleaned DataFrame:")
-    print(cleaned_df)
-    print("\nStatistics:")
-    print(statistics)
+    main()
