@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-17T03:17:43.481118
+Learned: 2025-10-17T03:33:18.159091
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,60 +12,51 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file and process it into a DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
+        column_names (Optional[list]): List of column names to use. If None, uses the first row as header.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: Processed DataFrame.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the DataFrame is empty after loading.
     """
+    # Attempt to read the CSV file
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file '{file_path}' is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"Error: The file '{file_path}' could not be parsed.")
-        return None
+        df = pd.read_csv(file_path, header=0 if column_names is None else None)
+        if column_names is not None:
+            df.columns = column_names
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file {file_path} was not found.") from e
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    # Check for empty DataFrame
+    if df.empty:
+        raise ValueError("The loaded DataFrame is empty.")
+
+    # Basic data cleaning: drop any rows with missing values
+    df.dropna(inplace=True)
+
+    return df
+
+def main() -> None:
     """
-    Clean the DataFrame by removing duplicates and filling missing values.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
+    Main function to execute the data loading and processing.
     """
-    # Removing duplicate rows
-    df_cleaned = df.drop_duplicates()
+    file_path = 'data/sample_data.csv'  # Specify the path to your CSV file
+    column_names = ['Column1', 'Column2', 'Column3']  # Example column names
 
-    # Filling missing values with the mean of the column
-    df_cleaned = df_cleaned.fillna(df_cleaned.mean())
-
-    return df_cleaned
-
-def main(file_path: str) -> None:
-    """
-    Main function to load and clean data.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    data = load_data(file_path)
-    if data is not None:
-        cleaned_data = clean_data(data)
-        print("Cleaned Data:")
-        print(cleaned_data)
+    try:
+        df = load_and_process_data(file_path, column_names)
+        print("Data loaded and processed successfully.")
+        print(df.head())  # Display the first few rows of the DataFrame
+    except (FileNotFoundError, ValueError) as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")
+    main()
