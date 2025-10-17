@@ -1,79 +1,72 @@
 """
-Pandas - Verified Learning Artifact
+pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-17T23:28:48.473263
+Learned: 2025-10-17T23:44:55.768595
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import List, Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a pandas DataFrame from a list of dictionaries.
 
-    Args:
-        file_path (str): The path to the CSV file to load.
+    Parameters:
+    data (List[dict]): A list of dictionaries where each dictionary represents a row.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
-
+    pd.DataFrame: A pandas DataFrame constructed from the input data.
+    
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is a parsing error.
+    ValueError: If the input data is empty or not a list of dictionaries.
     """
-    try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
+    if not isinstance(data, list) or not all(isinstance(row, dict) for row in data):
+        raise ValueError("Input must be a list of dictionaries.")
+    
+    if not data:
+        raise ValueError("Input data cannot be empty.")
+    
+    return pd.DataFrame(data)
 
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
-
-        return df
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
-        raise
-    except pd.errors.ParserError as e:
-        print(f"Error: There was a parsing error. {e}")
-        raise
-
-def analyze_data(df: pd.DataFrame) -> Union[pd.Series, None]:
+def filter_dataframe(df: pd.DataFrame, column: str, threshold: float) -> Optional[pd.DataFrame]:
     """
-    Analyze the DataFrame and return the mean of a specified column.
+    Filter the DataFrame based on a threshold for a specific column.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to filter.
+    column (str): The column name to apply the filter on.
+    threshold (float): The threshold value for filtering.
 
     Returns:
-        pd.Series: A Series containing the mean of each numeric column.
+    Optional[pd.DataFrame]: A filtered DataFrame or None if the column does not exist.
     """
-    if df.empty:
-        print("DataFrame is empty. No analysis can be performed.")
+    if column not in df.columns:
+        print(f"Column '{column}' does not exist in the DataFrame.")
         return None
+    
+    return df[df[column] > threshold]
 
-    # Calculate and return the mean of numeric columns
-    return df.mean()
-
+# Example usage
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your CSV file path
+    data = [
+        {'name': 'Alice', 'age': 30, 'salary': 70000},
+        {'name': 'Bob', 'age': 24, 'salary': 50000},
+        {'name': 'Charlie', 'age': 35, 'salary': 80000}
+    ]
+    
     try:
-        data = load_and_process_data(file_path)
-        mean_values = analyze_data(data)
-        if mean_values is not None:
-            print("Mean values of numeric columns:")
-            print(mean_values)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        df = create_dataframe(data)
+        print("Original DataFrame:")
+        print(df)
+        
+        filtered_df = filter_dataframe(df, 'salary', 60000)
+        if filtered_df is not None:
+            print("\nFiltered DataFrame (salary > 60000):")
+            print(filtered_df)
+    except ValueError as e:
+        print(f"Error: {e}")
