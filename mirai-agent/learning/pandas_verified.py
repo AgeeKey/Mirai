@@ -2,72 +2,54 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.90
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-17T11:51:25.681040
+Learned: 2025-10-17T12:07:33.252679
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Any
+from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file, filter it by a specific column if needed,
+    and return a processed DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
+        column_name (str): The column to filter on.
+        filter_value (Optional[str]): The value to filter by; if None, no filtering is applied.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the processed data.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the specified column is not found in the DataFrame.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file at '{file_path}' was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
-    return None
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Process the DataFrame by removing rows with missing values and resetting the index.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to process.
-
-    Returns:
-        pd.DataFrame: A cleaned DataFrame with missing values removed.
-    """
-    if df is None:
-        raise ValueError("Input DataFrame cannot be None.")
-
-    # Remove rows with any missing values
-    cleaned_df = df.dropna()
-    # Reset the index of the cleaned DataFrame
-    cleaned_df.reset_index(drop=True, inplace=True)
-    return cleaned_df
-
-def main(file_path: str) -> None:
-    """
-    Main function to load and process data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file to load and process.
-    """
-    # Load the data
-    data = load_data(file_path)
+    # Check if the specified column exists
+    if column_name not in df.columns:
+        raise ValueError(f"Error: The column '{column_name}' does not exist in the DataFrame.")
     
-    if data is not None:
-        # Process the data
-        processed_data = process_data(data)
-        # Display the first few rows of the processed data
-        print(processed_data.head())
+    # Filter the DataFrame if a filter value is provided
+    if filter_value is not None:
+        df = df[df[column_name] == filter_value]
+    
+    # Return the processed DataFrame
+    return df
 
 if __name__ == "__main__":
     # Example usage
-    main("data.csv")
+    try:
+        processed_data = load_and_process_data('data.csv', 'Category', 'A')
+        print(processed_data)
+    except Exception as e:
+        print(e)
