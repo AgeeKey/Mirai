@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.98
+Quality Grade: C
+Overall Score: 0.77
 Tests Passed: 0/1
-Learned: 2025-10-17T18:22:53.568598
+Learned: 2025-10-17T18:55:24.011989
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -16,43 +16,50 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
-def train_random_forest_classifier() -> None:
-    """
-    Load the Iris dataset, train a Random Forest classifier, and evaluate its performance.
-
-    This function performs the following steps:
-    1. Loads the Iris dataset.
-    2. Splits the data into training and testing sets.
-    3. Trains a Random Forest classifier.
-    4. Evaluates the classifier and prints the accuracy and classification report.
-    """
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset and return it as a DataFrame."""
     try:
-        # Load Iris dataset
         iris = load_iris()
-        X, y = iris.data, iris.target
+        df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+        df['target'] = iris.target
+        return df
+    except Exception as e:
+        raise RuntimeError("Error loading data: " + str(e))
 
-        # Split the dataset into training and testing sets (80% train, 20% test)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+def split_data(df: pd.DataFrame) -> tuple:
+    """Split the DataFrame into train and test sets."""
+    try:
+        X = df.iloc[:, :-1]  # Features
+        y = df['target']     # Target variable
+        return train_test_split(X, y, test_size=0.2, random_state=42)
+    except Exception as e:
+        raise RuntimeError("Error splitting data: " + str(e))
 
-        # Initialize the Random Forest classifier
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model."""
+    try:
         model = RandomForestClassifier(n_estimators=100, random_state=42)
-
-        # Fit the model on the training data
         model.fit(X_train, y_train)
+        return model
+    except Exception as e:
+        raise RuntimeError("Error training model: " + str(e))
 
-        # Make predictions on the testing data
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the trained model and print accuracy and classification report."""
+    try:
         y_pred = model.predict(X_test)
-
-        # Calculate accuracy
         accuracy = accuracy_score(y_test, y_pred)
         print(f"Accuracy: {accuracy:.2f}")
-
-        # Print classification report
-        print("Classification Report:")
-        print(classification_report(y_test, y_pred, target_names=iris.target_names))
-
+        print("Classification Report:\n", classification_report(y_test, y_pred))
     except Exception as e:
-        print(f"An error occurred: {e}")
+        raise RuntimeError("Error evaluating model: " + str(e))
+
+def main() -> None:
+    """Main function to execute the workflow."""
+    df = load_data()
+    X_train, X_test, y_train, y_test = split_data(df)
+    model = train_model(X_train, y_train)
+    evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    train_random_forest_classifier()
+    main()

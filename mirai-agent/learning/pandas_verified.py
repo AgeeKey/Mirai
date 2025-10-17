@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-17T18:22:18.009613
+Learned: 2025-10-17T18:54:53.002846
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,59 +12,46 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, delimiter: str = ',', na_values: Optional[list] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame.
+    Load data from a CSV file and process it by handling missing values.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    - file_path (str): The path to the CSV file.
+    - delimiter (str): The delimiter used in the CSV file. Default is ','.
+    - na_values (Optional[list]): Additional strings to recognize as NA/NaN.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the data or None if an error occurs.
+    - pd.DataFrame: The processed DataFrame.
+
+    Raises:
+    - FileNotFoundError: If the file does not exist.
+    - pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
-
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Process the DataFrame by filling missing values and removing duplicates.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to process.
-
-    Returns:
-        pd.DataFrame: Processed DataFrame.
-    """
+        # Load the dataset
+        df = pd.read_csv(file_path, delimiter=delimiter, na_values=na_values)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"File not found: {file_path}") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError(f"Error parsing the file: {file_path}") from e
+    
     # Fill missing values with the mean of each column
     df.fillna(df.mean(), inplace=True)
-    
-    # Remove duplicate rows
-    df.drop_duplicates(inplace=True)
-    
+
     return df
 
-def main(file_path: str) -> None:
+def main() -> None:
     """
-    Main function to load and process data.
-
-    Args:
-        file_path (str): The path to the CSV file to load.
+    Main function to load and display the processed data.
     """
-    df = load_data(file_path)
-    
-    if df is not None:
-        processed_df = process_data(df)
-        print(processed_df)
+    file_path = 'data.csv'  # Specify your CSV file path here
+    try:
+        df = load_and_process_data(file_path)
+        print("Processed DataFrame:")
+        print(df)
+    except (FileNotFoundError, pd.errors.ParserError) as e:
+        print(e)
 
-if __name__ == "__main__":
-    main("data.csv")  # Replace 'data.csv' with your actual file path
+if __name__ == '__main__':
+    main()
