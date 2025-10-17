@@ -2459,6 +2459,16 @@
       "name": "scikit-learn",
       "proficiency": 0.7972648844773955,
       "learned_at": "2025-10-17T09:27:15.762612"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.8230252606962009,
+      "learned_at": "2025-10-17T09:42:49.443208"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8109830466613762,
+      "learned_at": "2025-10-17T09:43:11.127737"
     }
   ],
   "skills": [],

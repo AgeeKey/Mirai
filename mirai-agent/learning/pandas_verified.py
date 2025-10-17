@@ -4,7 +4,7 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-17T09:26:46.494173
+Learned: 2025-10-17T09:43:11.126835
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,47 +14,53 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame with the loaded data, or None if an error occurs.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
+        print(f"Error: The file {file_path} was not found.")
+        return None
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
+        return None
     except pd.errors.ParserError:
-        print("Error: There was a parsing error.")
-    return None
+        print("Error: The file could not be parsed.")
+        return None
 
-def summarize_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> None:
     """
-    Summarize the DataFrame by printing basic statistics and information.
+    Perform basic analysis on the DataFrame and print the results.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to summarize.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
     """
     if df is not None:
-        print("DataFrame Summary:")
-        print(df.describe())  # Print summary statistics
-        print("\nDataFrame Info:")
-        print(df.info())      # Print DataFrame info
+        print("Basic DataFrame Information:")
+        print(df.info())
+        
+        print("\nFirst 5 rows of the DataFrame:")
+        print(df.head())
+        
+        print("\nStatistical Summary:")
+        print(df.describe())
     else:
-        print("No data to summarize.")
+        print("No data to analyze.")
 
 def main() -> None:
     """
-    Main function to execute the data loading and summarization process.
+    Main function to execute the data loading and analysis.
     """
-    file_path = 'data.csv'  # Specify the path to the CSV file
-    df = load_data(file_path)  # Load the data
-    summarize_data(df)         # Summarize the loaded data
+    file_path = 'data.csv'  # Path to your CSV file
+    df = load_data(file_path)
+    analyze_data(df)
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()

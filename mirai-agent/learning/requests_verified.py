@@ -1,60 +1,46 @@
 """
 requests - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 1/1
-Learned: 2025-10-17T05:56:52.345003
+Learned: 2025-10-17T09:42:49.442376
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
-from requests.exceptions import HTTPError, RequestException
-from typing import Optional
+from requests.exceptions import RequestException
 
-def fetch_data(url: str, params: Optional[dict] = None) -> dict:
+def fetch_data(url: str) -> dict:
     """
-    Fetch data from a given URL with optional query parameters.
+    Fetch data from the specified URL and return it as a dictionary.
 
     Args:
-        url (str): The URL to which the request is sent.
-        params (Optional[dict]): Optional dictionary of query parameters.
+        url (str): The URL to fetch data from.
 
     Returns:
         dict: The JSON response from the server.
 
     Raises:
-        ValueError: If the response is not JSON.
-        RequestException: For other request-related errors.
+        ValueError: If the response does not contain valid JSON.
+        RequestException: If there is an error during the request.
     """
     try:
-        # Send a GET request
-        response = requests.get(url, params=params)
-        
-        # Raise an exception for HTTP errors
-        response.raise_for_status()
+        response = requests.get(url)  # Send a GET request to the URL
+        response.raise_for_status()  # Raise an error for bad responses (4xx or 5xx)
 
-        # Return the JSON response
-        return response.json()
-    
-    except HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-        raise
-    except ValueError as json_err:
-        print(f"Error parsing JSON: {json_err}")
-        raise ValueError("Response content is not valid JSON.")
+        return response.json()  # Return the response as a JSON dictionary
+
+    except ValueError as ve:
+        raise ValueError("Response content is not valid JSON.") from ve
     except RequestException as req_err:
-        print(f"Request error occurred: {req_err}")
-        raise
+        raise RequestException(f"An error occurred while fetching data: {req_err}") from req_err
 
-# Example usage
 if __name__ == "__main__":
-    url = "https://api.example.com/data"
-    params = {"key": "value"}
-    
+    url = "https://api.example.com/data"  # Replace with a valid API endpoint
     try:
-        data = fetch_data(url, params)
-        print(data)
+        data = fetch_data(url)
+        print(data)  # Output the fetched data
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")  # Handle any exceptions that arise
