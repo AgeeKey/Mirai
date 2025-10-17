@@ -2,63 +2,85 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-17T06:28:47.489749
+Learned: 2025-10-17T06:44:55.987181
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Tuple
 
-def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it by filtering specified columns.
+    Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
-        column_filter (Optional[list]): List of columns to retain in the DataFrame.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the filtered data.
-
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If any of the specified columns are not found in the DataFrame.
+    pd.DataFrame: DataFrame containing the loaded data.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
-
-        # If column_filter is provided, filter the DataFrame
-        if column_filter is not None:
-            missing_cols = set(column_filter) - set(df.columns)
-            if missing_cols:
-                raise ValueError(f"The following columns are not found in the DataFrame: {missing_cols}")
-            df = df[column_filter]
-
-        return df
-
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-
+        print(f"Error: The file {file_path} was not found.")
+        raise e
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
         raise
-
     except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
+        print("Error: The file could not be parsed.")
         raise
 
-# Example usage
-if __name__ == "__main__":
-    file_path = 'data.csv'  # Replace with your CSV file path
-    columns_to_keep = ['column1', 'column2']  # Replace with your desired columns
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by removing missing values.
 
-    try:
-        processed_data = load_and_process_data(file_path, columns_to_keep)
-        print(processed_data)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: Cleaned DataFrame with missing values removed.
+    """
+    cleaned_df = df.dropna()  # Remove rows with missing values
+    return cleaned_df
+
+def calculate_statistics(df: pd.DataFrame) -> Tuple[float, float]:
+    """
+    Calculate mean and median of a numeric column in the DataFrame.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame with numeric data.
+
+    Returns:
+    Tuple[float, float]: A tuple containing the mean and median.
+    """
+    if df.empty:
+        raise ValueError("DataFrame is empty. Cannot calculate statistics.")
+    
+    mean_value = df.mean()  # Calculate mean
+    median_value = df.median()  # Calculate median
+    return mean_value, median_value
+
+def main(file_path: str) -> None:
+    """
+    Main function to execute the data loading, cleaning, and statistics calculation.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)  # Load the data
+    cleaned_df = clean_data(df)  # Clean the data
+
+    # Calculate and print statistics if the DataFrame is not empty
+    if not cleaned_df.empty:
+        mean, median = calculate_statistics(cleaned_df)
+        print(f"Mean: {mean}, Median: {median}")
+
+if __name__ == "__main__":
+    # Example CSV file path
+    example_file_path = 'data.csv'  # Change to your actual file path
+    main(example_file_path)
