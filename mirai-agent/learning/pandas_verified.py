@@ -2,62 +2,73 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.90
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-17T14:50:48.160088
+Learned: 2025-10-17T15:07:41.901798
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and process it to remove missing values.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
-
-    Raises:
-    FileNotFoundError: If the specified file does not exist.
-    pd.errors.EmptyDataError: If the file is empty.
-    pd.errors.ParserError: If there is a parsing issue with the file.
+        Optional[pd.DataFrame]: A DataFrame containing the data if loading is successful, None otherwise.
     """
     try:
-        # Load data from the CSV file
         data = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError("The file is empty.") from e
-    except pd.errors.ParserError as e:
-        raise pd.errors.ParserError("Error parsing the file.") from e
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error while reading the file.")
+        return None
 
-    # Remove rows with missing values
-    processed_data = data.dropna()
-
-    return processed_data
-
-def main(file_path: str) -> None:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Main function to execute data loading and processing.
+    Clean the DataFrame by removing missing values and duplicates.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+        pd.DataFrame: The cleaned DataFrame.
     """
-    try:
-        # Load and process the data
-        df = load_and_process_data(file_path)
-        print("Processed DataFrame:")
-        print(df)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    df_cleaned = df.dropna()  # Remove rows with missing values
+    df_cleaned = df_cleaned.drop_duplicates()  # Remove duplicate rows
+    return df_cleaned
+
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+    """
+    print("Data Overview:")
+    print(df.info())  # Display info about the DataFrame
+    print("\nDescriptive Statistics:")
+    print(df.describe())  # Display descriptive statistics
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Change to your actual CSV file path
-    main(file_path)
+    # Load data from a CSV file
+    file_path = 'data.csv'  # Replace with your CSV file path
+    data = load_data(file_path)
+
+    if data is not None:
+        # Clean the data
+        cleaned_data = clean_data(data)
+
+        # Analyze the cleaned data
+        analyze_data(cleaned_data)
