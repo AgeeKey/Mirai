@@ -1,55 +1,58 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-17T12:07:33.252679
+Learned: 2025-10-17T12:39:48.088650
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load data from a CSV file, filter it by a specific column if needed,
-    and return a processed DataFrame.
+    Create a pandas DataFrame from a list of dictionaries.
 
-    Args:
-        file_path (str): The path to the CSV file.
-        column_name (str): The column to filter on.
-        filter_value (Optional[str]): The value to filter by; if None, no filtering is applied.
+    Parameters:
+    data (List[dict]): A list where each dictionary represents a row of data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
-    
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the specified column is not found in the DataFrame.
-    """
-    try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
+    pd.DataFrame: A DataFrame containing the provided data.
 
-    # Check if the specified column exists
-    if column_name not in df.columns:
-        raise ValueError(f"Error: The column '{column_name}' does not exist in the DataFrame.")
+    Raises:
+    ValueError: If the data is empty or not a list of dictionaries.
+    """
+    if not isinstance(data, list) or not all(isinstance(row, dict) for row in data):
+        raise ValueError("Input must be a list of dictionaries.")
     
-    # Filter the DataFrame if a filter value is provided
-    if filter_value is not None:
-        df = df[df[column_name] == filter_value]
+    if not data:
+        raise ValueError("Input data cannot be empty.")
     
-    # Return the processed DataFrame
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    
     return df
 
-if __name__ == "__main__":
-    # Example usage
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation.
+    """
+    # Sample data
+    sample_data = [
+        {"name": "Alice", "age": 30, "city": "New York"},
+        {"name": "Bob", "age": 25, "city": "Los Angeles"},
+        {"name": "Charlie", "age": 35, "city": "Chicago"}
+    ]
+    
     try:
-        processed_data = load_and_process_data('data.csv', 'Category', 'A')
-        print(processed_data)
-    except Exception as e:
-        print(e)
+        # Create DataFrame
+        df = create_dataframe(sample_data)
+        print(df)
+    except ValueError as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
