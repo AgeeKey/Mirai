@@ -1,54 +1,69 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-17T07:33:44.219834
+Learned: 2025-10-17T07:49:48.492076
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and process it.
+    Create a Pandas DataFrame from a list of dictionaries.
 
-    Parameters:
-    - file_path (str): The path to the CSV file.
-    - column_name (str): The column to be processed for filtering.
-    - filter_value (Optional[str]): The value to filter the DataFrame. If None, no filtering is applied.
+    Args:
+        data (List[dict]): A list of dictionaries representing rows of data.
 
     Returns:
-    - pd.DataFrame: The processed DataFrame.
+        pd.DataFrame: A DataFrame constructed from the input data.
     
     Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - ValueError: If the specified column does not exist in the DataFrame.
+        ValueError: If the input data is empty or not a list of dictionaries.
     """
-    try:
-        # Load the data from the CSV file
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
+    if not isinstance(data, list) or not data:
+        raise ValueError("Input data must be a non-empty list of dictionaries.")
     
-    # Check if the specified column exists in the DataFrame
-    if column_name not in df.columns:
-        raise ValueError(f"The column '{column_name}' does not exist in the DataFrame.")
-
-    # Filter the DataFrame if a filter value is provided
-    if filter_value is not None:
-        df = df[df[column_name] == filter_value]
-
-    # Return the processed DataFrame
+    for item in data:
+        if not isinstance(item, dict):
+            raise ValueError("All items in the list must be dictionaries.")
+    
+    df = pd.DataFrame(data)  # Create DataFrame from the list of dictionaries
     return df
 
-# Example usage
-if __name__ == "__main__":
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and manipulation.
+    """
+    # Sample data
+    sample_data = [
+        {"name": "Alice", "age": 30, "city": "New York"},
+        {"name": "Bob", "age": 25, "city": "San Francisco"},
+        {"name": "Charlie", "age": 35, "city": "Los Angeles"}
+    ]
+
     try:
-        data_frame = load_and_process_data('data.csv', 'category', 'A')
-        print(data_frame.head())
-    except (FileNotFoundError, ValueError) as e:
-        print(e)
+        # Create a DataFrame using the sample data
+        df = create_dataframe(sample_data)
+        print("Original DataFrame:")
+        print(df)
+
+        # Add a new column for country
+        df['country'] = 'USA'
+        print("\nDataFrame after adding country column:")
+        print(df)
+
+        # Filter the DataFrame for ages greater than 30
+        filtered_df = df[df['age'] > 30]
+        print("\nFiltered DataFrame (age > 30):")
+        print(filtered_df)
+
+    except ValueError as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
