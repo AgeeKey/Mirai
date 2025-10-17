@@ -1,10 +1,10 @@
 """
-TensorFlow - Verified Learning Artifact
+tensorflow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.84
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-17T17:18:12.012734
+Learned: 2025-10-17T18:39:09.177382
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -15,42 +15,55 @@ from tensorflow.keras import layers
 from typing import Tuple
 
 def create_model(input_shape: Tuple[int, int, int]) -> keras.Model:
-    """Creates a simple convolutional neural network model.
+    """Creates a simple CNN model.
 
     Args:
-        input_shape (Tuple[int, int, int]): The shape of the input data (height, width, channels).
+        input_shape (Tuple[int, int, int]): Shape of the input data (height, width, channels).
 
     Returns:
-        keras.Model: A compiled Keras model.
+        keras.Model: A compiled CNN model.
+    """
+    model = keras.Sequential([
+        layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Flatten(),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(10, activation='softmax')  # Assuming 10 classes
+    ])
+    
+    model.compile(optimizer='adam', 
+                  loss='sparse_categorical_crossentropy', 
+                  metrics=['accuracy'])
+    
+    return model
+
+def load_data() -> Tuple[tf.Tensor, tf.Tensor]:
+    """Loads and preprocesses the MNIST dataset.
+
+    Returns:
+        Tuple[tf.Tensor, tf.Tensor]: Training and test datasets (x_train, y_train, x_test, y_test).
     """
     try:
-        model = keras.Sequential([
-            layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Conv2D(64, (3, 3), activation='relu'),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Flatten(),
-            layers.Dense(128, activation='relu'),
-            layers.Dense(10, activation='softmax')  # Assuming 10 classes for classification
-        ])
-        
-        model.compile(optimizer='adam',
-                      loss='sparse_categorical_crossentropy',
-                      metrics=['accuracy'])
-        return model
+        (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+        x_train, x_test = x_train / 255.0, x_test / 255.0  # Normalize the data
+        x_train = x_train[..., tf.newaxis]  # Add channel dimension
+        x_test = x_test[..., tf.newaxis]  # Add channel dimension
+        return (x_train, y_train), (x_test, y_test)
     except Exception as e:
-        print(f"Error creating model: {e}")
+        print(f"Error loading data: {e}")
         raise
 
-def train_model(model: keras.Model, x_train: tf.Tensor, y_train: tf.Tensor, epochs: int = 10) -> None:
-    """Trains the model on the provided training data.
+def train_model(model: keras.Model, data: Tuple[tf.Tensor, tf.Tensor], epochs: int = 5) -> None:
+    """Trains the model on the given data.
 
     Args:
-        model (keras.Model): The model to be trained.
-        x_train (tf.Tensor): Training data.
-        y_train (tf.Tensor): Training labels.
-        epochs (int): Number of epochs to train.
+        model (keras.Model): The model to train.
+        data (Tuple[tf.Tensor, tf.Tensor]): Training data (x_train, y_train).
+        epochs (int): Number of training epochs.
     """
+    (x_train, y_train), _ = data
     try:
         model.fit(x_train, y_train, epochs=epochs)
     except Exception as e:
@@ -58,14 +71,11 @@ def train_model(model: keras.Model, x_train: tf.Tensor, y_train: tf.Tensor, epoc
         raise
 
 def main() -> None:
-    """Main function to execute the training process."""
-    # Sample data (using random data for example purposes)
-    x_train = tf.random.normal((100, 28, 28, 1))  # 100 samples of 28x28 images with 1 channel
-    y_train = tf.random.uniform((100,), maxval=10, dtype=tf.int32)  # 100 labels for 10 classes
-
-    input_shape = (28, 28, 1)  # Shape of input images
+    """Main function to execute the model training."""
+    input_shape = (28, 28, 1)  # MNIST images are 28x28 pixels with 1 color channel
     model = create_model(input_shape)
-    train_model(model, x_train, y_train, epochs=5)
+    data = load_data()
+    train_model(model, data)
 
 if __name__ == "__main__":
     main()
