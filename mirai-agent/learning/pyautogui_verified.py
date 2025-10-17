@@ -1,42 +1,52 @@
 """
 pyautogui - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.98
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-17T18:38:35.850807
+Learned: 2025-10-17T21:04:46.311035
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pyautogui
 import time
-from typing import Tuple
+from typing import Optional
 
-def click_and_type(position: Tuple[int, int], text: str, delay: float = 0.5) -> None:
+def click_button(image_path: str, timeout: Optional[int] = 30) -> None:
     """
-    Clicks at the specified position on the screen and types the provided text.
+    Clicks on a button identified by an image on the screen.
 
     Args:
-        position (Tuple[int, int]): The (x, y) coordinates to click.
-        text (str): The text to type after clicking.
-        delay (float): Time to wait before the next action.
+        image_path (str): The file path of the image representing the button.
+        timeout (Optional[int]): The time in seconds to wait for the button to appear.
+
+    Raises:
+        FileNotFoundError: If the image file does not exist.
+        Exception: If the button is not found within the timeout period.
     """
+    
+    # Check if the image file exists
     try:
-        # Move the mouse to the specified position
-        pyautogui.moveTo(position[0], position[1], duration=0.25)
-        time.sleep(delay)  # Wait for a short duration
+        pyautogui.locateOnScreen(image_path, confidence=0.8)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The specified image file '{image_path}' does not exist.")
 
-        # Click at the position
-        pyautogui.click()
-        time.sleep(delay)  # Wait before typing
-
-        # Type the specified text
-        pyautogui.typewrite(text, interval=0.1)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    # Wait for the button to appear on the screen
+    start_time = time.time()
+    while True:
+        button_location = pyautogui.locateCenterOnScreen(image_path, confidence=0.8)
+        if button_location is not None:
+            pyautogui.click(button_location)
+            print(f"Clicked on button: {image_path}")
+            return
+        if time.time() - start_time > timeout:
+            raise Exception(f"Button '{image_path}' not found on the screen within {timeout} seconds.")
+        time.sleep(0.5)  # Wait a bit before trying again
 
 if __name__ == "__main__":
     # Example usage
-    # Adjust the position (x, y) and text as necessary
-    click_and_type((500, 500), "Hello, PyAutoGUI!")
+    try:
+        click_button("button_image.png", timeout=15)  # Replace with the actual button image path
+    except Exception as e:
+        print(f"An error occurred: {e}")
