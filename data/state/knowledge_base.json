@@ -3379,6 +3379,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8558596348308164,
       "learned_at": "2025-10-18T10:02:29.756582"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.8423095040343074,
+      "learned_at": "2025-10-18T10:17:48.775144"
+    },
+    {
+      "name": "python-telegram-bot",
+      "proficiency": 0.7687099730037845,
+      "learned_at": "2025-10-18T10:18:03.079138"
     }
   ],
   "skills": [],
