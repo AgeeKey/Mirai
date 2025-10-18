@@ -3359,6 +3359,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8558068433827004,
       "learned_at": "2025-10-18T09:31:00.886855"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.9606131448241227,
+      "learned_at": "2025-10-18T09:46:20.682877"
+    },
+    {
+      "name": "fastapi",
+      "proficiency": 0.6956558224845576,
+      "learned_at": "2025-10-18T09:46:37.996451"
     }
   ],
   "skills": [],

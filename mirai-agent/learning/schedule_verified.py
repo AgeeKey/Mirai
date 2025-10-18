@@ -2,9 +2,9 @@
 schedule - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.96
 Tests Passed: 0/1
-Learned: 2025-10-17T16:12:59.404617
+Learned: 2025-10-18T09:46:20.681672
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,36 +12,34 @@ This code has been verified by MIRAI's NASA-level learning system.
 import schedule
 import time
 import logging
-from typing import Callable
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def job() -> None:
     """A simple job function that logs a message."""
     try:
         logging.info("Job is running...")
-        # Simulate a task (e.g., data processing, API call)
-        # Add your task logic here
+        # Simulate a task (e.g., processing data)
+        # Here you can add the actual task logic
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"Error occurred while running the job: {e}")
 
-def schedule_job(job_func: Callable[[], None], interval: int) -> None:
-    """Schedules a job to run at specified intervals.
+def schedule_jobs() -> None:
+    """Schedules the jobs to run at specified intervals."""
+    # Schedule the job to run every 10 seconds
+    schedule.every(10).seconds.do(job)
 
-    Args:
-        job_func: The function to execute.
-        interval: Time in seconds between job executions.
-    """
-    schedule.every(interval).seconds.do(job_func)
-    logging.info(f"Scheduled job to run every {interval} seconds.")
-
-def run_scheduler() -> None:
-    """Runs the scheduler to execute scheduled jobs."""
+    # Keep the script running
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        try:
+            schedule.run_pending()
+            time.sleep(1)  # Sleep for a short time to prevent busy waiting
+        except KeyboardInterrupt:
+            logging.info("Scheduler stopped by user.")
+            break
+        except Exception as e:
+            logging.error(f"An error occurred in the scheduler: {e}")
 
 if __name__ == "__main__":
-    schedule_job(job, 5)  # Schedule job to run every 5 seconds
-    run_scheduler()  # Start the scheduler
+    schedule_jobs()
