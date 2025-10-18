@@ -1,10 +1,10 @@
 """
 schedule - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.93
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-18T13:58:35.890029
+Learned: 2025-10-18T19:08:18.044695
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,28 +12,29 @@ This code has been verified by MIRAI's NASA-level learning system.
 import schedule
 import time
 import logging
+from datetime import datetime
 
-# Configure logging
+# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def job() -> None:
-    """Function to execute scheduled job."""
-    logging.info("Job is running...")
-
-def main() -> None:
-    """Main function to set up the schedule and run the scheduler."""
-    # Schedule the job to run every 10 seconds
-    schedule.every(10).seconds.do(job)
-
+    """Function to be scheduled that logs the current time."""
     try:
-        while True:
-            # Run pending jobs
-            schedule.run_pending()
-            time.sleep(1)  # Sleep to prevent busy waiting
-    except KeyboardInterrupt:
-        logging.info("Scheduler stopped by user.")
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        logging.info(f"Job executed at: {current_time}")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"Error occurred in job: {e}")
+
+def schedule_jobs() -> None:
+    """Schedule the job to run every minute."""
+    schedule.every(1).minutes.do(job)
+
+def run_scheduler() -> None:
+    """Run the scheduler to execute scheduled jobs."""
+    while True:
+        schedule.run_pending()  # Check for pending jobs
+        time.sleep(1)           # Wait for one second before checking again
 
 if __name__ == "__main__":
-    main()
+    schedule_jobs()  # Set up the scheduled jobs
+    run_scheduler()  # Start the scheduler
