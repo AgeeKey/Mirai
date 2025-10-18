@@ -531,12 +531,13 @@ class AutonomousAgent:
                 repo = params.get("repo", "")
                 path = params.get("path", "")
                 result = self.github.get_repo_content(owner, repo, path)
-                
+
                 # Если это файл с content, декодируем его
                 if isinstance(result, dict) and "content" in result:
                     import base64
+
                     try:
-                        decoded = base64.b64decode(result["content"]).decode('utf-8')
+                        decoded = base64.b64decode(result["content"]).decode("utf-8")
                         return f"✅ Файл {path} из {owner}/{repo}:\n\n{decoded}"
                     except:
                         return f"✅ Файл {path} (бинарный): {result['size']} байт"
@@ -546,7 +547,9 @@ class AutonomousAgent:
                     for item in result:
                         icon = "📁" if item["type"] == "dir" else "📄"
                         files_info.append(f"{icon} {item['name']}")
-                    return f"✅ Содержимое {owner}/{repo}/{path}:\n" + "\n".join(files_info[:50])
+                    return f"✅ Содержимое {owner}/{repo}/{path}:\n" + "\n".join(
+                        files_info[:50]
+                    )
                 else:
                     return f"✅ Результат:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
 
