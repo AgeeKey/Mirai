@@ -3509,6 +3509,16 @@
       "name": "opencv-python",
       "proficiency": 0.8986479257252609,
       "learned_at": "2025-10-18T13:27:15.513177"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8857064407112721,
+      "learned_at": "2025-10-18T13:42:42.418238"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8694786271934992,
+      "learned_at": "2025-10-18T13:43:01.355173"
     }
   ],
   "skills": [],
