@@ -1,89 +1,72 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.80
+Quality Grade: C
+Overall Score: 0.76
 Tests Passed: 0/1
-Learned: 2025-10-18T14:46:16.427207
+Learned: 2025-10-18T15:02:06.974218
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.datasets import load_iris
+from sklearn.exceptions import NotFittedError
+from typing import Tuple
 
-def load_data() -> pd.DataFrame:
-    """
-    Load the Iris dataset and return it as a DataFrame.
-    
-    Returns:
-        pd.DataFrame: A DataFrame containing the Iris dataset.
-    """
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return features and labels."""
     iris = load_iris()
-    return pd.DataFrame(data=np.c_[iris['data'], iris['target']], columns=iris['feature_names'] + ['target'])
+    return iris.data, iris.target
 
-def split_data(data: pd.DataFrame) -> tuple:
-    """
-    Split the dataset into training and testing sets.
-    
-    Args:
-        data (pd.DataFrame): The input dataset.
-        
-    Returns:
-        tuple: Training features, testing features, training labels, testing labels.
-    """
-    X = data.iloc[:, :-1]
-    y = data.iloc[:, -1]
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+def split_data(features: np.ndarray, labels: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    return train_test_split(features, labels, test_size=test_size, random_state=random_state)
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
-    """
-    Train a Random Forest Classifier on the training data.
+class IrisClassifier:
+    """A classifier for the Iris dataset using Random Forest."""
     
-    Args:
-        X_train (pd.DataFrame): Training features.
-        y_train (pd.Series): Training labels.
-        
-    Returns:
-        RandomForestClassifier: The trained model.
-    """
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    def __init__(self):
+        self.model = RandomForestClassifier()
+    
+    def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
+        """Train the classifier on the training data."""
+        try:
+            self.model.fit(X_train, y_train)
+        except Exception as e:
+            print(f"An error occurred during training: {e}")
+    
+    def predict(self, X_test: np.ndarray) -> np.ndarray:
+        """Predict the labels for the test data."""
+        try:
+            return self.model.predict(X_test)
+        except NotFittedError:
+            print("Model is not fitted yet. Please train the model first.")
+            return np.array([])
+        except Exception as e:
+            print(f"An error occurred during prediction: {e}")
+            return np.array([])
 
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-    """
-    Evaluate the trained model and print the accuracy and classification report.
-    
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (pd.DataFrame): Testing features.
-        y_test (pd.Series): Testing labels.
-    """
-    try:
-        predictions = model.predict(X_test)
-        accuracy = accuracy_score(y_test, predictions)
+    def evaluate(self, y_test: np.ndarray, y_pred: np.ndarray) -> None:
+        """Evaluate the model's performance."""
+        accuracy = accuracy_score(y_test, y_pred)
         print(f"Accuracy: {accuracy:.2f}")
         print("Classification Report:")
-        print(classification_report(y_test, predictions))
-    except Exception as e:
-        print(f"Error during evaluation: {e}")
+        print(classification_report(y_test, y_pred))
 
 def main() -> None:
-    """
-    Main function to load data, train the model, and evaluate it.
-    """
-    try:
-        data = load_data()
-        X_train, X_test, y_train, y_test = split_data(data)
-        model = train_model(X_train, y_train)
-        evaluate_model(model, X_test, y_test)
-    except Exception as e:
-        print(f"Error in main execution: {e}")
+    """Main function to run the Iris classification."""
+    features, labels = load_data()
+    X_train, X_test, y_train, y_test = split_data(features, labels)
+    
+    classifier = IrisClassifier()
+    classifier.train(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    classifier.evaluate(y_test, y_pred)
 
 if __name__ == "__main__":
     main()

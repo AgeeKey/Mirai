@@ -4,51 +4,81 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-18T14:45:52.362296
+Learned: 2025-10-18T15:01:45.989162
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+from typing import Optional
 
-def create_dataframe(data: List[Dict[str, any]]) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a list of dictionaries.
+    Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        data (List[Dict[str, any]]): A list of dictionaries where each dictionary 
-                                       corresponds to a row in the DataFrame.
+    Parameters:
+    - file_path: str - The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input data.
+    - Optional[pd.DataFrame]: DataFrame containing the data, or None if an error occurs.
     """
     try:
-        # Create DataFrame from the list of dictionaries
-        df = pd.DataFrame(data)
-        return df
-    except ValueError as e:
-        raise ValueError("Error in creating DataFrame: " + str(e))
-    except Exception as e:
-        raise Exception("An unexpected error occurred: " + str(e))
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error when reading the file.")
+        return None
 
-def main() -> None:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Main function to demonstrate the creation of a DataFrame.
-    """
-    # Sample data
-    data = [
-        {"Name": "Alice", "Age": 30, "City": "New York"},
-        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
-        {"Name": "Charlie", "Age": 35, "City": "Chicago"}
-    ]
+    Clean the DataFrame by dropping missing values and duplicates.
 
-    # Create DataFrame
-    try:
-        df = create_dataframe(data)
-        print(df)
-    except Exception as e:
-        print(e)
+    Parameters:
+    - df: pd.DataFrame - The DataFrame to clean.
+
+    Returns:
+    - pd.DataFrame: The cleaned DataFrame.
+    """
+    # Drop rows with any missing values
+    df_cleaned = df.dropna()
+
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+
+    return df_cleaned
+
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame and print summary statistics.
+
+    Parameters:
+    - df: pd.DataFrame - The DataFrame to analyze.
+    """
+    print("Summary Statistics:")
+    print(df.describe())
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data.
+
+    Parameters:
+    - file_path: str - The path to the CSV file.
+    """
+    # Load data
+    data = load_data(file_path)
+    
+    if data is not None:  # Proceed only if data was loaded successfully
+        # Clean data
+        cleaned_data = clean_data(data)
+        
+        # Analyze data
+        analyze_data(cleaned_data)
 
 if __name__ == "__main__":
-    main()
+    main("data.csv")  # Replace with your actual file path
