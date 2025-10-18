@@ -1,76 +1,61 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.95
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-18T20:42:35.082804
+Learned: 2025-10-18T20:58:20.548315
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Load a CSV file into a DataFrame and optionally filter specific columns.
 
     Parameters:
-    file_path (str): The path to the CSV file.
+    - file_path (str): The path to the CSV file.
+    - column_filter (Optional[list]): A list of columns to retain in the DataFrame. If None, all columns are retained.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
+    - pd.DataFrame: Processed DataFrame containing the specified columns.
+    
+    Raises:
+    - FileNotFoundError: If the specified file does not exist.
+    - ValueError: If any of the specified columns are not found in the DataFrame.
     """
     try:
-        # Load the data from the CSV file
+        # Load the CSV file into a DataFrame
         df = pd.read_csv(file_path)
-        
-        # Check if the DataFrame is empty
-        if df.empty:
-            raise ValueError("The DataFrame is empty. Please check the input file.")
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Error: The file at {file_path} was not found.") from e
 
-        return df
+    if column_filter:
+        # Check if specified columns exist in the DataFrame
+        missing_columns = [col for col in column_filter if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Error: The following columns are not in the DataFrame: {missing_columns}")
+        
+        # Filter the DataFrame to retain only the specified columns
+        df = df[column_filter]
 
-    except FileNotFoundError:
-        raise FileNotFoundError(f"The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        raise ValueError("No data found in the provided file.")
-    except Exception as e:
-        raise Exception(f"An error occurred: {e}")
+    return df
 
-def summarize_data(df: pd.DataFrame) -> pd.Series:
+def main() -> None:
     """
-    Summarize the DataFrame by calculating basic statistics.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-    pd.Series: A Series containing the summary statistics.
+    Main function to execute the data loading and processing.
     """
-    return df.describe()
+    file_path = 'data.csv'  # Replace with your CSV file path
+    columns_to_keep = ['column1', 'column2']  # Replace with the columns you want to keep
+
+    try:
+        processed_data = load_and_process_data(file_path, columns_to_keep)
+        print(processed_data)
+    except (FileNotFoundError, ValueError) as e:
+        print(e)
 
 if __name__ == "__main__":
-    try:
-        # Define the path to the CSV file
-        csv_file_path = 'data.csv'
-        
-        # Load and process the data
-        data_frame = load_and_process_data(csv_file_path)
-        
-        # Summarize the data
-        summary = summarize_data(data_frame)
-        
-        # Print the summary
-        print("Summary Statistics:")
-        print(summary)
-
-    except Exception as e:
-        print(f"Error: {e}")
+    main()
