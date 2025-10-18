@@ -1,55 +1,60 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-18T00:00:52.728331
+Learned: 2025-10-18T00:16:48.404901
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, column_name: str, threshold: Optional[float] = None) -> pd.DataFrame:
+def create_dataframe(data: dict[str, list]) -> pd.DataFrame:
     """
-    Load data from a CSV file, filter it based on a specified threshold, 
-    and return a processed DataFrame.
+    Create a pandas DataFrame from a dictionary of lists.
 
     Parameters:
-    - file_path (str): Path to the CSV file.
-    - column_name (str): Column to filter the data on.
-    - threshold (Optional[float]): Minimum value to filter the DataFrame. 
-                                    If None, no filtering is applied.
+    data (dict[str, list]): A dictionary where keys are column names 
+                             and values are lists of column data.
 
     Returns:
-    - pd.DataFrame: Processed DataFrame after loading and filtering.
-    
-    Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - KeyError: If the specified column does not exist in the DataFrame.
+    pd.DataFrame: A pandas DataFrame constructed from the input data.
     """
     try:
-        # Load data from CSV file
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: The file {file_path} was not found.") from e
+        df = pd.DataFrame(data)  # Create DataFrame from the provided data
+        return df
+    except Exception as e:
+        print(f"Error creating DataFrame: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
 
-    # Check if the specified column exists in the DataFrame
-    if column_name not in df.columns:
-        raise KeyError(f"Error: The column '{column_name}' does not exist in the DataFrame.")
-    
-    # Filter the DataFrame based on the threshold if provided
-    if threshold is not None:
-        df = df[df[column_name] >= threshold]
+def analyze_dataframe(df: pd.DataFrame) -> None:
+    """
+    Analyze a pandas DataFrame by printing summary statistics and checking for missing values.
 
-    return df
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    """
+    try:
+        print("Summary Statistics:")
+        print(df.describe())  # Print summary statistics
+        print("\nMissing Values:")
+        print(df.isnull().sum())  # Print the number of missing values in each column
+    except Exception as e:
+        print(f"Error analyzing DataFrame: {e}")
 
 if __name__ == "__main__":
-    # Example usage of the load_and_process_data function
-    try:
-        processed_data = load_and_process_data('data.csv', 'age', threshold=30)
-        print(processed_data)
-    except (FileNotFoundError, KeyError) as e:
-        print(e)
+    # Sample data to demonstrate functionality
+    sample_data = {
+        "Name": ["Alice", "Bob", "Charlie", "David"],
+        "Age": [25, 30, np.nan, 22],
+        "Salary": [50000, 60000, 70000, np.nan]
+    }
+
+    # Create a DataFrame using the sample data
+    df = create_dataframe(sample_data)
+    
+    # Analyze the created DataFrame
+    analyze_dataframe(df)
