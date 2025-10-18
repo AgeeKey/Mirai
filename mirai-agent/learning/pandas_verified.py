@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-18T01:20:10.180724
+Learned: 2025-10-18T01:35:58.230641
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,69 +14,61 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if loading fails.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
     """
     try:
         df = pd.read_csv(file_path)
         return df
-    except Exception as e:
-        print(f"Error loading data: {e}")
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file at {file_path} is empty.")
+        return None
+    except pd.errors.ParserError:
+        print(f"Error: The file at {file_path} could not be parsed.")
         return None
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process the DataFrame by performing basic cleaning and transformation.
+    Clean the DataFrame by dropping NaN values and resetting the index.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to process.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-    pd.DataFrame: The processed DataFrame.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    # Drop rows with missing values
-    df_cleaned = df.dropna()
+    if df is None or df.empty:
+        raise ValueError("DataFrame is empty or None. Cannot clean data.")
+    
+    # Drop rows with any NaN values
+    cleaned_df = df.dropna()
     
     # Reset index after dropping rows
-    df_cleaned.reset_index(drop=True, inplace=True)
+    cleaned_df.reset_index(drop=True, inplace=True)
     
-    # Convert all column names to lowercase
-    df_cleaned.columns = [col.lower() for col in df_cleaned.columns]
-    
-    return df_cleaned
+    return cleaned_df
 
-def save_data(df: pd.DataFrame, output_path: str) -> None:
+def main(file_path: str) -> None:
     """
-    Save the DataFrame to a CSV file.
+    Main function to load, clean, and display data.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to save.
-    output_path (str): The path where the CSV file will be saved.
+    Args:
+        file_path (str): The path to the CSV file to load.
     """
-    try:
-        df.to_csv(output_path, index=False)
-        print(f"Data saved successfully to {output_path}")
-    except Exception as e:
-        print(f"Error saving data: {e}")
-
-def main(input_file: str, output_file: str) -> None:
-    """
-    Main function to load, process, and save data.
-
-    Parameters:
-    input_file (str): The path to the input CSV file.
-    output_file (str): The path to the output CSV file.
-    """
-    df = load_data(input_file)
+    df = load_data(file_path)
     if df is not None:
-        processed_df = process_data(df)
-        save_data(processed_df, output_file)
+        cleaned_df = clean_data(df)
+        print(cleaned_df)
 
 if __name__ == "__main__":
-    # Example usage
-    main('input_data.csv', 'processed_data.csv')
+    # Example CSV file path (adjust as necessary)
+    example_file_path = 'data.csv'
+    main(example_file_path)
