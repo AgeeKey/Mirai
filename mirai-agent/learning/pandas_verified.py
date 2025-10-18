@@ -2,77 +2,94 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-18T13:42:42.417114
+Learned: 2025-10-18T14:14:34.204939
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: DataFrame containing the loaded data.
     
     Raises:
         FileNotFoundError: If the specified file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an error parsing the file.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-
-        # Convert column names to lowercase
-        df.columns = [col.lower() for col in df.columns]
-
-        return df
-
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
     except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
+        print(f"Error: The file is empty. {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: Could not parse the file. {e}")
         raise
 
-def filter_data(df: pd.DataFrame, column_name: str, threshold: float) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter rows in the DataFrame based on a threshold for a specific column.
+    Clean the DataFrame by removing rows with missing values.
 
     Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column_name (str): The column to apply the filter on.
-        threshold (float): The threshold value for filtering.
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-        pd.DataFrame: A DataFrame containing only the filtered rows.
+        pd.DataFrame: Cleaned DataFrame with missing values removed.
+    """
+    cleaned_df = df.dropna()  # Remove rows with any missing values
+    return cleaned_df
 
-    Raises:
-        KeyError: If the specified column does not exist in the DataFrame.
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Perform basic analysis on the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pd.Series: A Series containing the count of unique values for each column.
+    """
+    analysis = df.nunique()  # Count unique values in each column
+    return analysis
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data.
+
+    Args:
+        file_path (str): The path to the CSV file.
     """
     try:
-        # Filter the DataFrame based on the threshold
-        filtered_df = df[df[column_name] > threshold]
-        return filtered_df
-    except KeyError as e:
-        print(f"Error: The column '{column_name}' does not exist in the DataFrame.")
-        raise
-
-if __name__ == "__main__":
-    # Example usage
-    try:
-        data = load_and_process_data('data.csv')
-        filtered_data = filter_data(data, 'value', 10.0)
-        print(filtered_data)
+        # Load data from the specified file
+        data = load_data(file_path)
+        
+        # Clean the loaded data
+        cleaned_data = clean_data(data)
+        
+        # Analyze the cleaned data
+        analysis_results = analyze_data(cleaned_data)
+        
+        # Print the analysis results
+        print("Analysis of the dataset:")
+        print(analysis_results)
     except Exception as e:
         print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    # Example file path (replace with your actual file path)
+    file_path = "data.csv"
+    main(file_path)

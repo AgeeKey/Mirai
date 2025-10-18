@@ -3529,6 +3529,16 @@
       "name": "TensorFlow",
       "proficiency": 0.8824130054057985,
       "learned_at": "2025-10-18T13:58:54.586569"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.9849653970003898,
+      "learned_at": "2025-10-18T14:14:15.525424"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8679159138848477,
+      "learned_at": "2025-10-18T14:14:34.206062"
     }
   ],
   "skills": [],
