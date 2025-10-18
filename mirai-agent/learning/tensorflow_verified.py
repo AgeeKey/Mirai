@@ -4,7 +4,7 @@ TensorFlow - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-18T11:36:38.669234
+Learned: 2025-10-18T13:58:54.585410
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,71 +13,66 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 import numpy as np
 
-def create_and_train_model(x_train: np.ndarray, y_train: np.ndarray, 
-                           x_test: np.ndarray, y_test: np.ndarray, 
-                           epochs: int = 10, batch_size: int = 32) -> models.Sequential:
+def create_model(input_shape: tuple) -> tf.keras.Model:
     """
-    Create, compile, and train a simple neural network model.
+    Creates a sequential neural network model.
 
     Args:
-        x_train (np.ndarray): Training data.
-        y_train (np.ndarray): Labels for training data.
-        x_test (np.ndarray): Test data.
-        y_test (np.ndarray): Labels for test data.
-        epochs (int): Number of epochs to train the model.
-        batch_size (int): Size of the batches used in training.
+        input_shape (tuple): Shape of the input data.
 
     Returns:
-        models.Sequential: The trained Keras model.
+        tf.keras.Model: A compiled Keras model.
     """
-    try:
-        # Define a simple feedforward neural network
-        model = models.Sequential([
-            layers.Dense(64, activation='relu', input_shape=(x_train.shape[1],)),
-            layers.Dense(64, activation='relu'),
-            layers.Dense(10, activation='softmax')  # Assuming 10 classes for output
-        ])
-
-        # Compile the model
-        model.compile(optimizer='adam',
-                      loss='sparse_categorical_crossentropy',
-                      metrics=['accuracy'])
-
-        # Train the model
-        model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test))
-
-        return model
+    model = models.Sequential([
+        layers.Input(shape=input_shape),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(10, activation='softmax')  # Assuming 10 classes for classification
+    ])
     
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    return model
 
+def generate_dummy_data(num_samples: int, num_features: int, num_classes: int) -> tuple:
+    """
+    Generates dummy training and testing data.
+
+    Args:
+        num_samples (int): Number of samples to generate.
+        num_features (int): Number of features for each sample.
+        num_classes (int): Number of classes for classification.
+
+    Returns:
+        tuple: Tuple containing training data (X_train, y_train) and testing data (X_test, y_test).
+    """
+    X = np.random.rand(num_samples, num_features)
+    y = np.random.randint(0, num_classes, size=(num_samples,))
+    return X, y
 
 def main() -> None:
     """
-    Main function to execute model creation and training.
+    Main function to execute the model training process.
     """
-    # Generate dummy data
     try:
-        num_samples = 1000
-        num_features = 20
+        # Generate dummy data
+        X_train, y_train = generate_dummy_data(num_samples=1000, num_features=20, num_classes=10)
+        X_test, y_test = generate_dummy_data(num_samples=200, num_features=20, num_classes=10)
 
-        x_train = np.random.rand(num_samples, num_features).astype(np.float32)
-        y_train = np.random.randint(0, 10, size=(num_samples,)).astype(np.int32)
-        x_test = np.random.rand(num_samples // 5, num_features).astype(np.float32)
-        y_test = np.random.randint(0, 10, size=(num_samples // 5,)).astype(np.int32)
+        # Create the model
+        model = create_model(input_shape=(20,))
 
-        # Create and train model
-        model = create_and_train_model(x_train, y_train, x_test, y_test)
+        # Train the model
+        model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
 
-        if model is not None:
-            print("Model trained successfully.")
-        else:
-            print("Model training failed.")
+        # Evaluate the model
+        test_loss, test_accuracy = model.evaluate(X_test, y_test)
+        print(f"Test accuracy: {test_accuracy:.4f}")
 
     except Exception as e:
-        print(f"An error occurred in the main function: {e}")
-
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()

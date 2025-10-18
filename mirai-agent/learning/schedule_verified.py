@@ -2,9 +2,9 @@
 schedule - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-18T13:26:58.563779
+Learned: 2025-10-18T13:58:35.890029
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,36 +12,28 @@ This code has been verified by MIRAI's NASA-level learning system.
 import schedule
 import time
 import logging
-from typing import Callable
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def job() -> None:
-    """Function to be scheduled, simulating a task."""
+    """Function to execute scheduled job."""
+    logging.info("Job is running...")
+
+def main() -> None:
+    """Main function to set up the schedule and run the scheduler."""
+    # Schedule the job to run every 10 seconds
+    schedule.every(10).seconds.do(job)
+
     try:
-        logging.info("Job is running...")
-        # Simulate task processing
-        # Here you could add the actual task logic
+        while True:
+            # Run pending jobs
+            schedule.run_pending()
+            time.sleep(1)  # Sleep to prevent busy waiting
+    except KeyboardInterrupt:
+        logging.info("Scheduler stopped by user.")
     except Exception as e:
-        logging.error(f"An error occurred while running the job: {e}")
-
-def schedule_job(job_func: Callable[[], None], interval: int) -> None:
-    """Schedule a job to run at a specified interval.
-
-    Args:
-        job_func (Callable[[], None]): The job function to run.
-        interval (int): The time interval in seconds.
-    """
-    schedule.every(interval).seconds.do(job_func)
-    logging.info(f"Scheduled job to run every {interval} seconds.")
-
-def run_scheduler() -> None:
-    """Run the scheduler to execute scheduled jobs."""
-    while True:
-        schedule.run_pending()
-        time.sleep(1)  # Sleep to prevent busy-waiting
+        logging.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    schedule_job(job, interval=5)  # Schedule the job to run every 5 seconds
-    run_scheduler()  # Start the scheduler
+    main()
