@@ -427,6 +427,68 @@ class LongTermMemory:
         lessons = [row[0] for row in cursor.fetchall()]
 
         conn.close()
+    
+    def get_recent_achievements(self, limit: int = 20) -> List[Dict]:
+        """
+        Получить недавние достижения для анализа
+        
+        Args:
+            limit: Максимальное количество достижений
+            
+        Returns:
+            List словарей с достижениями
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """
+            SELECT id, goal_id, description, result, created_at
+            FROM achievements
+            ORDER BY created_at DESC
+            LIMIT ?
+        """,
+            (limit,),
+        )
+        
+        achievements = []
+        for row in cursor.fetchall():
+            achievements.append({
+                "id": row[0],
+                "goal_id": row[1],
+                "description": row[2],
+                "result": row[3],
+                "created_at": row[4],
+                "impact": 5  # Default impact для совместимости
+            })
+        
+        conn.close()
+        return achievements
+    
+    def learn_from_history_impl(self, days: int = 30) -> Dict:
+        """Внутренняя реализация learn_from_history"""
+        since = (datetime.now() - timedelta(days=days)).isoformat()
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Собираем статистику
+        cursor.execute("SELECT COUNT(*) FROM goals WHERE status = 'completed' AND updated_at >= ?", (since,))
+        completed_goals = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM goals WHERE status = 'failed' AND updated_at >= ?", (since,))
+        failed_goals = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM achievements WHERE created_at >= ?", (since,))
+        achievements_count = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT AVG(outcome_rating) FROM decisions WHERE evaluated_at >= ? AND outcome_rating IS NOT NULL", (since,))
+        avg_decision_rating = cursor.fetchone()[0] or 0
+        
+        cursor.execute("SELECT lesson_learned FROM failures WHERE created_at >= ? AND lesson_learned IS NOT NULL ORDER BY created_at DESC LIMIT 5", (since,))
+        lessons = [row[0] for row in cursor.fetchall()]
+        
+        conn.close()
 
         analysis = {
             "period_days": days,
@@ -540,6 +602,43 @@ def main():
     print("\n📚 АНАЛИЗ ИСТОРИИ:")
     history = ltm.learn_from_history(days=30)
     print(json.dumps(history, indent=2, ensure_ascii=False))
+
+    def get_recent_achievements(self, limit: int = 20) -> List[Dict]:
+        """
+        Получить недавние достижения для анализа
+        
+        Args:
+            limit: Максимальное количество достижений
+            
+        Returns:
+            List словарей с достижениями
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """
+            SELECT id, goal_id, description, result, created_at
+            FROM achievements
+            ORDER BY created_at DESC
+            LIMIT ?
+        """,
+            (limit,),
+        )
+        
+        achievements = []
+        for row in cursor.fetchall():
+            achievements.append({
+                "id": row[0],
+                "goal_id": row[1],
+                "description": row[2],
+                "result": row[3],
+                "created_at": row[4],
+                "impact": 5  # Default impact для совместимости
+            })
+        
+        conn.close()
+        return achievements
 
 
 if __name__ == "__main__":
