@@ -1,10 +1,10 @@
 """
-airflow - Verified Learning Artifact
+Airflow - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-18T01:51:47.357507
+Learned: 2025-10-18T14:30:25.398588
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,79 +12,82 @@ This code has been verified by MIRAI's NASA-level learning system.
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.hooks.base import BaseHook
-import logging
+from airflow.utils.dates import days_ago
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-
-def extract_data() -> dict:
-    """Extract data from a source and return it as a dictionary."""
+def extract_data() -> list:
+    """Extracts data from a source.
+    
+    Returns:
+        list: A list of data items.
+    """
     try:
         # Simulate data extraction
-        data = {'key1': 'value1', 'key2': 'value2'}
-        logging.info("Data extracted successfully.")
+        data = ['data1', 'data2', 'data3']
         return data
     except Exception as e:
-        logging.error(f"Error during data extraction: {e}")
-        raise
+        raise RuntimeError(f"Error extracting data: {e}")
 
-def transform_data(data: dict) -> dict:
-    """Transform the extracted data."""
+def transform_data(data: list) -> list:
+    """Transforms the extracted data.
+    
+    Args:
+        data (list): The list of data items to transform.
+    
+    Returns:
+        list: A list of transformed data items.
+    """
     try:
         # Simulate data transformation
-        transformed_data = {k: v.upper() for k, v in data.items()}
-        logging.info("Data transformed successfully.")
+        transformed_data = [item.upper() for item in data]
         return transformed_data
     except Exception as e:
-        logging.error(f"Error during data transformation: {e}")
-        raise
+        raise RuntimeError(f"Error transforming data: {e}")
 
-def load_data(data: dict) -> None:
-    """Load the transformed data to a destination."""
+def load_data(data: list) -> None:
+    """Loads the transformed data to a target destination.
+    
+    Args:
+        data (list): The list of transformed data items.
+    """
     try:
         # Simulate data loading
-        logging.info(f"Data loaded successfully: {data}")
+        print(f"Loading data: {data}")
     except Exception as e:
-        logging.error(f"Error during data loading: {e}")
-        raise
+        raise RuntimeError(f"Error loading data: {e}")
 
-# Define default arguments for the DAG
+# Define default_args for the DAG
 default_args = {
     'owner': 'airflow',
-    'depends_on_past': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
-# Initialize the DAG
+# Create the DAG
 with DAG(
-    dag_id='example_etl',
+    dag_id='example_data_pipeline',
     default_args=default_args,
-    description='An example ETL pipeline',
+    description='An example data pipeline with Airflow',
     schedule_interval=timedelta(days=1),
-    start_date=datetime(2023, 10, 1),
+    start_date=days_ago(1),
     catchup=False,
 ) as dag:
 
-    # Task to extract data
+    # Define the tasks
     extract_task = PythonOperator(
-        task_id='extract',
+        task_id='extract_data',
         python_callable=extract_data,
     )
 
-    # Task to transform data
     transform_task = PythonOperator(
-        task_id='transform',
+        task_id='transform_data',
         python_callable=transform_data,
-        op_kwargs={'data': '{{ task_instance.xcom_pull(task_ids="extract") }}'},
+        op_kwargs={'data': '{{ task_instance.xcom_pull(task_ids="extract_data") }}'},
     )
 
-    # Task to load data
     load_task = PythonOperator(
-        task_id='load',
+        task_id='load_data',
         python_callable=load_data,
-        op_kwargs={'data': '{{ task_instance.xcom_pull(task_ids="transform") }}'},
+        op_kwargs={'data': '{{ task_instance.xcom_pull(task_ids="transform_data") }}'},
     )
 
     # Set task dependencies

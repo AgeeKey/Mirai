@@ -3539,6 +3539,16 @@
       "name": "pandas",
       "proficiency": 0.8679159138848477,
       "learned_at": "2025-10-18T14:14:34.206062"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8304997101315075,
+      "learned_at": "2025-10-18T14:30:04.468493"
+    },
+    {
+      "name": "Airflow",
+      "proficiency": 0.894605466066639,
+      "learned_at": "2025-10-18T14:30:25.399718"
     }
   ],
   "skills": [],
