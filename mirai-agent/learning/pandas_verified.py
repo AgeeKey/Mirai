@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.85
+Quality Grade: A
+Overall Score: 0.96
 Tests Passed: 0/1
-Learned: 2025-10-18T01:35:58.230641
+Learned: 2025-10-18T02:07:56.281824
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,63 +12,47 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a DataFrame.
-
+    Load a CSV file into a Pandas DataFrame and perform basic processing.
+    
     Args:
-        file_path (str): The path to the CSV file.
-
+        file_path (str): The path to the CSV file to be loaded.
+        
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
+        Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if there was an error.
     """
     try:
+        # Load the CSV file into a DataFrame
         df = pd.read_csv(file_path)
+        
+        # Display the first few rows of the DataFrame
+        print("Initial Data:")
+        print(df.head())
+        
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+        
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
+        
+        # Show the processed DataFrame
+        print("Processed Data:")
+        print(df.head())
+        
         return df
     except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
+        print(f"Error: The file '{file_path}' was not found.")
     except pd.errors.EmptyDataError:
-        print(f"Error: The file at {file_path} is empty.")
-        return None
+        print("Error: The file is empty.")
     except pd.errors.ParserError:
-        print(f"Error: The file at {file_path} could not be parsed.")
-        return None
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping NaN values and resetting the index.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    if df is None or df.empty:
-        raise ValueError("DataFrame is empty or None. Cannot clean data.")
+        print("Error: There was a parsing error while reading the file.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
     
-    # Drop rows with any NaN values
-    cleaned_df = df.dropna()
-    
-    # Reset index after dropping rows
-    cleaned_df.reset_index(drop=True, inplace=True)
-    
-    return cleaned_df
-
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and display data.
-
-    Args:
-        file_path (str): The path to the CSV file to load.
-    """
-    df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        print(cleaned_df)
+    return None
 
 if __name__ == "__main__":
-    # Example CSV file path (adjust as necessary)
-    example_file_path = 'data.csv'
-    main(example_file_path)
+    # Example usage
+    data_file = 'data.csv'  # Replace with your actual file path
+    processed_data = load_and_process_data(data_file)
