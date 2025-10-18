@@ -192,38 +192,62 @@ class AdvancedLearningEngine:
         
         # 🆕 GITHUB INTEGRATION: Поиск реальных примеров на GitHub
         github_examples = ""
+        github_search_attempted = False
+        
         try:
-            print(f"   🔍 Searching GitHub for {technology} examples...")
-            # Используем github_action через AI agent
-            github_search = self.ai.github_action(
-                "search_repos",
-                {"query": f"{technology} language:python", "limit": 3}
-            )
-            
-            if github_search and "Found" in github_search:
-                github_examples = f"\n\n## GITHUB EXAMPLES\nFound real-world projects:\n{github_search}\n"
+            # Проверяем, есть ли доступ к GitHub
+            if hasattr(self.ai, 'github') and self.ai.github.is_authenticated():
+                github_search_attempted = True
+                print(f"   🔍 Searching GitHub for {technology} examples...")
                 
-                # Попробуем прочитать README из топового репозитория
-                try:
-                    # Извлекаем owner/repo из результатов
-                    import re
-                    match = re.search(r'(\S+)/(\S+)', github_search)
-                    if match:
-                        owner, repo = match.groups()
-                        readme_content = self.ai.github_action(
-                            "get_repo_content",
-                            {"owner": owner, "repo": repo, "path": "README.md"}
-                        )
-                        if readme_content and len(readme_content) > 100:
-                            # Берём первые 1000 символов README
-                            readme_excerpt = readme_content[:1000]
-                            github_examples += f"\n\nTop repository README excerpt:\n{readme_excerpt}...\n"
-                            print(f"   ✅ Read README from {owner}/{repo}")
-                except Exception as e:
-                    print(f"   ⚠️  Could not read README: {e}")
+                # Поиск репозиториев
+                repos = self.ai.github.search_repositories(
+                    f"{technology} language:python", 
+                    limit=3
+                )
+                
+                if repos and len(repos) > 0:
+                    github_examples += "\n\n## GITHUB EXAMPLES\n"
+                    github_examples += f"Found {len(repos)} real-world projects using {technology}:\n\n"
+                    
+                    for i, repo in enumerate(repos[:3], 1):
+                        github_examples += f"{i}. {repo['full_name']} - ⭐ {repo['stars']}\n"
+                        github_examples += f"   {repo['description']}\n"
+                    
+                    # Попробуем прочитать README из топового репозитория
+                    try:
+                        top_repo = repos[0]
+                        # full_name содержит "owner/repo"
+                        full_name = top_repo['full_name']
+                        owner, repo_name = full_name.split('/', 1)
+                        
+                        print(f"   📖 Reading README from {owner}/{repo_name}...")
+                        readme_data = self.ai.github.get_repo_content(owner, repo_name, "README.md")
+                        
+                        if readme_data and 'content' in readme_data:
+                            import base64
+                            readme_content = base64.b64decode(readme_data['content']).decode('utf-8', errors='ignore')
+                            
+                            # Берём первые 1500 символов README
+                            readme_excerpt = readme_content[:1500]
+                            if len(readme_content) > 1500:
+                                readme_excerpt += "\n... (truncated)"
+                            
+                            github_examples += f"\n\n### Top Repository README: {owner}/{repo_name}\n"
+                            github_examples += f"{readme_excerpt}\n"
+                            print(f"   ✅ Successfully read README ({len(readme_content)} chars)")
+                    except Exception as e:
+                        print(f"   ⚠️  Could not read README: {e}")
+                
+                else:
+                    print(f"   ⚠️  No repositories found for {technology}")
+            else:
+                print(f"   ⚠️  GitHub not authenticated, skipping GitHub search")
+                
         except Exception as e:
             print(f"   ⚠️  GitHub search failed: {e}")
-            github_examples = ""
+            import traceback
+            traceback.print_exc()
         
         # Оригинальный AI-исследование с добавлением GitHub примеров
         prompt = f"""You are a technical documentation expert. Research {technology} and provide comprehensive documentation:
@@ -283,7 +307,7 @@ Be thorough but concise. Focus on actionable information."""
             metadata={
                 "length": len(research_data),
                 "has_github_examples": github_examples != "",
-                "github_search_attempted": True
+                "github_search_attempted": github_search_attempted
             },
             quality_score=min(quality, 1.0),
         )

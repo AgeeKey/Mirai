@@ -959,6 +959,21 @@
       "name": "requests",
       "proficiency": 0.837570905459064,
       "learned_at": "2025-10-14T10:51:13.682491"
+    },
+    {
+      "name": "fastapi",
+      "proficiency": 0.6812605404536619,
+      "learned_at": "2025-10-18T17:10:16.027533"
+    },
+    {
+      "name": "fastapi",
+      "proficiency": 0.6905983512119231,
+      "learned_at": "2025-10-18T17:11:31.877767"
+    },
+    {
+      "name": "fastapi",
+      "proficiency": 0.6957145595385411,
+      "learned_at": "2025-10-18T17:12:35.677464"
     }
   ],
   "skills": [],
