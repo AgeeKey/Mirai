@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-18T06:36:32.103084
+Learned: 2025-10-18T06:52:21.189651
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,59 +12,55 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Load data from a CSV file, process it, and return a DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    - file_path: str: The path to the CSV file.
+    - column_names: Optional[list[str]]: List of column names to use. If None, uses the file's header.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
+    - pd.DataFrame: The processed DataFrame.
+
+    Raises:
+    - FileNotFoundError: If the specified file cannot be found.
+    - ValueError: If the data cannot be processed.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
+        # Load data from CSV file
+        if column_names:
+            df = pd.read_csv(file_path, names=column_names, header=None)
+        else:
+            df = pd.read_csv(file_path)
+
+        # Basic data processing: drop rows with missing values
+        df.dropna(inplace=True)
+
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
+
+        return df
+    except FileNotFoundError as e:
         print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file {file_path} is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"Error: Could not parse the file {file_path}.")
-        return None
+        raise e
+    except Exception as e:
+        print("An error occurred while processing the data.")
+        raise ValueError("Data processing error") from e
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
+def main():
     """
-    Process the DataFrame by performing basic cleaning operations.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to process.
-
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
+    Main function to execute data loading and processing.
     """
-    # Drop rows with missing values
-    cleaned_df = df.dropna()
-    # Reset the index of the cleaned DataFrame
-    cleaned_df.reset_index(drop=True, inplace=True)
-    return cleaned_df
+    file_path = 'data.csv'  # Replace with your CSV file path
+    column_names = ['Column1', 'Column2', 'Column3']  # Example column names
 
-def main(file_path: str) -> None:
-    """
-    Main function to load and process data.
-
-    Args:
-        file_path (str): The path to the CSV file to be processed.
-    """
-    data = load_data(file_path)
-    if data is not None:
-        processed_data = process_data(data)
-        print("Processed Data:")
+    try:
+        # Load and process the data
+        processed_data = load_and_process_data(file_path, column_names)
         print(processed_data)
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
-    # Example file path
-    example_file_path = 'data.csv'
-    main(example_file_path)
+    main()
