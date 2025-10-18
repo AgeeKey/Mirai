@@ -3499,6 +3499,16 @@
       "name": "scikit-learn",
       "proficiency": 0.9797196314304041,
       "learned_at": "2025-10-18T13:11:33.975767"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.9070645454537929,
+      "learned_at": "2025-10-18T13:26:58.565134"
+    },
+    {
+      "name": "opencv-python",
+      "proficiency": 0.8986479257252609,
+      "learned_at": "2025-10-18T13:27:15.513177"
     }
   ],
   "skills": [],
