@@ -2,66 +2,75 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-18T03:58:05.673798
+Learned: 2025-10-18T04:13:53.390407
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Union
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if loading fails.
+    pd.DataFrame: A DataFrame containing the loaded data.
+    
+    Raises:
+    FileNotFoundError: If the file does not exist.
+    pd.errors.EmptyDataError: If the file is empty.
+    pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file {file_path} is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"Error: The file {file_path} could not be parsed.")
-        return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"File not found: {file_path}") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError("No data found in the file.") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError("Error parsing the file.") from e
 
-def summarize_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> Union[str, pd.DataFrame]:
     """
-    Print summary statistics and information about the DataFrame.
+    Analyze the DataFrame to provide basic statistics.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    Union[str, pd.DataFrame]: A summary of statistics or an error message if DataFrame is empty.
     """
-    print("DataFrame Summary:")
-    print(df.info())  # Display DataFrame info
-    print("\nSummary Statistics:")
-    print(df.describe())  # Display summary statistics
+    if df.empty:
+        return "The DataFrame is empty, no statistics to display."
+    
+    # Generate summary statistics
+    summary = df.describe()
+    return summary
 
 def main(file_path: str) -> None:
     """
-    Main function to load and summarize data from a CSV file.
+    Main function to load and analyze data from a CSV file.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
     """
-    # Load the data
-    df = load_data(file_path)
+    # Load data from the specified file
+    data = load_data(file_path)
+
+    # Analyze the loaded data
+    analysis_result = analyze_data(data)
     
-    # Check if dataframe is loaded successfully
-    if df is not None:
-        # Summarize the data
-        summarize_data(df)
+    # Output the result of the analysis
+    print(analysis_result)
 
 if __name__ == "__main__":
-    # Example usage
-    main("example_data.csv")  # Replace with your actual file path
+    # Example file path (change it to your actual file path)
+    example_file_path = 'data.csv'
+    main(example_file_path)
