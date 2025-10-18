@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: C
-Overall Score: 0.80
+Overall Score: 0.79
 Tests Passed: 0/1
-Learned: 2025-10-18T02:39:30.987888
+Learned: 2025-10-18T02:55:12.519970
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -15,46 +15,52 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.datasets import load_iris
-from typing import Tuple
+from sklearn.exceptions import NotFittedError
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset and return features and target arrays."""
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset and return it as a DataFrame."""
     iris = load_iris()
-    return iris.data, iris.target
+    return pd.DataFrame(data=np.c_[iris['data'], iris['target']],
+                        columns=iris['feature_names'] + ['target'])
 
-def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split data into training and testing sets."""
-    try:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
-    except Exception as e:
-        raise RuntimeError(f"Error in data preprocessing: {e}")
+def preprocess_data(df: pd.DataFrame) -> tuple:
+    """Split the DataFrame into features and target variable."""
+    X = df.drop(columns='target')
+    y = df['target']
+    return X, y
 
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest model on the training data."""
+def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
+    """Train a Random Forest model on the provided features and target."""
     try:
         model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
+        model.fit(X, y)
         return model
     except Exception as e:
-        raise RuntimeError(f"Error in model training: {e}")
+        raise RuntimeError(f"Failed to train model: {e}")
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model and print accuracy and classification report."""
+def evaluate_model(model: RandomForestClassifier, X: pd.DataFrame, y: pd.Series) -> None:
+    """Evaluate the trained model and print the accuracy and classification report."""
     try:
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
+        predictions = model.predict(X)
+        accuracy = accuracy_score(y, predictions)
         print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", classification_report(y_test, y_pred))
+        print("Classification Report:")
+        print(classification_report(y, predictions))
+    except NotFittedError:
+        print("Model is not fitted yet. Please train the model before evaluation.")
     except Exception as e:
-        raise RuntimeError(f"Error in model evaluation: {e}")
+        raise RuntimeError(f"Failed to evaluate model: {e}")
 
 def main() -> None:
-    """Main function to execute the machine learning workflow."""
-    X, y = load_data()  # Load the dataset
-    X_train, X_test, y_train, y_test = preprocess_data(X, y)  # Preprocess and split data
-    model = train_model(X_train, y_train)  # Train the model
-    evaluate_model(model, X_test, y_test)  # Evaluate the model
+    """Main function to run the workflow."""
+    try:
+        df = load_data()  # Load data
+        X, y = preprocess_data(df)  # Preprocess data
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)  # Split data
+        model = train_model(X_train, y_train)  # Train model
+        evaluate_model(model, X_test, y_test)  # Evaluate model
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()  # Execute the main function
