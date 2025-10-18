@@ -3734,6 +3734,11 @@
       "name": "selenium",
       "proficiency": 0.9764156423846648,
       "learned_at": "2025-10-18T19:39:46.318311"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.810017740811776,
+      "learned_at": "2025-10-18T19:40:04.272105"
     }
   ],
   "skills": [],
