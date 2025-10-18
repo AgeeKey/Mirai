@@ -3599,6 +3599,16 @@
       "name": "TensorFlow",
       "proficiency": 0.8312809658128634,
       "learned_at": "2025-10-18T15:49:32.608712"
+    },
+    {
+      "name": "selenium",
+      "proficiency": 0.8120364544039624,
+      "learned_at": "2025-10-18T16:05:01.429108"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8812163007962397,
+      "learned_at": "2025-10-18T16:05:21.593461"
     }
   ],
   "skills": [],
