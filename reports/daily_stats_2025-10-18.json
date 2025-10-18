@@ -1,13 +1,11 @@
 {
-  "total_lines": 15205,
+  "total_lines": 15248,
   "error_count": 62,
-  "warning_count": 360,
-  "info_count": 8738,
-  "autonomous_cycles": 272,
+  "warning_count": 363,
+  "info_count": 8751,
+  "autonomous_cycles": 273,
   "todo_count": 0,
   "errors": [
-    "2025-10-17 17:50:27,893 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 18:22:53,948 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 18:55:24,880 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
     "2025-10-17 19:28:13,328 [WARNING]    ⚠️ Не удалось: 'top_errors'",
@@ -15,19 +13,21 @@
     "2025-10-17 20:33:05,062 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 21:05:17,852 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 21:37:21,714 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 22:09:19,445 [WARNING]    ⚠️ Не удалось: 'top_errors'"
+    "2025-10-17 22:09:19,445 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-17 22:09:19,449 [ERROR] ❌ Ошибка развития личности: 'LongTermMemory' object has no attribute 'get_recent_achievements'",
+    "AttributeError: 'LongTermMemory' object has no attribute 'get_recent_achievements'"
   ],
   "warnings": [
-    "2025-10-17 17:39:26,085 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 17:44:31,651 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 17:49:35,137 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 17:50:27,893 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 17:55:28,251 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 18:00:31,071 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 18:05:34,798 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 18:11:35,816 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 18:16:39,824 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 18:21:43,148 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-17 18:38:08,021 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 18:38:12,754 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
+    "2025-10-17 18:38:12,754 [WARNING]    ❌ MIRAI CI/CD Pipeline #1",
+    "2025-10-17 18:44:09,795 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 18:49:13,953 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 18:54:17,400 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 18:55:24,880 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-17 19:00:25,306 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 19:00:33,574 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
+    "2025-10-17 19:00:33,574 [WARNING]    ❌ MIRAI CI/CD Pipeline #1"
   ],
   "top_messages": [
     {
@@ -40,11 +40,11 @@
     },
     {
       "message": "✅ Phase 3/6: Quality Validation...",
-      "count": 181
+      "count": 182
     },
     {
       "message": "✅ LEARNING COMPLETE: pandas",
-      "count": 73
+      "count": 72
     },
     {
       "message": "✅ LEARNING COMPLETE: scikit-learn",
@@ -56,11 +56,11 @@
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-18.md",
-      "count": 16
+      "count": 17
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-18.json",
-      "count": 16
+      "count": 17
     },
     {
       "message": "✅ FAQ сгенерирован: /root/mirai/knowledge_base/FAQ.md",
@@ -68,21 +68,10 @@
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
-      "count": 10
+      "count": 11
     }
   ],
   "cycle_numbers": [
-    310,
-    311,
-    312,
-    313,
-    314,
-    315,
-    316,
-    317,
-    318,
-    319,
-    320,
     321,
     322,
     323,
@@ -343,16 +332,28 @@
     9,
     10,
     11,
-    12
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
   ],
   "timestamp_first": [
     "Oct",
     "17",
-    "17:34:25"
+    "18:38:07"
   ],
   "timestamp_last": [
     "Oct",
     "18",
-    "17:34:21"
+    "18:37:15"
   ]
 }
