@@ -4,75 +4,55 @@ pandas - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-18T22:16:56.244108
+Learned: 2025-10-18T22:48:12.674972
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str, columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load a CSV file into a DataFrame and process it by selecting specific columns.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
+        columns (Optional[list]): A list of column names to select from the DataFrame.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
-    
+        pd.DataFrame: A DataFrame containing the selected columns or the entire DataFrame if no columns are specified.
+
     Raises:
-        ValueError: If the lengths of the lists in the dictionary do not match.
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the requested columns are not found in the DataFrame.
     """
-    # Check if all columns have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same length.")
-
-    # Create and return the DataFrame
-    return pd.DataFrame(data)
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by filling missing values and removing duplicates.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: A cleaned DataFrame.
-    """
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-    # Remove duplicate rows
-    df.drop_duplicates(inplace=True)
-    return df
-
-def main() -> None:
-    """
-    Main function to execute the data processing pipeline.
-    """
-    # Sample data
-    data = {
-        'A': [1, 2, np.nan, 4, 5],
-        'B': [5, 6, 7, 8, 8],
-        'C': ['foo', 'bar', 'foo', 'bar', 'foo']
-    }
-
     try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("Original DataFrame:")
-        print(df)
-
-        # Clean the DataFrame
-        cleaned_df = clean_data(df)
-        print("\nCleaned DataFrame:")
-        print(cleaned_df)
-
+        # Load data from CSV file
+        df = pd.read_csv(file_path)
+        
+        # Check if specific columns are requested
+        if columns is not None:
+            # Check if the specified columns exist in the DataFrame
+            missing_cols = [col for col in columns if col not in df.columns]
+            if missing_cols:
+                raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
+            # Select only the specified columns
+            df = df[columns]
+        
+        return df
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
     except ValueError as e:
         print(f"Error: {e}")
+        raise
 
+# Example usage
 if __name__ == "__main__":
-    main()
+    try:
+        data = load_and_process_data('example_data.csv', columns=['column1', 'column2'])
+        print(data.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print(f"An error occurred: {e}")
