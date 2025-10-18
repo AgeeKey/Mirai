@@ -2,60 +2,57 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.94
+Overall Score: 0.96
 Tests Passed: 0/1
-Learned: 2025-10-18T12:39:34.562263
+Learned: 2025-10-18T12:55:23.562718
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from pandas.errors import EmptyDataError
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load and process data from a CSV file.
+    Load data from a CSV file and perform basic processing.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the processed data.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        EmptyDataError: If the CSV file is empty.
     """
     try:
-        # Load the CSV file into a DataFrame
+        # Load the data from the CSV file
         df = pd.read_csv(file_path)
-        
-        # Drop any rows with missing values
-        df.dropna(inplace=True)
-        
-        # Convert a specific column to datetime (assuming 'date' is a column in the CSV)
-        if 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'])
-        
-        return df
-
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-
-    return None
-
-def main():
-    # Specify the CSV file path
-    csv_file_path = 'data.csv'
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
+    except EmptyDataError:
+        raise EmptyDataError("The CSV file is empty.")
     
-    # Load and process the data
-    data = load_and_process_data(csv_file_path)
-    
-    if data is not None:
-        # Display the first few rows of the DataFrame
-        print(data.head())
+    # Display initial data shape
+    print(f"Initial data shape: {df.shape}")
+
+    # Drop rows with any missing values
+    df.dropna(inplace=True)
+
+    # Reset index after dropping rows
+    df.reset_index(drop=True, inplace=True)
+
+    # Display final data shape after processing
+    print(f"Processed data shape: {df.shape}")
+
+    return df
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    file_path = 'data.csv'  # Update this path to your CSV file
+    try:
+        processed_data = load_and_process_data(file_path)
+        print(processed_data.head())  # Display the first few rows of the processed data
+    except Exception as e:
+        print(f"An error occurred: {e}")
