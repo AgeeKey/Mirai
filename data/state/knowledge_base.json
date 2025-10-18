@@ -3449,6 +3449,16 @@
       "name": "PyTorch",
       "proficiency": 0.8612682875468513,
       "learned_at": "2025-10-18T11:52:26.790097"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8692479995033695,
+      "learned_at": "2025-10-18T12:07:53.865073"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8812163007962397,
+      "learned_at": "2025-10-18T12:08:13.913935"
     }
   ],
   "skills": [],
