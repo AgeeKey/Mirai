@@ -3389,6 +3389,16 @@
       "name": "python-telegram-bot",
       "proficiency": 0.7687099730037845,
       "learned_at": "2025-10-18T10:18:03.079138"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.935083740083228,
+      "learned_at": "2025-10-18T10:33:26.976827"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.823295893493067,
+      "learned_at": "2025-10-18T10:33:44.108293"
     }
   ],
   "skills": [],
