@@ -3369,6 +3369,16 @@
       "name": "fastapi",
       "proficiency": 0.6956558224845576,
       "learned_at": "2025-10-18T09:46:37.996451"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8623611288350373,
+      "learned_at": "2025-10-18T10:02:08.820799"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8558596348308164,
+      "learned_at": "2025-10-18T10:02:29.756582"
     }
   ],
   "skills": [],
