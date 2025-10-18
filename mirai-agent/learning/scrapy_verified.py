@@ -2,9 +2,9 @@
 scrapy - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-16T08:30:36.101070
+Learned: 2025-10-18T08:11:16.886534
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -15,25 +15,27 @@ from scrapy.exceptions import CloseSpider
 from typing import Dict, Any
 
 class ExampleSpider(scrapy.Spider):
-    """Spider to scrape example data from a website."""
+    """A simple Scrapy spider to scrape example data from a website."""
 
-    name = "example_spider"
-    start_urls = ["http://example.com"]  # Replace with your target URL
+    name = "example"
+    start_urls = ["https://example.com"]  # Replace with the target URL
 
     def parse(self, response: scrapy.http.Response) -> Dict[str, Any]:
-        """Parse the response from the start URL and extract data."""
+        """Parse the response and extract data."""
         try:
-            title = response.css('title::text').get()  # Extract the title text
-            if not title:
-                raise CloseSpider("Title not found")
+            title = response.css('title::text').get()  # Extract the title of the page
+            if title is None:
+                raise ValueError("Title not found on the page")
+
             yield {
-                'title': title,  # Yield the extracted title
-                'url': response.url,  # Yield the URL of the page
+                'title': title,
+                'url': response.url,
             }
         except Exception as e:
-            self.logger.error(f"Error parsing response: {e}")  # Log any parsing errors
+            self.logger.error(f"Error occurred: {e}")
+            raise CloseSpider(reason=str(e))
 
 if __name__ == "__main__":
     process = CrawlerProcess()
     process.crawl(ExampleSpider)
-    process.start()  # Start the crawling process
+    process.start()  # The script will block here until the crawling is finished

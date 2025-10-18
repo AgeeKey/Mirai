@@ -3299,6 +3299,16 @@
       "name": "pandas",
       "proficiency": 0.89129827771339,
       "learned_at": "2025-10-18T07:55:50.172271"
+    },
+    {
+      "name": "scrapy",
+      "proficiency": 0.8019695515423125,
+      "learned_at": "2025-10-18T08:11:16.887880"
+    },
+    {
+      "name": "tensorflow",
+      "proficiency": 0.8831667557345004,
+      "learned_at": "2025-10-18T08:11:40.367655"
     }
   ],
   "skills": [],
