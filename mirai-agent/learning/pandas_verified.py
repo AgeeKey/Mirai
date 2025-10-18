@@ -1,75 +1,76 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-18T17:33:58.701470
+Learned: 2025-10-18T17:49:47.865952
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import List
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame and perform basic data processing.
+    Create a pandas DataFrame from a list of dictionaries.
     
     Args:
-        file_path (str): The path to the CSV file to be loaded.
-    
+        data (List[dict]): A list of dictionaries containing data.
+
     Returns:
-        pd.DataFrame: A processed DataFrame with cleaned data.
+        pd.DataFrame: A DataFrame containing the input data.
     
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+        ValueError: If the input data is empty or not a list of dictionaries.
     """
-    try:
-        # Load data from a CSV file
-        df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError("The file is empty.") from e
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input data must be a list of dictionaries.")
+    if not data:
+        raise ValueError("Input data cannot be empty.")
 
-    # Basic processing: drop rows with any missing values
-    df.dropna(inplace=True)
-
-    # Reset index after dropping rows
-    df.reset_index(drop=True, inplace=True)
-
+    df = pd.DataFrame(data)
     return df
 
-def analyze_data(df: pd.DataFrame) -> pd.Series:
+def calculate_average_age(df: pd.DataFrame) -> float:
     """
-    Analyze the DataFrame and return summary statistics.
+    Calculate the average age from the 'age' column in the DataFrame.
     
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-    
-    Returns:
-        pd.Series: A Series containing summary statistics of the DataFrame.
-    """
-    return df.describe()
+        df (pd.DataFrame): The DataFrame containing the 'age' column.
 
-def main(file_path: str) -> None:
-    """
-    Main function to execute data loading and analysis.
+    Returns:
+        float: The average age.
     
-    Args:
-        file_path (str): The path to the CSV file to be processed.
+    Raises:
+        KeyError: If the 'age' column is not present in the DataFrame.
     """
+    if 'age' not in df.columns:
+        raise KeyError("'age' column is not present in the DataFrame.")
+    
+    average_age = df['age'].mean()
+    return average_age
+
+def main() -> None:
+    """
+    Main function to execute the DataFrame creation and average age calculation.
+    """
+    data = [
+        {"name": "Alice", "age": 30},
+        {"name": "Bob", "age": 25},
+        {"name": "Charlie", "age": 35}
+    ]
+
     try:
-        # Load and process the data
-        data = load_and_process_data(file_path)
-        # Analyze the processed data
-        summary = analyze_data(data)
-        print("Data Summary:\n", summary)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        df = create_dataframe(data)
+        print("DataFrame created successfully:\n", df)
+        
+        avg_age = calculate_average_age(df)
+        print("Average age:", avg_age)
+    
+    except (ValueError, KeyError) as e:
+        print("Error:", e)
 
 if __name__ == "__main__":
-    # Example usage: replace 'data.csv' with your actual CSV file path
-    main('data.csv')
+    main()
