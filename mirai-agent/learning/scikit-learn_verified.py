@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.88
+Quality Grade: C
+Overall Score: 0.77
 Tests Passed: 0/1
-Learned: 2025-10-18T12:08:13.912884
+Learned: 2025-10-18T12:24:05.513707
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -22,9 +22,10 @@ def load_data() -> Tuple[np.ndarray, np.ndarray]:
     iris = load_iris()
     return iris.data, iris.target
 
-def split_data(features: np.ndarray, target: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets."""
-    return train_test_split(features, target, test_size=test_size, random_state=random_state)
+def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the data into training and testing sets."""
+    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
     """Train a Random Forest model on the training data."""
@@ -43,18 +44,10 @@ def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np
 def main() -> None:
     """Main function to execute the machine learning pipeline."""
     try:
-        # Load data
         features, target = load_data()
-        
-        # Split data
-        X_train, X_test, y_train, y_test = split_data(features, target)
-        
-        # Train model
+        X_train, X_test, y_train, y_test = preprocess_data(features, target)
         model = train_model(X_train, y_train)
-        
-        # Evaluate model
         evaluate_model(model, X_test, y_test)
-        
     except Exception as e:
         print(f"An error occurred: {e}")
 
