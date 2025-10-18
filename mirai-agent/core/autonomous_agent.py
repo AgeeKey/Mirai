@@ -228,17 +228,17 @@ class AutonomousAgent:
                 "type": "function",
                 "function": {
                     "name": "github_action",
-                    "description": "Выполнить действие с GitHub: list_repos, create_repo, create_issue, search_repos, get_user_info",
+                    "description": "Выполнить действие с GitHub: list_repos, create_repo, create_issue, search_repos, get_user_info, get_repo_content (читать файлы из любых публичных репозиториев)",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "action": {
                                 "type": "string",
-                                "description": "Действие: list_repos, create_repo, create_issue, search_repos, get_user_info",
+                                "description": "Действие: list_repos, create_repo, create_issue, search_repos, get_user_info, get_repo_content",
                             },
                             "params": {
                                 "type": "object",
-                                "description": "Параметры действия (зависят от action)",
+                                "description": "Параметры действия: для get_repo_content нужны owner, repo, path",
                             },
                         },
                         "required": ["action"],
@@ -526,8 +526,32 @@ class AutonomousAgent:
                 result = self.github.search_repositories(query, limit)
                 return f"✅ Поиск репозиториев:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
 
+            elif action == "get_repo_content":
+                owner = params.get("owner", "")
+                repo = params.get("repo", "")
+                path = params.get("path", "")
+                result = self.github.get_repo_content(owner, repo, path)
+                
+                # Если это файл с content, декодируем его
+                if isinstance(result, dict) and "content" in result:
+                    import base64
+                    try:
+                        decoded = base64.b64decode(result["content"]).decode('utf-8')
+                        return f"✅ Файл {path} из {owner}/{repo}:\n\n{decoded}"
+                    except:
+                        return f"✅ Файл {path} (бинарный): {result['size']} байт"
+                elif isinstance(result, list):
+                    # Список файлов в директории
+                    files_info = []
+                    for item in result:
+                        icon = "📁" if item["type"] == "dir" else "📄"
+                        files_info.append(f"{icon} {item['name']}")
+                    return f"✅ Содержимое {owner}/{repo}/{path}:\n" + "\n".join(files_info[:50])
+                else:
+                    return f"✅ Результат:\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+
             else:
-                return f"❌ Действие '{action}' не поддерживается. Доступны: get_user_info, list_repos, create_repo, create_issue, search_repos"
+                return f"❌ Действие '{action}' не поддерживается. Доступны: get_user_info, list_repos, create_repo, create_issue, search_repos, get_repo_content"
 
         except Exception as e:
             return f"❌ Ошибка GitHub: {str(e)}"
