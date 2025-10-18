@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-18T04:29:53.523017
+Learned: 2025-10-18T04:45:54.815821
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,61 +12,56 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(filepath: str) -> Optional[pd.DataFrame]:
     """
     Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        filepath (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurred.
+        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
+        data = pd.read_csv(filepath)
+        return data
     except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
+        print(f"Error: The file {filepath} was not found.")
         return None
     except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
+        print(f"Error: The file {filepath} is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
+        print(f"Error: The file {filepath} could not be parsed.")
         return None
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process the DataFrame by dropping missing values and normalizing numeric columns.
+    Clean the DataFrame by removing rows with missing values.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to be processed.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-    pd.DataFrame: A processed DataFrame with missing values dropped and numeric columns normalized.
+        pd.DataFrame: A cleaned DataFrame without missing values.
     """
-    # Drop rows with any missing values
-    df_cleaned = df.dropna()
-    
-    # Normalize numeric columns
-    numeric_cols = df_cleaned.select_dtypes(include=['float64', 'int64']).columns
-    df_cleaned[numeric_cols] = (df_cleaned[numeric_cols] - df_cleaned[numeric_cols].mean()) / df_cleaned[numeric_cols].std()
-    
-    return df_cleaned
+    cleaned_df = df.dropna()  # Remove rows with any missing values
+    return cleaned_df
 
-def main(file_path: str) -> None:
+def main(filepath: str) -> None:
     """
-    Main function to load, process, and display data.
+    Main function to load, clean, and display data.
 
-    Parameters:
-    file_path (str): The path to the CSV file to be processed.
+    Args:
+        filepath (str): The path to the CSV file.
     """
-    df = load_data(file_path)
-    if df is not None:
-        df_processed = process_data(df)
-        print("Processed DataFrame:")
-        print(df_processed)
+    data = load_data(filepath)
+    if data is not None:  # Proceed only if data was loaded successfully
+        cleaned_data = clean_data(data)
+        print("Cleaned Data:")
+        print(cleaned_data)
 
 if __name__ == "__main__":
-    # Change the file path to the location of your CSV file
-    main('data.csv')
+    # Example CSV file path (update with a valid path to test)
+    example_filepath = 'data/example.csv'
+    main(example_filepath)
