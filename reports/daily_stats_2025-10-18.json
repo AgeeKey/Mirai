@@ -1,13 +1,11 @@
 {
-  "total_lines": 14966,
-  "error_count": 60,
-  "warning_count": 349,
-  "info_count": 8618,
+  "total_lines": 14981,
+  "error_count": 61,
+  "warning_count": 355,
+  "info_count": 8625,
   "autonomous_cycles": 269,
   "todo_count": 0,
   "errors": [
-    "2025-10-17 04:53:16,396 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 05:25:21,868 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 05:57:14,836 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 06:29:17,886 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
@@ -15,19 +13,21 @@
     "2025-10-17 07:34:14,391 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 08:06:28,522 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-17 08:39:02,530 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 09:11:13,556 [WARNING]    ⚠️ Не удалось: 'top_errors'"
+    "2025-10-17 09:11:13,556 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-17 09:43:11,511 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-17 10:15:27,665 [WARNING]    ⚠️ Не удалось: 'top_errors'"
   ],
   "warnings": [
-    "2025-10-17 04:31:31,807 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 04:36:34,871 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 04:42:26,175 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 04:47:29,582 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 04:52:32,975 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 04:53:16,396 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-17 04:58:16,793 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 05:03:21,002 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 05:08:26,446 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-17 05:14:24,981 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-17 05:35:28,106 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 05:40:32,468 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 05:46:24,814 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 05:51:27,486 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 05:56:29,866 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 05:56:52,208 [WARNING] Security violation: requests\\.",
+    "2025-10-17 05:56:52,350 [WARNING] Security violation: requests\\.",
+    "2025-10-17 05:57:14,836 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-17 06:02:15,154 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-17 06:07:17,878 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
@@ -43,11 +43,11 @@
       "count": 180
     },
     {
-      "message": "✅ LEARNING COMPLETE: pandas",
+      "message": "✅ LEARNING COMPLETE: scikit-learn",
       "count": 75
     },
     {
-      "message": "✅ LEARNING COMPLETE: scikit-learn",
+      "message": "✅ LEARNING COMPLETE: pandas",
       "count": 74
     },
     {
@@ -56,34 +56,22 @@
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-17.md",
-      "count": 18
+      "count": 17
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-17.json",
-      "count": 18
+      "count": 17
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
-      "count": 10
+      "count": 11
     },
     {
       "message": "✅ FAQ сгенерирован: /root/mirai/knowledge_base/FAQ.md",
-      "count": 8
+      "count": 9
     }
   ],
   "cycle_numbers": [
-    164,
-    165,
-    166,
-    167,
-    168,
-    169,
-    170,
-    171,
-    172,
-    173,
-    174,
-    175,
     176,
     177,
     178,
@@ -340,16 +328,28 @@
     429,
     430,
     431,
-    432
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444
   ],
   "timestamp_first": [
     "Oct",
     "17",
-    "04:31:31"
+    "05:35:27"
   ],
   "timestamp_last": [
     "Oct",
     "18",
-    "04:30:14"
+    "05:33:40"
   ]
 }

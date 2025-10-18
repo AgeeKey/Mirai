@@ -1,62 +1,58 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-18T05:01:50.818211
+Learned: 2025-10-18T05:33:18.762304
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Union
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str) -> Union[pd.DataFrame, None]:
     """
-    Loads a CSV file into a pandas DataFrame, processes it by cleaning
-    the data and handling missing values.
+    Load data from a CSV file and perform basic processing.
 
     Parameters:
-        file_path (str): The path to the CSV file.
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A cleaned pandas DataFrame or None if loading failed.
+    pd.DataFrame: A DataFrame containing the processed data or None if an error occurs.
     """
     try:
-        # Load the data from the CSV file
+        # Load the data into a DataFrame
         df = pd.read_csv(file_path)
+        
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+        
+        # Reset the index of the DataFrame
+        df.reset_index(drop=True, inplace=True)
+
+        return df
     except FileNotFoundError:
         print(f"Error: The file {file_path} was not found.")
-        return None
     except pd.errors.EmptyDataError:
-        print("Error: No data found in the file.")
-        return None
+        print("Error: The file is empty.")
     except pd.errors.ParserError:
-        print("Error: Failed to parse the data.")
-        return None
+        print("Error: There was a problem parsing the file.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
-    # Display initial data shape
-    print(f"Initial data shape: {df.shape}")
-
-    # Drop rows with any missing values
-    df_cleaned = df.dropna()
-    
-    # Display cleaned data shape
-    print(f"Cleaned data shape: {df_cleaned.shape}")
-
-    return df_cleaned
+    return None
 
 def main():
-    """
-    Main function to execute the data loading and processing.
-    """
-    file_path = 'data.csv'  # Specify your CSV file path
-    cleaned_data = load_and_process_data(file_path)
-
-    if cleaned_data is not None:
-        # Display the first few rows of the cleaned data
-        print(cleaned_data.head())
+    file_path = 'data.csv'  # Replace with your actual file path
+    processed_data = load_and_process_data(file_path)
+    
+    if processed_data is not None:
+        print("Data loaded and processed successfully.")
+        print(processed_data.head())  # Display the first few rows of the DataFrame
+    else:
+        print("Failed to load data.")
 
 if __name__ == "__main__":
     main()
