@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-18T22:48:29.865770
+Learned: 2025-10-18T23:04:12.749621
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,79 +12,50 @@ This code has been verified by MIRAI's NASA-level learning system.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
-from typing import Tuple
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target variable.
-    """
+def load_data() -> pd.DataFrame:
+    """Load the iris dataset and return it as a pandas DataFrame."""
     iris = load_iris()
-    return iris.data, iris.target
+    df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df['target'] = iris.target
+    return df
 
-def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets.
+def preprocess_data(df: pd.DataFrame) -> tuple:
+    """Preprocess the data by splitting it into features and target variables."""
+    X = df.drop(columns='target')  # Features
+    y = df['target']  # Target variable
+    return X, y
 
-    Args:
-        X (np.ndarray): Feature data.
-        y (np.ndarray): Target data.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and testing data splits.
-    """
-    return train_test_split(X, y, test_size=0.2, random_state=42)
-
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest classifier.
-
-    Args:
-        X_train (np.ndarray): Training features.
-        y_train (np.ndarray): Training target.
-
-    Returns:
-        RandomForestClassifier: Trained model.
-    """
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
+    """Train a RandomForestClassifier model."""
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)  # Train the model
+    
+    # Predict on the test set
+    y_pred = model.predict(X_test)
+    
+    # Evaluate the model
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+    
+    print(f"Accuracy: {accuracy:.2f}")
+    print("Classification Report:\n", report)
+    
     return model
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the model and print accuracy and classification report.
-
-    Args:
-        model (RandomForestClassifier): Trained model.
-        X_test (np.ndarray): Test features.
-        y_test (np.ndarray): Test target.
-    """
-    try:
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        print(f'Accuracy: {accuracy:.2f}')
-        print('Classification Report:')
-        print(classification_report(y_test, y_pred))
-    except Exception as e:
-        print(f'Error during evaluation: {e}')
-
 def main() -> None:
-    """Main function to run the machine learning pipeline."""
+    """Main function to execute the data loading, processing, and model training."""
     try:
-        # Load the data
-        X, y = load_data()
-        
-        # Split the data
-        X_train, X_test, y_train, y_test = preprocess_data(X, y)
-        
-        # Train the model
-        model = train_model(X_train, y_train)
-        
-        # Evaluate the model
-        evaluate_model(model, X_test, y_test)
+        df = load_data()  # Load dataset
+        X, y = preprocess_data(df)  # Preprocess the data
+        model = train_model(X, y)  # Train the model
     except Exception as e:
-        print(f'Error in the main function: {e}')
+        print(f"An error occurred: {e}")
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    main()  # Run the main function
