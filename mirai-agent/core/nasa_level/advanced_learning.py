@@ -188,7 +188,44 @@ class AdvancedLearningEngine:
             )
 
     def _phase_research(self, technology: str) -> LearningArtifact:
-        """Phase 1: Research documentation"""
+        """Phase 1: Research documentation + GitHub examples"""
+        
+        # 🆕 GITHUB INTEGRATION: Поиск реальных примеров на GitHub
+        github_examples = ""
+        try:
+            print(f"   🔍 Searching GitHub for {technology} examples...")
+            # Используем github_action через AI agent
+            github_search = self.ai.github_action(
+                "search_repos",
+                {"query": f"{technology} language:python", "limit": 3}
+            )
+            
+            if github_search and "Found" in github_search:
+                github_examples = f"\n\n## GITHUB EXAMPLES\nFound real-world projects:\n{github_search}\n"
+                
+                # Попробуем прочитать README из топового репозитория
+                try:
+                    # Извлекаем owner/repo из результатов
+                    import re
+                    match = re.search(r'(\S+)/(\S+)', github_search)
+                    if match:
+                        owner, repo = match.groups()
+                        readme_content = self.ai.github_action(
+                            "get_repo_content",
+                            {"owner": owner, "repo": repo, "path": "README.md"}
+                        )
+                        if readme_content and len(readme_content) > 100:
+                            # Берём первые 1000 символов README
+                            readme_excerpt = readme_content[:1000]
+                            github_examples += f"\n\nTop repository README excerpt:\n{readme_excerpt}...\n"
+                            print(f"   ✅ Read README from {owner}/{repo}")
+                except Exception as e:
+                    print(f"   ⚠️  Could not read README: {e}")
+        except Exception as e:
+            print(f"   ⚠️  GitHub search failed: {e}")
+            github_examples = ""
+        
+        # Оригинальный AI-исследование с добавлением GitHub примеров
         prompt = f"""You are a technical documentation expert. Research {technology} and provide comprehensive documentation:
 
 ## OVERVIEW
@@ -214,11 +251,13 @@ What is {technology}? What problem does it solve? (3-5 sentences)
 - 3-5 important tips
 - Common pitfalls to avoid
 
+{github_examples}
+
 Be thorough but concise. Focus on actionable information."""
 
         research_data = self.ai.ask(prompt)
 
-        # Better quality scoring
+        # Better quality scoring с учётом GitHub примеров
         quality = 0.0
         if len(research_data) > 300:
             quality += 0.3
@@ -232,11 +271,20 @@ Be thorough but concise. Focus on actionable information."""
             word in research_data.lower() for word in ["usage", "use case", "install"]
         ):
             quality += 0.2
+        
+        # 🆕 Бонус за GitHub integration
+        if "github examples" in research_data.lower():
+            quality += 0.1
+            print("   ✨ Research enhanced with GitHub examples!")
 
         return LearningArtifact(
             phase=LearningPhase.RESEARCH,
             content=research_data,
-            metadata={"length": len(research_data)},
+            metadata={
+                "length": len(research_data),
+                "has_github_examples": github_examples != "",
+                "github_search_attempted": True
+            },
             quality_score=min(quality, 1.0),
         )
 
