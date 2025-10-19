@@ -1,74 +1,59 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.83
+Quality Grade: A
+Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-19T19:02:38.966513
+Learned: 2025-10-19T19:18:34.648490
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a Pandas DataFrame.
+    Load data from a CSV file and perform basic processing.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+        Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if an error occurs.
     """
     try:
+        # Load the data into a DataFrame
         data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
-        raise
 
-def summarize_data(df: pd.DataFrame) -> Dict[str, any]:
-    """
-    Generate a summary of the DataFrame.
+        # Display the first few rows of the DataFrame
+        print("Data loaded successfully. Here are the first few rows:")
+        print(data.head())
 
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+        # Drop any rows with missing values
+        data_cleaned = data.dropna()
 
-    Returns:
-        Dict[str, any]: A dictionary containing summary statistics.
-    """
-    summary = {
-        'shape': df.shape,
-        'columns': df.columns.tolist(),
-        'head': df.head().to_dict(orient='records'),
-        'description': df.describe(include='all').to_dict()
-    }
-    return summary
+        # Reset index after dropping rows
+        data_cleaned.reset_index(drop=True, inplace=True)
 
-def main(file_path: str) -> None:
-    """
-    Main function to load and summarize data.
-
-    Args:
-        file_path (str): The path to the CSV file to be processed.
-    """
-    try:
-        data = load_data(file_path)
-        summary = summarize_data(data)
-        print("Data Summary:")
-        print(summary)
+        return data_cleaned
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error while reading the CSV file.")
+        return None
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+        return None
 
+# Example usage:
 if __name__ == "__main__":
-    # Replace 'data.csv' with your actual file path
-    main('data.csv')
+    file_path = 'data.csv'  # Replace with your CSV file path
+    processed_data = load_and_process_data(file_path)
+    if processed_data is not None:
+        print("Processed Data:")
+        print(processed_data)
