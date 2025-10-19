@@ -1,42 +1,42 @@
 {
-  "total_lines": 15268,
+  "total_lines": 15253,
   "error_count": 78,
-  "warning_count": 370,
-  "info_count": 8689,
-  "autonomous_cycles": 274,
+  "warning_count": 367,
+  "info_count": 8675,
+  "autonomous_cycles": 275,
   "todo_count": 0,
   "errors": [
-    "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
-    "2025-10-18 04:30:15,053 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
-    "2025-10-18 05:02:10,396 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-18 05:33:41,426 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-18 06:05:20,468 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-18 06:36:55,657 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "Это действие сейчас эффективно, так как многие проблемы в CI/CD могут быть вызваны несовместимостью или ошибками в устаревших зависимостях. Обновление пакетов может помочь устранить известные ошибки и",
     "2025-10-18 07:08:21,588 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-18 07:40:06,555 [WARNING]    ⚠️ Не удалось: 'top_errors'"
+    "2025-10-18 07:40:06,555 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-18 08:11:40,718 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-18 08:43:25,838 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-18 09:15:09,285 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-18 09:46:38,857 [WARNING]    ⚠️ Не удалось: 'top_errors'"
   ],
   "warnings": [
-    "2025-10-18 04:08:27,381 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:13:30,259 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:13:35,547 [WARNING]    ❌ MIRAI CI/CD Pipeline #2",
-    "2025-10-18 04:13:35,547 [WARNING]    ❌ MIRAI CI/CD Pipeline #1",
-    "2025-10-18 04:19:25,990 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:24:30,747 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:29:33,443 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:30:15,053 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-18 04:35:15,544 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-18 04:40:19,314 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-18 05:07:10,670 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-18 05:12:13,694 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-18 05:17:18,419 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-18 05:17:34,762 [WARNING] Security violation: requests\\.",
+    "2025-10-18 05:17:34,913 [WARNING] Security violation: requests\\.",
+    "2025-10-18 05:17:49,636 [WARNING] Security violation: requests\\.",
+    "2025-10-18 05:17:49,848 [WARNING] Security violation: requests\\.",
+    "2025-10-18 05:22:50,364 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-18 05:27:53,008 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-18 05:32:55,830 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
       "message": "✅ Метрики обновлены: /root/mirai/metrics/latest.json",
-      "count": 274
+      "count": 275
     },
     {
       "message": "✅ Dashboard создан: /root/mirai/web/dashboard.html",
-      "count": 274
+      "count": 275
     },
     {
       "message": "✅ Phase 3/6: Quality Validation...",
@@ -56,15 +56,15 @@
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-18.md",
-      "count": 19
+      "count": 18
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-18.json",
-      "count": 19
+      "count": 18
     },
     {
       "message": "✅ FAQ сгенерирован: /root/mirai/knowledge_base/FAQ.md",
-      "count": 17
+      "count": 15
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
@@ -72,17 +72,6 @@
     }
   ],
   "cycle_numbers": [
-    428,
-    429,
-    430,
-    431,
-    432,
-    433,
-    434,
-    435,
-    436,
-    437,
-    438,
     439,
     440,
     441,
@@ -345,16 +334,28 @@
     129,
     130,
     131,
-    132
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144
   ],
   "timestamp_first": [
     "Oct",
     "18",
-    "04:08:26"
+    "05:07:10"
   ],
   "timestamp_last": [
     "Oct",
     "19",
-    "04:03:45"
+    "05:06:41"
   ]
 }
