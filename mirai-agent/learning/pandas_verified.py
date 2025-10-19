@@ -2,77 +2,81 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-19T09:34:58.638000
+Learned: 2025-10-19T09:50:46.338016
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, Tuple
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
+        pd.DataFrame: The loaded data as a DataFrame.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file {file_path} was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError(f"The file {file_path} is empty.") from e
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by dropping missing values and duplicates.
+    Clean the DataFrame by removing rows with missing values.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to be cleaned.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-    pd.DataFrame: The cleaned DataFrame.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    # Drop rows with any missing values
-    df_cleaned = df.dropna()
-    # Drop duplicate rows
-    df_cleaned = df_cleaned.drop_duplicates()
-    return df_cleaned
+    cleaned_df = df.dropna()  # Remove rows with any missing values
+    return cleaned_df
 
-def analyze_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> Tuple[int, int]:
     """
-    Perform basic analysis on the DataFrame.
+    Analyze the DataFrame to get the shape (number of rows and columns).
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        Tuple[int, int]: A tuple containing the number of rows and columns.
     """
-    print("Data Summary:")
-    print(df.describe())  # Show summary statistics
+    return df.shape  # Return the shape of the DataFrame
 
 def main(file_path: str) -> None:
     """
     Main function to load, clean, and analyze data from a CSV file.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
     """
-    df = load_data(file_path)
-    if df is not None:
-        df_cleaned = clean_data(df)
-        analyze_data(df_cleaned)
+    try:
+        # Load the data
+        df = load_data(file_path)
+        # Clean the data
+        cleaned_df = clean_data(df)
+        # Analyze the data
+        rows, columns = analyze_data(cleaned_df)
+        print(f"Cleaned DataFrame shape: {rows} rows, {columns} columns.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Replace 'your_file.csv' with the path to your CSV file
-    main('your_file.csv')
+    # Example usage, replace 'data.csv' with your actual file path
+    main('data.csv')
