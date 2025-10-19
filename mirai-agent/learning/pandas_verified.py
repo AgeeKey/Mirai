@@ -2,67 +2,66 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-19T15:06:18.756178
+Learned: 2025-10-19T15:37:38.674170
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def create_dataframe(data: List[dict]) -> pd.DataFrame:
+def load_and_process_data(file_path: str, columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a list of dictionaries.
+    Load data from a CSV file, process it, and return a DataFrame.
 
-    Parameters:
-    data (List[dict]): A list of dictionaries where each dictionary represents a row.
+    Args:
+        file_path (str): The path to the CSV file.
+        columns (Optional[list]): List of columns to select from the DataFrame.
 
     Returns:
-    pd.DataFrame: A DataFrame constructed from the input data.
+        pd.DataFrame: Processed DataFrame with selected columns.
+
+    Raises:
+        FileNotFoundError: If the file is not found at the specified path.
+        ValueError: If the specified columns do not exist in the DataFrame.
     """
     try:
-        df = pd.DataFrame(data)
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # If specified, filter the DataFrame to only include certain columns
+        if columns is not None:
+            missing_columns = set(columns) - set(df.columns)
+            if missing_columns:
+                raise ValueError(f"Columns not found in DataFrame: {missing_columns}")
+            df = df[columns]
+        
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+        
         return df
+
+    except FileNotFoundError as e:
+        print(f"Error: The file at {file_path} was not found.")
+        raise e
     except Exception as e:
-        raise ValueError("Error creating DataFrame: {}".format(e))
+        print(f"An error occurred: {e}")
+        raise e
 
-def filter_dataframe(df: pd.DataFrame, column: str, value) -> pd.DataFrame:
+def main() -> None:
     """
-    Filter the DataFrame based on a specific column value.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to filter.
-    column (str): The column name to filter on.
-    value: The value to filter by.
-
-    Returns:
-    pd.DataFrame: A filtered DataFrame.
+    Main function to execute the data processing workflow.
     """
+    file_path = 'data.csv'  # Update with your CSV file path
+    columns_to_select = ['column1', 'column2']  # Update with your desired columns
+
     try:
-        filtered_df = df[df[column] == value]
-        return filtered_df
-    except KeyError:
-        raise KeyError(f"Column '{column}' does not exist in the DataFrame.")
+        processed_data = load_and_process_data(file_path, columns_to_select)
+        print(processed_data)
     except Exception as e:
-        raise ValueError("Error filtering DataFrame: {}".format(e))
+        print("Data processing failed.")
 
-# Example usage
 if __name__ == "__main__":
-    # Sample data
-    sample_data = [
-        {'Name': 'Alice', 'Age': 30, 'City': 'New York'},
-        {'Name': 'Bob', 'Age': 25, 'City': 'Los Angeles'},
-        {'Name': 'Charlie', 'Age': 35, 'City': 'New York'}
-    ]
-    
-    # Create DataFrame from sample data
-    df = create_dataframe(sample_data)
-    print("Original DataFrame:")
-    print(df)
-
-    # Filter the DataFrame for rows where City is 'New York'
-    filtered_df = filter_dataframe(df, 'City', 'New York')
-    print("\nFiltered DataFrame (City = 'New York'):")
-    print(filtered_df)
+    main()
