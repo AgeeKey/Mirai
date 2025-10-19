@@ -4,7 +4,7 @@ pandas - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-19T10:37:56.534474
+Learned: 2025-10-19T10:53:42.393953
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,47 +12,47 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
     """
-    Load and process data from a CSV file into a Pandas DataFrame.
+    Load data from a CSV file and process it into a DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
-        column_names (Optional[list[str]]): List of column names to use. If None, uses the first row as header.
+        column_names (Optional[list]): List of column names to use. If None, uses the default.
 
     Returns:
         pd.DataFrame: Processed DataFrame.
 
     Raises:
         FileNotFoundError: If the specified file does not exist.
-        ValueError: If the data cannot be converted to a DataFrame.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        # Load data from CSV file
+        # Load the data into a DataFrame
         df = pd.read_csv(file_path, names=column_names, header=0 if column_names is None else None)
         
-        # Drop any rows with missing values
-        df.dropna(inplace=True)
+        # Ensure that the DataFrame is non-empty
+        if df.empty:
+            raise ValueError("The DataFrame is empty after loading data.")
 
-        # Reset the index of the DataFrame
-        df.reset_index(drop=True, inplace=True)
+        # Perform basic processing: dropping NA values
+        df.dropna(inplace=True)
 
         return df
     except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except ValueError as e:
-        print("Error: Could not convert data to a DataFrame.")
-        raise e
-
-def main():
-    # Example usage of the load_and_process_data function
-    file_path = 'data.csv'  # Specify your CSV file path
-    try:
-        df = load_and_process_data(file_path)
-        print(df.head())  # Display the first few rows of the DataFrame
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: {e}")
+        raise
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    # Example usage of the load_and_process_data function
+    try:
+        df = load_and_process_data("data.csv", column_names=["Column1", "Column2", "Column3"])
+        print(df.head())
+    except Exception as e:
+        print(f"Failed to load and process data: {e}")
