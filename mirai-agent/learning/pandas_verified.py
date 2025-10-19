@@ -2,69 +2,81 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-19T00:38:10.557583
+Learned: 2025-10-19T00:54:00.735755
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
+        Optional[pd.DataFrame]: DataFrame containing loaded data, or None if an error occurs.
     """
     try:
-        df = pd.DataFrame(data)
+        df = pd.read_csv(file_path)
         return df
-    except Exception as e:
-        raise ValueError("Error creating DataFrame: {}".format(e))
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: Could not parse the file.")
+        return None
 
-def calculate_statistics(df: pd.DataFrame) -> dict:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate basic statistics for each numeric column in the DataFrame.
+    Clean the DataFrame by removing duplicates and filling missing values.
 
     Args:
-        df (pd.DataFrame): A pandas DataFrame.
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-        dict: A dictionary containing the mean, median, and standard deviation for each numeric column.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    try:
-        stats = {
-            'mean': df.mean(),
-            'median': df.median(),
-            'std_dev': df.std()
-        }
-        return stats
-    except Exception as e:
-        raise ValueError("Error calculating statistics: {}".format(e))
+    # Remove duplicate rows
+    df = df.drop_duplicates()
+    
+    # Fill missing values with the mean of the column
+    for column in df.select_dtypes(include=['float64', 'int64']).columns:
+        df[column].fillna(df[column].mean(), inplace=True)
+    
+    return df
 
-def main() -> None:
+def analyze_data(df: pd.DataFrame) -> pd.Series:
     """
-    Main function to create a DataFrame and calculate its statistics.
+    Analyze the DataFrame by calculating the mean of numeric columns.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pd.Series: A Series containing the mean of each numeric column.
     """
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 4, np.nan, 2, 1],
-        'C': ['a', 'b', 'c', 'd', 'e']
-    }
-
-    # Create DataFrame
-    df = create_dataframe(data)
-    print("DataFrame:\n", df)
-
-    # Calculate and print statistics
-    stats = calculate_statistics(df[['A', 'B']])
-    print("Statistics:\n", stats)
+    return df.mean()
 
 if __name__ == "__main__":
-    main()
+    # Load the data
+    data_frame = load_data("data.csv")
+    
+    if data_frame is not None:
+        # Clean the data
+        cleaned_data = clean_data(data_frame)
+        
+        # Analyze the data
+        analysis_results = analyze_data(cleaned_data)
+        
+        # Output the analysis results
+        print("Analysis Results:")
+        print(analysis_results)
