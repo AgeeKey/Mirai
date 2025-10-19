@@ -2,73 +2,63 @@
 celery - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-15T14:58:32.408214
+Learned: 2025-10-19T00:22:23.872247
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from celery import Celery, shared_task
-import time
 import logging
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Celery app
+# Initialize the Celery app
 app = Celery('tasks', broker='redis://localhost:6379/0')
 
-@shared_task
+@app.shared_task
 def add(x: int, y: int) -> int:
     """
     Add two numbers together.
-    
-    Args:
-        x (int): The first number.
-        y (int): The second number.
-    
-    Returns:
-        int: The sum of x and y.
+
+    :param x: First number to add.
+    :param y: Second number to add.
+    :return: The sum of x and y.
     """
     try:
-        logger.info(f'Starting addition of {x} and {y}')
-        time.sleep(2)  # Simulate a time-consuming task
         result = x + y
-        logger.info(f'Addition result: {result}')
+        logger.info(f'Adding {x} + {y} = {result}')
         return result
     except Exception as e:
         logger.error(f'Error occurred while adding: {e}')
         raise
 
-@shared_task
-def multiply(x: int, y: int) -> int:
+@app.shared_task
+def sleep_task(seconds: int) -> str:
     """
-    Multiply two numbers together.
-    
-    Args:
-        x (int): The first number.
-        y (int): The second number.
-    
-    Returns:
-        int: The product of x and y.
+    Sleep for a specified number of seconds.
+
+    :param seconds: Number of seconds to sleep.
+    :return: A message indicating completion.
     """
     try:
-        logger.info(f'Starting multiplication of {x} and {y}')
-        time.sleep(2)  # Simulate a time-consuming task
-        result = x * y
-        logger.info(f'Multiplication result: {result}')
-        return result
+        logger.info(f'Sleeping for {seconds} seconds...')
+        time.sleep(seconds)
+        logger.info('Sleep completed.')
+        return f'Slept for {seconds} seconds.'
     except Exception as e:
-        logger.error(f'Error occurred while multiplying: {e}')
+        logger.error(f'Error occurred during sleep: {e}')
         raise
 
 if __name__ == '__main__':
-    # Example of running tasks
-    result_add = add.delay(4, 6)
-    result_multiply = multiply.delay(4, 5)
+    # Example of calling the tasks
+    result = add.delay(4, 6)  # Asynchronously add 4 and 6
+    sleep_result = sleep_task.delay(5)  # Asynchronously sleep for 5 seconds
 
     # Wait for results
-    logger.info(f'Addition result: {result_add.get(timeout=10)}')
-    logger.info(f'Multiplication result: {result_multiply.get(timeout=10)}')
+    print(f'Result of add: {result.get(timeout=10)}')
+    print(f'Result of sleep_task: {sleep_result.get(timeout=10)}')
