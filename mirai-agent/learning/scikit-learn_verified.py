@@ -1,97 +1,70 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.80
+Quality Grade: C
+Overall Score: 0.79
 Tests Passed: 0/1
-Learned: 2025-10-19T15:37:59.950017
+Learned: 2025-10-19T15:53:43.627238
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.exceptions import NotFittedError
 
-
-def load_data() -> pd.DataFrame:
-    """Load the Iris dataset and return it as a pandas DataFrame."""
-    iris = load_iris()
-    return pd.DataFrame(data=np.c_[iris['data'], iris['target']],
-                        columns=iris['feature_names'] + ['target'])
-
-
-def preprocess_data(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Preprocess the data by splitting it into features and target, and scaling the features.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing features and target.
-
-    Returns:
-        tuple: A tuple containing the scaled features and the target variable.
-    """
-    X = df.iloc[:, :-1].values  # Features
-    y = df.iloc[:, -1].values    # Target
-    scaler = StandardScaler()
-    
+def load_data(file_path: str) -> pd.DataFrame:
+    """Load dataset from a CSV file."""
     try:
-        X_scaled = scaler.fit_transform(X)  # Scale features
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        raise ValueError("The file is empty.")
     except Exception as e:
-        print(f"Error in scaling data: {e}")
-        raise
-    
-    return X_scaled, y
+        raise Exception(f"An error occurred while loading the data: {e}")
 
-
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest Classifier on the given data.
-
-    Args:
-        X (np.ndarray): The input features.
-        y (np.ndarray): The target variable.
-
-    Returns:
-        RandomForestClassifier: The trained Random Forest model.
-    """
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    
+def preprocess_data(data: pd.DataFrame) -> tuple:
+    """Preprocess the data for modeling."""
     try:
-        model.fit(X, y)  # Train the model
-    except Exception as e:
-        print(f"Error in training model: {e}")
-        raise
-    
+        X = data.drop('target', axis=1)
+        y = data['target']
+        return X, y
+    except KeyError:
+        raise KeyError("The target column 'target' is missing from the data.")
+
+def train_model(X: np.ndarray, y: np.ndarray) -> LogisticRegression:
+    """Train a Logistic Regression model."""
+    model = LogisticRegression()
+    model.fit(X, y)
     return model
 
-
-def evaluate_model(model: RandomForestClassifier, X: np.ndarray, y: np.ndarray) -> None:
-    """Evaluate the trained model and print the classification report and confusion matrix.
-
-    Args:
-        model (RandomForestClassifier): The trained model to evaluate.
-        X (np.ndarray): The input features for evaluation.
-        y (np.ndarray): The true target variable for evaluation.
-    """
+def evaluate_model(model: LogisticRegression, X: np.ndarray, y: np.ndarray) -> None:
+    """Evaluate the trained model."""
     try:
-        y_pred = model.predict(X)  # Make predictions
-        print(confusion_matrix(y, y_pred))  # Print confusion matrix
-        print(classification_report(y, y_pred))  # Print classification report
+        predictions = model.predict(X)
+        accuracy = accuracy_score(y, predictions)
+        report = classification_report(y, predictions)
+        print(f"Accuracy: {accuracy:.2f}")
+        print("Classification Report:\n", report)
+    except NotFittedError:
+        raise NotFittedError("The model has not been fitted yet.")
     except Exception as e:
-        print(f"Error in model evaluation: {e}")
-        raise
+        raise Exception(f"An error occurred during evaluation: {e}")
 
+def main(file_path: str) -> None:
+    """Main function to execute the workflow."""
+    data = load_data(file_path)
+    X, y = preprocess_data(data)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-def main() -> None:
-    """Main function to execute the machine learning workflow."""
-    df = load_data()  # Load data
-    X, y = preprocess_data(df)  # Preprocess data
-    model = train_model(X, y)  # Train model
-    evaluate_model(model, X, y)  # Evaluate model
-
+    model = train_model(X_train, y_train)
+    evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    main()  # Execute the main function
+    # Example usage: replace 'data.csv' with your actual data file path
+    main('data.csv')
