@@ -4,109 +4,85 @@ scikit-learn - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-19T11:41:12.659571
+Learned: 2025-10-19T11:56:59.354209
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
+from sklearn.metrics import classification_report, accuracy_score
 from sklearn.exceptions import NotFittedError
-import logging
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
 
 def load_data() -> pd.DataFrame:
     """Load the Iris dataset and return it as a DataFrame."""
-    try:
-        iris = load_iris()
-        df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-        df['target'] = iris.target
-        return df
-    except Exception as e:
-        logging.error(f"Error loading data: {e}")
-        raise
+    iris = load_iris()
+    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    data['target'] = iris.target
+    return data
 
-def preprocess_data(df: pd.DataFrame) -> tuple:
-    """Preprocess the data by splitting into features and target, and then into training and testing sets.
+def split_data(data: pd.DataFrame) -> tuple:
+    """Split the data into training and testing sets.
 
     Args:
-        df (pd.DataFrame): The input DataFrame containing features and target.
+        data: A DataFrame containing the features and target.
 
     Returns:
-        tuple: A tuple containing the training and testing features and targets.
+        A tuple containing the training features, testing features,
+        training target, and testing target.
     """
-    try:
-        X = df.drop(columns='target')
-        y = df['target']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
-    except Exception as e:
-        logging.error(f"Error preprocessing data: {e}")
-        raise
+    X = data.drop('target', axis=1)
+    y = data['target']
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-class Model:
-    """A simple wrapper for the RandomForestClassifier."""
-    
+class IrisClassifier:
+    """A classifier for the Iris dataset using Random Forest."""
+
     def __init__(self):
-        self.model = RandomForestClassifier()
-        self.is_fitted = False
+        self.model = RandomForestClassifier(random_state=42)
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
-        """Train the model using the training data.
+        """Train the Random Forest model.
 
         Args:
-            X_train (np.ndarray): The training features.
-            y_train (np.ndarray): The training target.
+            X_train: Training features.
+            y_train: Training target.
         """
         try:
             self.model.fit(X_train, y_train)
-            self.is_fitted = True
-            logging.info("Model training complete.")
         except Exception as e:
-            logging.error(f"Error training model: {e}")
-            raise
+            print(f"An error occurred during training: {e}")
 
     def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Make predictions using the trained model.
+        """Predict the classes for the test set.
 
         Args:
-            X_test (np.ndarray): The testing features.
+            X_test: Testing features.
 
         Returns:
-            np.ndarray: The predicted target values.
+            Predicted classes.
 
         Raises:
-            NotFittedError: If the model has not been fitted yet.
+            NotFittedError: If the model has not been trained yet.
         """
-        if not self.is_fitted:
-            raise NotFittedError("Model must be trained before making predictions.")
-        try:
-            return self.model.predict(X_test)
-        except Exception as e:
-            logging.error(f"Error making predictions: {e}")
-            raise
+        if not hasattr(self.model, "estimators_"):
+            raise NotFittedError("Model must be trained before prediction.")
+        return self.model.predict(X_test)
 
 def main() -> None:
-    """Main function to execute the model training and evaluation."""
-    try:
-        df = load_data()
-        X_train, X_test, y_train, y_test = preprocess_data(df)
+    """Main function to execute the workflow."""
+    data = load_data()
+    X_train, X_test, y_train, y_test = split_data(data)
 
-        model = Model()
-        model.train(X_train, y_train)
+    classifier = IrisClassifier()
+    classifier.train(X_train, y_train)
 
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        logging.info(f"Accuracy: {accuracy:.2f}")
-        print(classification_report(y_test, y_pred))
-    except Exception as e:
-        logging.error(f"Error in main execution: {e}")
+    y_pred = classifier.predict(X_test)
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
 
 if __name__ == "__main__":
     main()
