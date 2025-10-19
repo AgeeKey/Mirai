@@ -4589,6 +4589,16 @@
       "name": "beautifulsoup4",
       "proficiency": 0.8066596191931327,
       "learned_at": "2025-10-19T17:59:57.889612"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.9585115917869572,
+      "learned_at": "2025-10-19T18:15:21.336305"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.9002004824938895,
+      "learned_at": "2025-10-19T18:15:39.317929"
     }
   ],
   "skills": [],

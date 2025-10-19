@@ -4,52 +4,46 @@ requests - Verified Learning Artifact
 Quality Grade: A
 Overall Score: 0.96
 Tests Passed: 1/1
-Learned: 2025-10-19T17:59:40.788842
+Learned: 2025-10-19T18:15:21.334809
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import HTTPError, RequestException
+from typing import Optional
 
-def fetch_data(url: str) -> dict:
-    """
-    Fetch data from a given URL using a GET request.
+def fetch_data(url: str) -> Optional[dict]:
+    """Fetch data from a given URL and return it as a dictionary.
 
     Args:
-        url (str): The URL to send the GET request to.
+        url (str): The URL to fetch data from.
 
     Returns:
-        dict: The JSON response from the server.
-
-    Raises:
-        ValueError: If the response is not JSON.
-        RequestException: If there is an error during the request.
+        Optional[dict]: The JSON response as a dictionary if successful, None otherwise.
     """
     try:
         # Send a GET request to the specified URL
         response = requests.get(url)
-        # Raise an error for bad responses
+        
+        # Raise an error for bad responses (4xx and 5xx)
         response.raise_for_status()
         
-        # Attempt to parse the response as JSON
+        # Return the JSON content as a dictionary
         return response.json()
-
-    except RequestException as e:
-        # Handle any request-related errors
-        print(f"Request failed: {e}")
-        raise  # Re-raise the exception for further handling
-
-    except ValueError:
-        # Handle JSON decoding errors
-        print("Response content is not in JSON format.")
-        raise
+    except HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")  # Specific HTTP error
+    except RequestException as req_err:
+        print(f"Request error occurred: {req_err}")  # General request error
+    except ValueError as json_err:
+        print(f"JSON decode error: {json_err}")  # JSON decoding error
+    return None
 
 if __name__ == "__main__":
     # Example URL to fetch data from
     example_url = "https://api.github.com/repos/psf/requests"
-    try:
-        data = fetch_data(example_url)
-        print(data)  # Print the fetched data
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    
+    # Fetch data and print the result
+    data = fetch_data(example_url)
+    if data:
+        print(data)
