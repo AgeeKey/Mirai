@@ -2,59 +2,53 @@
 selenium - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-19T14:02:57.832840
+Learned: 2025-10-19T18:46:53.080587
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import WebDriverException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import time
 
 def setup_driver() -> webdriver.Chrome:
     """Set up the Chrome WebDriver with options."""
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode
-    chrome_service = Service('/path/to/chromedriver')  # Specify the path to chromedriver
+    chrome_options.add_argument("--headless")  # Run headless for non-GUI environments
+    chrome_service = ChromeService(executable_path='path/to/chromedriver')  # Adjust path as needed
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
 
 def navigate_to_page(driver: webdriver.Chrome, url: str) -> None:
-    """Navigate to a given URL."""
+    """Navigate to the specified URL using the WebDriver."""
     try:
         driver.get(url)
-    except WebDriverException as e:
-        print(f"Error navigating to {url}: {e}")
+        time.sleep(2)  # Wait for the page to load
+    except TimeoutException:
+        print("Failed to load the page within the timeout period.")
 
-def find_element(driver: webdriver.Chrome, by: By, value: str) -> webdriver.WebElement:
-    """Find an element on the page."""
+def find_element(driver: webdriver.Chrome, by: By, value: str) -> None:
+    """Find an element on the page and print its text."""
     try:
-        return driver.find_element(by, value)
-    except NoSuchElementException as e:
-        print(f"Element not found: {value}, Error: {e}")
-        return None
+        element = driver.find_element(by, value)
+        print(f"Element found: {element.text}")
+    except NoSuchElementException:
+        print(f"No element found with {by} = '{value}'")
 
 def main() -> None:
-    """Main function to run the Selenium example."""
+    """Main function to execute the Selenium script."""
     driver = setup_driver()
     try:
-        navigate_to_page(driver, "https://www.example.com")
-        time.sleep(2)  # Wait for the page to load
-
-        # Attempt to find an element
-        element = find_element(driver, By.TAG_NAME, "h1")
-        if element:
-            print(f"Found element: {element.text}")
-        else:
-            print("Element not found.")
-
+        url = "https://example.com"  # Replace with the target URL
+        navigate_to_page(driver, url)
+        find_element(driver, By.TAG_NAME, "h1")  # Example to find an <h1> tag
     finally:
-        driver.quit()  # Ensure the driver is closed properly
+        driver.quit()  # Ensure the driver is closed
 
 if __name__ == "__main__":
     main()
