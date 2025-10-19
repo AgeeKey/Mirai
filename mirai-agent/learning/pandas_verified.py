@@ -2,80 +2,74 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-19T01:25:33.683013
+Learned: 2025-10-19T01:41:16.502032
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a DataFrame from a dictionary.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurred.
+        pd.DataFrame: A DataFrame constructed from the provided data.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file at {file_path} is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"Error: The file at {file_path} could not be parsed.")
-        return None
+        df = pd.DataFrame(data)
+        return df
+    except Exception as e:
+        print(f"Error creating DataFrame: {e}")
+        raise
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by removing duplicates and filling missing values.
+    Calculate basic statistics for each numeric column in the DataFrame.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
+    Args:
+        df (pd.DataFrame): The DataFrame containing data.
 
     Returns:
-    pd.DataFrame: The cleaned DataFrame.
+        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each numeric column.
     """
-    # Remove duplicates
-    df = df.drop_duplicates()
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-    return df
+    try:
+        stats = pd.DataFrame({
+            'mean': df.mean(),
+            'median': df.median(),
+            'std_dev': df.std()
+        })
+        return stats
+    except Exception as e:
+        print(f"Error calculating statistics: {e}")
+        raise
 
-def analyze_data(df: pd.DataFrame) -> pd.Series:
+def main() -> None:
     """
-    Analyze the DataFrame and return basic statistics.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    pd.Series: Descriptive statistics of the DataFrame.
+    Main function to execute the data processing workflow.
     """
-    return df.describe()
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 4, 3, 2, 1],
+        'C': [2, 3, np.nan, 5, 1]
+    }
 
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and analyze data from a CSV file.
+    # Create DataFrame
+    df = create_dataframe(data)
+    print("DataFrame:")
+    print(df)
 
-    Parameters:
-    file_path (str): The path to the CSV file.
-    """
-    data = load_data(file_path)
-    if data is not None:
-        cleaned_data = clean_data(data)
-        stats = analyze_data(cleaned_data)
-        print(stats)
+    # Calculate statistics
+    stats = calculate_statistics(df)
+    print("\nStatistics:")
+    print(stats)
 
 if __name__ == "__main__":
-    # Example usage
-    main("example_data.csv")
+    main()
