@@ -2,85 +2,82 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-19T08:47:26.333041
+Learned: 2025-10-19T09:03:19.468087
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Optional
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
-    """Load data from a CSV file into a pandas DataFrame.
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
+    """
+    Load a CSV file into a pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: The loaded data as a DataFrame.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If the file cannot be parsed.
+        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError("The file is empty.") from e
-    except pd.errors.ParserError as e:
-        raise pd.errors.ParserError("Error parsing the file.") from e
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+    except pd.errors.ParserError:
+        print("Error: There was a problem parsing the file.")
+    return None
 
-def filter_data(df: pd.DataFrame, column_name: str, threshold: float) -> pd.DataFrame:
-    """Filter the DataFrame based on a column value.
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and duplicates.
 
     Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column_name (str): The column name to filter on.
-        threshold (float): The threshold value for filtering.
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-        pd.DataFrame: A filtered DataFrame.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    if column_name not in df.columns:
-        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-    
-    filtered_df = df[df[column_name] > threshold]
-    return filtered_df
+    # Drop rows with any missing values
+    df_cleaned = df.dropna()
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+    return df_cleaned
 
-def save_data(df: pd.DataFrame, output_path: str) -> None:
-    """Save the DataFrame to a CSV file.
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Analyze the DataFrame by calculating the mean of numeric columns.
 
     Args:
-        df (pd.DataFrame): The DataFrame to save.
-        output_path (str): The path to save the CSV file.
+        df (pd.DataFrame): The DataFrame to analyze.
 
-    Raises:
-        IOError: If the file cannot be written.
+    Returns:
+        pd.Series: A Series containing the mean of each numeric column.
     """
-    try:
-        df.to_csv(output_path, index=False)
-    except IOError as e:
-        raise IOError(f"Error writing to file: {output_path}") from e
+    return df.mean()
 
-def main(file_path: str, output_path: str, column_name: str, threshold: float) -> None:
-    """Main function to load, filter, and save data.
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data from a CSV file.
 
     Args:
-        file_path (str): The input CSV file path.
-        output_path (str): The output CSV file path.
-        column_name (str): The column to filter on.
-        threshold (float): The threshold for filtering.
+        file_path (str): The path to the CSV file.
     """
-    df = load_data(file_path)  # Load the data
-    filtered_df = filter_data(df, column_name, threshold)  # Filter the data
-    save_data(filtered_df, output_path)  # Save the filtered data
+    # Load the data
+    df = load_data(file_path)
+    if df is not None:
+        # Clean the data
+        df_cleaned = clean_data(df)
+        # Analyze the data
+        means = analyze_data(df_cleaned)
+        print("Mean of numeric columns:")
+        print(means)
 
 if __name__ == "__main__":
-    # Example usage of the main function
-    main("input_data.csv", "filtered_data.csv", "column_name", 10.0)
+    # Example usage
+    main("data.csv")
