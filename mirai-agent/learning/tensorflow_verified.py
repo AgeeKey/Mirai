@@ -1,75 +1,70 @@
 """
 TensorFlow - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-19T16:57:05.497317
+Learned: 2025-10-19T17:28:26.766425
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 
-def create_and_train_model(x_train: np.ndarray, y_train: np.ndarray, 
-                           x_test: np.ndarray, y_test: np.ndarray, 
-                           epochs: int = 10, batch_size: int = 32) -> models.Sequential:
-    """
-    Creates and trains a simple neural network model using TensorFlow.
-
-    Args:
-        x_train (np.ndarray): Training data features.
-        y_train (np.ndarray): Training data labels.
-        x_test (np.ndarray): Test data features.
-        y_test (np.ndarray): Test data labels.
-        epochs (int): Number of training epochs. Default is 10.
-        batch_size (int): Size of the training batches. Default is 32.
-
-    Returns:
-        models.Sequential: Trained Keras model.
-    """
-    
-    # Validate input shapes
-    if len(x_train.shape) != 2 or len(y_train.shape) != 2:
-        raise ValueError("x_train and y_train must be 2D arrays.")
-    
-    # Building the model
-    model = models.Sequential([
-        layers.Dense(64, activation='relu', input_shape=(x_train.shape[1],)),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(y_train.shape[1], activation='softmax')  # Assuming multi-class classification
-    ])
-
-    # Compile the model
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy', 
-                  metrics=['accuracy'])
-
-    # Train the model
+def load_and_prepare_data() -> tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and prepare it for training."""
     try:
-        model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, 
-                  validation_data=(x_test, y_test), verbose=2)
-    except Exception as e:
-        raise RuntimeError(f"An error occurred during model training: {e}")
+        iris = load_iris()
+        X = iris.data
+        y = iris.target.reshape(-1, 1)
+        
+        # One-hot encode the target variable
+        encoder = OneHotEncoder(sparse=False)
+        y_encoded = encoder.fit_transform(y)
 
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
+        
+        return X_train, X_test, y_train, y_test
+    except Exception as e:
+        raise RuntimeError(f"Error loading or preparing data: {e}")
+
+def create_model(input_shape: int) -> tf.keras.Model:
+    """Create a simple neural network model."""
+    model = models.Sequential([
+        layers.Input(shape=(input_shape,)),
+        layers.Dense(10, activation='relu'),  # Hidden layer
+        layers.Dense(3, activation='softmax')  # Output layer for 3 classes
+    ])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# Example usage
+def train_model(model: tf.keras.Model, X_train: np.ndarray, y_train: np.ndarray) -> None:
+    """Train the model on the training data."""
+    try:
+        model.fit(X_train, y_train, epochs=50, batch_size=5, verbose=1)
+    except Exception as e:
+        raise RuntimeError(f"Error during model training: {e}")
+
+def evaluate_model(model: tf.keras.Model, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the model on the test data."""
+    try:
+        loss, accuracy = model.evaluate(X_test, y_test, verbose=1)
+        print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
+    except Exception as e:
+        raise RuntimeError(f"Error during model evaluation: {e}")
+
+def main() -> None:
+    """Main function to execute the workflow."""
+    X_train, X_test, y_train, y_test = load_and_prepare_data()
+    model = create_model(X_train.shape[1])
+    train_model(model, X_train, y_train)
+    evaluate_model(model, X_test, y_test)
+
 if __name__ == "__main__":
-    # Generate some random data for demonstration
-    num_samples = 1000
-    num_features = 20
-    num_classes = 3
-
-    x_train = np.random.rand(num_samples, num_features)
-    y_train = np.random.randint(0, num_classes, (num_samples, 1))
-    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
-
-    x_test = np.random.rand(num_samples, num_features)
-    y_test = np.random.randint(0, num_classes, (num_samples, 1))
-    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
-
-    # Train the model
-    model = create_and_train_model(x_train, y_train, x_test, y_test)
+    main()

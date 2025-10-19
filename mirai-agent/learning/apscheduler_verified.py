@@ -4,43 +4,43 @@ APScheduler - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-17T17:17:40.927114
+Learned: 2025-10-19T17:28:06.468597
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-import time
 import logging
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def job_function() -> None:
-    """Function to be scheduled for execution."""
-    logging.info("Job executed at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
+def my_job() -> None:
+    """Job that prints the current time."""
+    try:
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        logger.info(f"Job executed at: {current_time}")
+    except Exception as e:
+        logger.error(f"Error executing job: {e}")
 
 def start_scheduler() -> None:
-    """Start the APScheduler to run scheduled jobs."""
+    """Start the APScheduler to run jobs at specified intervals."""
+    scheduler = BackgroundScheduler()
+    # Schedule the job to run every 10 seconds
+    scheduler.add_job(my_job, IntervalTrigger(seconds=10))
+    
     try:
-        scheduler = BackgroundScheduler()
-        # Schedule job_function to run every 5 seconds
-        scheduler.add_job(job_function, IntervalTrigger(seconds=5), id='my_job_id')
         scheduler.start()
-        logging.info("Scheduler started. Job scheduled.")
-
-        # Keep the script running
-        try:
-            while True:
-                time.sleep(1)
-        except (KeyboardInterrupt, SystemExit):
-            pass
-    except Exception as e:
-        logging.error("Error starting scheduler: %s", e)
-    finally:
+        logger.info("Scheduler started. Press Ctrl+C to exit.")
+        # Keep the main thread alive to let the scheduler run jobs
+        while True:
+            time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
-        logging.info("Scheduler shut down.")
+        logger.info("Scheduler stopped.")
 
 if __name__ == "__main__":
     start_scheduler()
