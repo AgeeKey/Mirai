@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.95
+Quality Grade: B
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-19T01:09:47.439542
+Learned: 2025-10-19T01:25:33.683013
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,54 +12,70 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and perform basic processing.
-    
+    Load data from a CSV file into a pandas DataFrame.
+
     Parameters:
-    file_path (str): The path to the CSV file to be loaded.
-    
+    file_path (str): The path to the CSV file.
+
     Returns:
-    Optional[pd.DataFrame]: A processed DataFrame or None if an error occurs.
+    Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurred.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-        
-        # Display the initial shape of the DataFrame
-        print(f"Initial data shape: {df.shape}")
-
-        # Drop duplicate rows
-        df.drop_duplicates(inplace=True)
-
-        # Fill missing values with the mean for numerical columns
-        df.fillna(df.mean(), inplace=True)
-
-        # Convert all column names to lowercase
-        df.columns = map(str.lower, df.columns)
-
-        # Display the shape after processing
-        print(f"Processed data shape: {df.shape}")
-
-        return df
-
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError:
         print(f"Error: The file at {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
+        print(f"Error: The file at {file_path} is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: There was a parsing error while reading the file.")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"Error: The file at {file_path} could not be parsed.")
         return None
 
-# Example usage
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by removing duplicates and filling missing values.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: The cleaned DataFrame.
+    """
+    # Remove duplicates
+    df = df.drop_duplicates()
+    # Fill missing values with the mean of each column
+    df.fillna(df.mean(), inplace=True)
+    return df
+
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Analyze the DataFrame and return basic statistics.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    pd.Series: Descriptive statistics of the DataFrame.
+    """
+    return df.describe()
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data from a CSV file.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    data = load_data(file_path)
+    if data is not None:
+        cleaned_data = clean_data(data)
+        stats = analyze_data(cleaned_data)
+        print(stats)
+
 if __name__ == "__main__":
-    file_path = 'data/sample_data.csv'  # Change this to your CSV file path
-    processed_data = load_and_process_data(file_path)
-
-    if processed_data is not None:
-        print(processed_data.head())  # Display the first few rows of the processed DataFrame
+    # Example usage
+    main("example_data.csv")
