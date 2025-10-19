@@ -2,80 +2,70 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-19T12:59:46.758797
+Learned: 2025-10-19T13:15:36.290794
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def generate_random_data(rows: int, cols: int) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Generates a DataFrame with random data.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    rows (int): Number of rows in the DataFrame.
+    cols (int): Number of columns in the DataFrame.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurred.
+    pd.DataFrame: A DataFrame containing random float values.
+    """
+    if rows <= 0 or cols <= 0:
+        raise ValueError("Number of rows and columns must be positive integers.")
+
+    data = np.random.rand(rows, cols)
+    return pd.DataFrame(data, columns=[f'Column_{i+1}' for i in range(cols)])
+
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates mean and standard deviation for each column in the DataFrame.
+
+    Parameters:
+    df (pd.DataFrame): Input DataFrame.
+
+    Returns:
+    pd.DataFrame: DataFrame containing mean and standard deviation of the input DataFrame.
+    """
+    if df.empty:
+        raise ValueError("Input DataFrame is empty.")
+
+    stats = {
+        'Mean': df.mean(),
+        'Standard Deviation': df.std()
+    }
+    return pd.DataFrame(stats)
+
+def main() -> None:
+    """
+    Main function to execute the data generation and statistics calculation.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: There was an issue parsing the file.")
-    return None
+        # Generate a DataFrame with 10 rows and 5 columns of random data
+        random_data = generate_random_data(10, 5)
+        print("Random Data:")
+        print(random_data)
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by removing missing values and duplicates.
+        # Calculate statistics for the generated DataFrame
+        statistics = calculate_statistics(random_data)
+        print("\nStatistics:")
+        print(statistics)
 
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    if df is None:
-        raise ValueError("Input DataFrame cannot be None.")
-    
-    # Remove duplicates
-    df = df.drop_duplicates()
-    # Drop rows with any missing values
-    df = df.dropna()
-    return df
-
-def analyze_data(df: pd.DataFrame) -> None:
-    """
-    Perform basic analysis on the DataFrame and print summary statistics.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-    """
-    print("DataFrame Summary:")
-    print(df.describe())  # Print summary statistics
-    print("\nDataFrame Info:")
-    print(df.info())      # Print DataFrame info
-
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and analyze data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file to process.
-    """
-    df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        analyze_data(cleaned_df)
-
-# Example usage:
 if __name__ == "__main__":
-    main("data.csv")  # Replace 'data.csv' with your actual file path
+    main()

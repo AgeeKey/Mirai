@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.80
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-19T13:00:06.534580
+Learned: 2025-10-19T13:15:59.775935
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,77 +13,73 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report, accuracy_score
 from sklearn.datasets import load_iris
-from sklearn.exceptions import NotFittedError
+from typing import Any, Dict, Tuple
 
-def load_data() -> pd.DataFrame:
-    """Load the Iris dataset and return it as a pandas DataFrame."""
-    iris = load_iris()
-    return pd.DataFrame(data=iris.data, columns=iris.feature_names)
-
-def preprocess_data(data: pd.DataFrame) -> tuple:
-    """Split the data into features and target variable, then into training and testing sets.
-
-    Args:
-        data (pd.DataFrame): The input DataFrame containing the features and target.
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Loads the Iris dataset.
 
     Returns:
-        tuple: A tuple containing the training features, testing features,
-               training target, and testing target.
+        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
     """
-    X = data.iloc[:, :-1]  # Features
-    y = data.iloc[:, -1]   # Target variable
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+    data = load_iris()
+    return data.data, data.target
 
-class IrisClassifier:
-    """A classifier for the Iris dataset using Random Forest."""
-    
-    def __init__(self) -> None:
-        """Initialize the Random Forest Classifier."""
-        self.model = RandomForestClassifier()
+def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Splits the dataset into training and testing sets.
 
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
-        """Fit the model to the training data.
+    Args:
+        X (np.ndarray): Feature matrix.
+        y (np.ndarray): Target array.
 
-        Args:
-            X_train (np.ndarray): Training features.
-            y_train (np.ndarray): Training target.
-        """
-        try:
-            self.model.fit(X_train, y_train)
-        except Exception as e:
-            print(f"An error occurred during model fitting: {e}")
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and testing feature and target sets.
+    """
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
+    except Exception as e:
+        raise RuntimeError(f"Error during data splitting: {e}")
 
-    def predict(self, X_test: np.ndarray) -> np.ndarray:
-        """Predict the target for the test features.
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Trains a Random Forest classifier on the training data.
 
-        Args:
-            X_test (np.ndarray): Testing features.
+    Args:
+        X_train (np.ndarray): Training feature matrix.
+        y_train (np.ndarray): Training target array.
 
-        Returns:
-            np.ndarray: Predicted target values.
+    Returns:
+        RandomForestClassifier: Trained model.
+    """
+    try:
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        return model
+    except Exception as e:
+        raise RuntimeError(f"Error during model training: {e}")
 
-        Raises:
-            NotFittedError: If the model has not been fitted yet.
-        """
-        if not hasattr(self.model, "estimators_"):
-            raise NotFittedError("This IrisClassifier instance is not fitted yet.")
-        return self.model.predict(X_test)
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluates the model and prints the classification report and accuracy.
+
+    Args:
+        model (RandomForestClassifier): Trained model.
+        X_test (np.ndarray): Testing feature matrix.
+        y_test (np.ndarray): Testing target array.
+    """
+    try:
+        y_pred = model.predict(X_test)
+        print("Classification Report:\n", classification_report(y_test, y_pred))
+        print("Accuracy:", accuracy_score(y_test, y_pred))
+    except Exception as e:
+        raise RuntimeError(f"Error during model evaluation: {e}")
 
 def main() -> None:
-    """Main function to run the Iris classification example."""
-    data = load_data()  # Load the data
-    X_train, X_test, y_train, y_test = preprocess_data(data)  # Preprocess the data
-
-    classifier = IrisClassifier()  # Create classifier instance
-    classifier.fit(X_train, y_train)  # Train the model
-
-    predictions = classifier.predict(X_test)  # Make predictions
-    accuracy = accuracy_score(y_test, predictions)  # Calculate accuracy
-
-    print(f"Accuracy: {accuracy:.2f}")  # Print accuracy
-    print("Classification Report:\n", classification_report(y_test, predictions))  # Print classification report
+    """Main function to execute the machine learning workflow."""
+    X, y = load_data()
+    X_train, X_test, y_train, y_test = preprocess_data(X, y)
+    model = train_model(X_train, y_train)
+    evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    main()  # Execute the main function
+    main()
