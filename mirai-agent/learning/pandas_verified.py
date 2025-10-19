@@ -1,10 +1,10 @@
 """
-pandas - Verified Learning Artifact
+Pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-19T14:34:39.853443
+Learned: 2025-10-19T14:50:27.753055
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,44 +12,52 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a pandas DataFrame, filter the DataFrame based on a column value,
-    and handle any potential errors during the process.
+    Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
-        column_name (str): The column name to filter on.
-        filter_value (Optional[str]): The value to filter the column by. Default is None (no filtering).
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A processed DataFrame.
-
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the specified column does not exist in the DataFrame.
+    Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
     """
     try:
-        # Load the CSV file into a DataFrame
         df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error.")
+        return None
 
-    # Check if the specified column exists
-    if column_name not in df.columns:
-        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+def summarize_data(df: pd.DataFrame) -> None:
+    """
+    Generate and display summary statistics of a DataFrame.
 
-    # Filter the DataFrame if a filter value is provided
-    if filter_value is not None:
-        df = df[df[column_name] == filter_value]
+    Parameters:
+    df (pd.DataFrame): The DataFrame to summarize.
+    """
+    if df is not None and not df.empty:
+        print("Summary Statistics:")
+        print(df.describe())
+    else:
+        print("No data to summarize.")
 
-    return df
+def main(file_path: str) -> None:
+    """
+    Main function to load and summarize data.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)
+    summarize_data(df)
 
 if __name__ == "__main__":
     # Example usage
-    try:
-        data_frame = load_and_process_data('data.csv', 'category', 'A')
-        print(data_frame)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    main("data.csv")
