@@ -1,54 +1,50 @@
 """
 requests - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.89
+Quality Grade: A
+Overall Score: 0.95
 Tests Passed: 1/1
-Learned: 2025-10-19T06:56:30.463946
+Learned: 2025-10-19T11:25:09.501017
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
-from requests.exceptions import HTTPError, RequestException
-from typing import Any, Dict
+from requests.exceptions import RequestException
 
-def fetch_data(url: str) -> Dict[str, Any]:
+def fetch_data(url: str) -> dict:
     """
-    Fetch data from the specified URL using an HTTP GET request.
+    Fetches data from the specified URL.
 
     Args:
-        url (str): The URL to send the request to.
+        url (str): The URL to fetch data from.
 
     Returns:
-        Dict[str, Any]: The JSON response from the server.
+        dict: The JSON response from the server.
 
     Raises:
-        ValueError: If the URL is invalid.
-        RuntimeError: If an error occurs during the request.
+        ValueError: If the response content is not valid JSON.
+        RequestException: If an error occurs during the request.
     """
-    if not url.startswith('http'):
-        raise ValueError("Invalid URL provided. Must start with 'http'.")
-
     try:
         # Send a GET request to the specified URL
         response = requests.get(url)
-        
-        # Raise an exception for HTTP errors (4xx and 5xx responses)
+        # Raise an error for bad responses (4xx and 5xx status codes)
         response.raise_for_status()
-        
-        # Return the JSON response
+        # Parse the response as JSON and return it
         return response.json()
-
-    except HTTPError as http_err:
-        raise RuntimeError(f"HTTP error occurred: {http_err}") from http_err
-    except RequestException as req_err:
-        raise RuntimeError(f"Request exception occurred: {req_err}") from req_err
+    except ValueError as e:
+        raise ValueError("Response content is not valid JSON") from e
+    except RequestException as e:
+        raise RequestException(f"An error occurred while fetching data: {e}")
 
 if __name__ == "__main__":
-    url = "https://api.example.com/data"  # Replace with a valid API endpoint
+    # Example URL to fetch data from
+    url = "https://jsonplaceholder.typicode.com/posts/1"
+    
     try:
+        # Fetch data and print the result
         data = fetch_data(url)
-        print(data)  # Output the fetched data
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        print(data)
+    except (ValueError, RequestException) as e:
+        print(e)
