@@ -4579,6 +4579,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8229423009173028,
       "learned_at": "2025-10-19T17:44:16.631721"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.9601089914440749,
+      "learned_at": "2025-10-19T17:59:40.790088"
+    },
+    {
+      "name": "beautifulsoup4",
+      "proficiency": 0.8066596191931327,
+      "learned_at": "2025-10-19T17:59:57.889612"
     }
   ],
   "skills": [],
