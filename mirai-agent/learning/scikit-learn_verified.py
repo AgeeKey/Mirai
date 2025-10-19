@@ -1,85 +1,58 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.81
+Quality Grade: C
+Overall Score: 0.79
 Tests Passed: 0/1
-Learned: 2025-10-19T13:15:59.775935
+Learned: 2025-10-19T13:31:46.164132
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.datasets import load_iris
-from typing import Any, Dict, Tuple
+from sklearn.metrics import classification_report, confusion_matrix
+from typing import Tuple
 
 def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Loads the Iris dataset.
+    """Load the Iris dataset and return features and labels."""
+    iris = load_iris()
+    return iris.data, iris.target
 
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
-    """
-    data = load_iris()
-    return data.data, data.target
-
-def preprocess_data(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Splits the dataset into training and testing sets.
-
-    Args:
-        X (np.ndarray): Feature matrix.
-        y (np.ndarray): Target array.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and testing feature and target sets.
-    """
+def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
     try:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
+        return train_test_split(X, y, test_size=test_size, random_state=random_state)
     except Exception as e:
-        raise RuntimeError(f"Error during data splitting: {e}")
+        raise ValueError("Error while splitting data: " + str(e))
 
 def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Trains a Random Forest classifier on the training data.
-
-    Args:
-        X_train (np.ndarray): Training feature matrix.
-        y_train (np.ndarray): Training target array.
-
-    Returns:
-        RandomForestClassifier: Trained model.
-    """
+    """Train a Random Forest model."""
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
     try:
-        model = RandomForestClassifier(random_state=42)
         model.fit(X_train, y_train)
         return model
     except Exception as e:
-        raise RuntimeError(f"Error during model training: {e}")
+        raise RuntimeError("Error while training the model: " + str(e))
 
 def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluates the model and prints the classification report and accuracy.
-
-    Args:
-        model (RandomForestClassifier): Trained model.
-        X_test (np.ndarray): Testing feature matrix.
-        y_test (np.ndarray): Testing target array.
-    """
+    """Evaluate the trained model and print the classification report and confusion matrix."""
     try:
         y_pred = model.predict(X_test)
         print("Classification Report:\n", classification_report(y_test, y_pred))
-        print("Accuracy:", accuracy_score(y_test, y_pred))
+        print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
     except Exception as e:
-        raise RuntimeError(f"Error during model evaluation: {e}")
+        raise RuntimeError("Error during model evaluation: " + str(e))
 
 def main() -> None:
-    """Main function to execute the machine learning workflow."""
-    X, y = load_data()
-    X_train, X_test, y_train, y_test = preprocess_data(X, y)
-    model = train_model(X_train, y_train)
-    evaluate_model(model, X_test, y_test)
+    """Main function to execute the workflow."""
+    X, y = load_data()  # Load data
+    X_train, X_test, y_train, y_test = split_data(X, y)  # Split data
+    model = train_model(X_train, y_train)  # Train model
+    evaluate_model(model, X_test, y_test)  # Evaluate model
 
 if __name__ == "__main__":
-    main()
+    main()  # Run the main function
