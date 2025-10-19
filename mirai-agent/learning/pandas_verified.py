@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-19T20:05:49.349586
+Learned: 2025-10-19T20:21:33.634080
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,51 +12,76 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and perform basic processing.
+    Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if loading fails.
+    Optional[pd.DataFrame]: DataFrame containing the data if successful, None otherwise.
     """
     try:
-        # Load data from CSV file
         data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError:
         print(f"Error: The file {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
         return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    except pd.errors.ParserError:
+        print("Error: There was a parsing error.")
         return None
 
-    # Display the first few rows of the dataframe
-    print("Initial data loaded:")
-    print(data.head())
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and duplicates.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: The cleaned DataFrame.
+    """
+    if df is None:
+        raise ValueError("Input DataFrame is None.")
 
     # Drop rows with any missing values
-    data_cleaned = data.dropna()
+    df_cleaned = df.dropna()
+    
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+    
+    return df_cleaned
 
-    # Reset index after dropping rows
-    data_cleaned.reset_index(drop=True, inplace=True)
-
-    return data_cleaned
-
-def main() -> None:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Main function to execute the data loading and processing.
+    Print a summary of the DataFrame including descriptive statistics.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to summarize.
     """
-    file_path = 'example_data.csv'  # Specify the path to your CSV file
-    processed_data = load_and_process_data(file_path)
+    if df is None:
+        raise ValueError("Input DataFrame is None.")
 
-    if processed_data is not None:
-        print("Processed data:")
-        print(processed_data)
+    print("Data Summary:")
+    print(df.describe())
 
-if __name__ == '__main__':
-    main()
+def main(file_path: str) -> None:
+    """
+    Main function to execute data loading, cleaning, and summarizing.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)
+    if df is not None:
+        df_cleaned = clean_data(df)
+        summarize_data(df_cleaned)
+
+if __name__ == "__main__":
+    # Example CSV file path
+    example_file_path = 'data.csv'
+    main(example_file_path)
