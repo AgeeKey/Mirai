@@ -4,57 +4,64 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-19T07:28:01.189048
+Learned: 2025-10-19T07:43:47.277125
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, columns: Optional[list] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it by selecting specified columns.
+    Load data from a CSV file and process it by filling missing values
+    and converting data types.
 
-    Args:
-        file_path (str): The path to the CSV file.
-        columns (Optional[list]): A list of columns to select from the DataFrame. 
-                                  If None, all columns are selected.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A processed DataFrame containing the selected columns.
+    pd.DataFrame: The processed DataFrame.
     
     Raises:
-        FileNotFoundError: If the specified file_path does not exist.
-        ValueError: If the specified columns are not in the DataFrame.
+    FileNotFoundError: If the file does not exist.
+    pd.errors.EmptyDataError: If the file is empty.
+    pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
+        # Load the dataset
+        data = pd.read_csv(file_path)
 
-        # If specific columns are provided, filter the DataFrame
-        if columns is not None:
-            missing_cols = set(columns) - set(df.columns)
-            if missing_cols:
-                raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
-            df = df[columns]
+        # Fill missing values with the mean for numerical columns
+        for col in data.select_dtypes(include=np.number).columns:
+            data[col].fillna(data[col].mean(), inplace=True)
 
-        return df
+        # Convert categorical columns to 'category' type
+        for col in data.select_dtypes(include='object').columns:
+            data[col] = data[col].astype('category')
+        
+        return data
 
     except FileNotFoundError as e:
-        print(f"Error: The file at {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError:
+        print(f"Error: {e}. Please check the file path.")
+        raise
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
         raise
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed. Please check the file format.")
+    except pd.errors.ParserError as e:
+        print("Error: Could not parse the file.")
         raise
 
-# Example usage
-if __name__ == "__main__":
+def main() -> None:
+    """
+    Main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Specify your CSV file path here
     try:
-        data = load_and_process_data('data.csv', columns=['column1', 'column2'])
-        print(data.head())
+        processed_data = load_and_process_data(file_path)
+        print(processed_data.head())  # Display the first few rows of the processed data
     except Exception as e:
         print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
