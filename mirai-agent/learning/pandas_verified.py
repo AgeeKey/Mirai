@@ -1,69 +1,60 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-19T02:12:51.055440
+Learned: 2025-10-19T02:28:32.970306
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Union
+from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
     Load a CSV file into a pandas DataFrame.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
+    Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file or None if an error occurs.
     """
     try:
         df = pd.read_csv(file_path)
         return df
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
+        print(f"Error: The file at {file_path} was not found.")
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
     except pd.errors.ParserError:
         print("Error: Could not parse the file.")
     return None
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Process the DataFrame by removing rows with missing values and resetting the index.
+    Print the summary of the DataFrame.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to process.
-
-    Returns:
-        pd.DataFrame: The processed DataFrame.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to summarize.
     """
-    # Remove rows with any missing values
-    df_cleaned = df.dropna()
-    # Reset the index of the DataFrame
-    df_cleaned.reset_index(drop=True, inplace=True)
-    return df_cleaned
+    if df is not None:
+        print("Summary of DataFrame:")
+        print(df.describe())
+        print("\nMissing values in each column:")
+        print(df.isnull().sum())
+    else:
+        print("No data to summarize.")
 
-def main(file_path: str) -> None:
+def main() -> None:
     """
-    Main function to load and process the data.
-
-    Args:
-        file_path (str): The path to the CSV file.
+    Main function to load data and summarize it.
     """
-    # Load the data
+    file_path = 'data.csv'  # Specify the path to your CSV file
     data = load_data(file_path)
-    if data is not None:
-        # Process the data
-        processed_data = process_data(data)
-        # Display the first few rows of the processed data
-        print(processed_data.head())
+    summarize_data(data)
 
 if __name__ == "__main__":
-    # Replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    main()

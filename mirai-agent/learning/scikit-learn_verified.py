@@ -2,76 +2,61 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-19T02:13:07.856344
+Learned: 2025-10-19T02:28:50.826445
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
-from sklearn.exceptions import NotFittedError
-from typing import Tuple
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import logging
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load the iris dataset.
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
-    """
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset into a DataFrame."""
     iris = load_iris()
-    return iris.data, iris.target
+    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    data['target'] = iris.target
+    return data
 
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """
-    Train a Random Forest Classifier model.
+def split_data(data: pd.DataFrame) -> tuple:
+    """Split the data into training and testing sets."""
+    X = data.drop('target', axis=1)
+    y = data['target']
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-    Args:
-        X (np.ndarray): Feature matrix.
-        y (np.ndarray): Target vector.
-
-    Returns:
-        RandomForestClassifier: Trained Random Forest model.
-    """
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model."""
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X, y)
+    model.fit(X_train, y_train)
     return model
 
-def evaluate_model(model: RandomForestClassifier, X: np.ndarray, y: np.ndarray) -> None:
-    """
-    Evaluate the trained model and print accuracy and classification report.
-
-    Args:
-        model (RandomForestClassifier): Trained Random Forest model.
-        X (np.ndarray): Feature matrix for evaluation.
-        y (np.ndarray): True target vector for evaluation.
-    """
-    try:
-        predictions = model.predict(X)
-        accuracy = accuracy_score(y, predictions)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:")
-        print(classification_report(y, predictions))
-    except NotFittedError as e:
-        print("Model is not fitted yet. Error:", e)
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the model and print the accuracy and classification report."""
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    
+    logging.info(f"Accuracy: {accuracy:.2f}")
+    logging.info("Confusion Matrix:\n%s", confusion_matrix(y_test, y_pred))
+    logging.info("Classification Report:\n%s", classification_report(y_test, y_pred))
 
 def main() -> None:
-    """
-    Main function to run the machine learning workflow.
-    """
+    """Main function to execute the machine learning workflow."""
     try:
-        X, y = load_data()  # Load dataset
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)  # Split data
-        model = train_model(X_train, y_train)  # Train model
-        evaluate_model(model, X_test, y_test)  # Evaluate model
+        data = load_data()
+        X_train, X_test, y_train, y_test = split_data(data)
+        model = train_model(X_train, y_train)
+        evaluate_model(model, X_test, y_test)
     except Exception as e:
-        print("An error occurred:", e)
+        logging.error("An error occurred: %s", e)
 
 if __name__ == "__main__":
     main()
