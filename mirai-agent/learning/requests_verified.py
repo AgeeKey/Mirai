@@ -2,9 +2,9 @@
 requests - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.84
+Overall Score: 0.89
 Tests Passed: 1/1
-Learned: 2025-10-19T01:56:58.428269
+Learned: 2025-10-19T06:56:30.463946
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,45 +13,42 @@ import requests
 from requests.exceptions import HTTPError, RequestException
 from typing import Any, Dict
 
-def fetch_data(url: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+def fetch_data(url: str) -> Dict[str, Any]:
     """
-    Fetch data from a specified URL with optional query parameters.
+    Fetch data from the specified URL using an HTTP GET request.
 
     Args:
-        url (str): The URL to send the GET request to.
-        params (Dict[str, Any], optional): A dictionary of query parameters to include in the request.
+        url (str): The URL to send the request to.
 
     Returns:
         Dict[str, Any]: The JSON response from the server.
 
     Raises:
-        ValueError: If the response does not contain valid JSON.
-        HTTPError: If an HTTP error occurs during the request.
-        RequestException: For any other request-related errors.
+        ValueError: If the URL is invalid.
+        RuntimeError: If an error occurs during the request.
     """
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise an error for bad responses (4xx or 5xx)
+    if not url.startswith('http'):
+        raise ValueError("Invalid URL provided. Must start with 'http'.")
 
-        return response.json()  # Parse and return the JSON response
+    try:
+        # Send a GET request to the specified URL
+        response = requests.get(url)
+        
+        # Raise an exception for HTTP errors (4xx and 5xx responses)
+        response.raise_for_status()
+        
+        # Return the JSON response
+        return response.json()
 
     except HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-        raise
-    except ValueError as json_err:
-        print(f"Failed to parse JSON: {json_err}")
-        raise
+        raise RuntimeError(f"HTTP error occurred: {http_err}") from http_err
     except RequestException as req_err:
-        print(f"Error during requests to {url}: {req_err}")
-        raise
+        raise RuntimeError(f"Request exception occurred: {req_err}") from req_err
 
-# Example usage
 if __name__ == "__main__":
-    url = "https://api.example.com/data"
-    query_params = {"key": "value"}
-
+    url = "https://api.example.com/data"  # Replace with a valid API endpoint
     try:
-        data = fetch_data(url, params=query_params)
+        data = fetch_data(url)
         print(data)  # Output the fetched data
     except Exception as e:
         print(f"An error occurred: {e}")
