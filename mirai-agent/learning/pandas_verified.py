@@ -1,61 +1,82 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-19T05:37:55.477803
+Learned: 2025-10-19T05:53:43.745157
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: Optional[dict] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file, clean it, and return a DataFrame.
+    Create a pandas DataFrame from a provided dictionary.
 
-    Parameters:
-    - file_path: str - Path to the CSV file.
+    Args:
+        data (Optional[dict]): A dictionary where keys are column names and 
+                               values are lists of column data.
 
     Returns:
-    - Optional[pd.DataFrame] - Cleaned DataFrame or None if an error occurs.
+        pd.DataFrame: A DataFrame created from the input data.
+    
+    Raises:
+        ValueError: If data is not provided or is empty.
     """
-    try:
-        # Load data from CSV file
-        df = pd.read_csv(file_path)
-        
-        # Display the first few rows of the DataFrame
-        print("Initial DataFrame loaded:")
-        print(df.head())
-        
-        # Drop rows with any missing values
-        df_cleaned = df.dropna()
-        
-        # Reset index after dropping rows
-        df_cleaned.reset_index(drop=True, inplace=True)
+    if data is None or not data:
+        raise ValueError("Input data must be a non-empty dictionary.")
 
-        print("Cleaned DataFrame:")
-        print(df_cleaned.head())
-        
-        return df_cleaned
+    df = pd.DataFrame(data)
+    return df
 
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic statistics for numeric columns in the DataFrame.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with numeric columns.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing mean, median, and standard deviation.
+    
+    Raises:
+        ValueError: If the DataFrame is empty or has no numeric columns.
+    """
+    if df.empty:
+        raise ValueError("The input DataFrame is empty.")
+
+    numeric_cols = df.select_dtypes(include=np.number)
+
+    if numeric_cols.empty:
+        raise ValueError("No numeric columns found in the DataFrame.")
+
+    stats = {
+        'Mean': numeric_cols.mean(),
+        'Median': numeric_cols.median(),
+        'Std Dev': numeric_cols.std()
+    }
+
+    stats_df = pd.DataFrame(stats)
+    return stats_df
 
 # Example usage
 if __name__ == "__main__":
-    df = load_and_process_data('data.csv')
-    if df is not None:
-        print("Data processing completed successfully.")
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 6, 7, 8, 9],
+        'C': ['foo', 'bar', 'baz', 'qux', 'quux']  # Non-numeric column
+    }
+
+    try:
+        df = create_dataframe(data)
+        stats_df = calculate_statistics(df)
+        print("Original DataFrame:")
+        print(df)
+        print("\nStatistics DataFrame:")
+        print(stats_df)
+    except ValueError as e:
+        print(f"Error: {e}")
