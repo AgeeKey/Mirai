@@ -2,59 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.90
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-19T13:47:29.673174
+Learned: 2025-10-19T14:18:50.539985
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file, process it by filtering and returning a DataFrame.
+    Load data from a CSV file into a DataFrame.
 
-    Parameters:
-    - file_path (str): The path to the CSV file.
-    - column_name (str): The name of the column to filter on.
-    - filter_value (Optional[str]): The value to filter the column by. Default is None (no filtering).
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    - pd.DataFrame: A DataFrame containing the processed data.
-    
+        pd.DataFrame: The loaded DataFrame.
+
     Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - ValueError: If the specified column does not exist in the DataFrame.
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an issue with parsing the CSV file.
     """
     try:
-        # Load the CSV data into a DataFrame
-        df = pd.read_csv(file_path)
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: The file {file_path} does not exist.") from e
-    
-    # Check if the specified column exists in the DataFrame
-    if column_name not in df.columns:
-        raise ValueError(f"Error: The column '{column_name}' does not exist in the data.")
-    
-    # Filter the DataFrame if filter_value is provided
-    if filter_value:
-        df = df[df[column_name] == filter_value]
-    
-    return df
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
+        raise
+    except pd.errors.ParserError as e:
+        print("Error: Could not parse the file.")
+        raise
 
-def main():
-    file_path = 'data.csv'  # Path to the CSV file
-    column_name = 'Category'  # Column to filter on
-    filter_value = 'Electronics'  # Value to filter by
+def filter_data(df: pd.DataFrame, column: str, value: str) -> pd.DataFrame:
+    """
+    Filter the DataFrame based on a specified column value.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to filter by.
+        value (str): The value to filter for.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame.
+    """
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+    return df[df[column] == value]
+
+def main(file_path: str, column: str, value: str) -> None:
+    """
+    Main function to load, filter, and display data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+        column (str): The column name to filter by.
+        value (str): The value to filter for.
+    """
+    # Load the data from the specified CSV file
+    df = load_data(file_path)
     
-    try:
-        # Load and process the data
-        processed_data = load_and_process_data(file_path, column_name, filter_value)
-        print(processed_data)
-    except Exception as e:
-        print(e)
+    # Filter the data based on the given criteria
+    filtered_df = filter_data(df, column, value)
+    
+    # Display the filtered DataFrame
+    print(filtered_df)
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main("data.csv", "category", "A")
