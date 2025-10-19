@@ -2,85 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-19T03:15:58.280811
+Learned: 2025-10-19T03:31:44.362070
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load data from a CSV file into a DataFrame.
     
-    Parameters:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
-    
+    Args:
+        file_path (str): Path to the CSV file.
+        
     Returns:
-        pd.DataFrame: A DataFrame created from the provided data.
-    
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary do not match.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
-    # Check if all lists in the dictionary have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All lists in the dictionary must be of the same length.")
-    
-    # Create DataFrame
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> Optional[dict]:
-    """
-    Calculate basic statistics (mean, median, and standard deviation) for each numeric column in the DataFrame.
-    
-    Parameters:
-        df (pd.DataFrame): The DataFrame for which to calculate statistics.
-    
-    Returns:
-        dict: A dictionary containing mean, median, and standard deviation for each numeric column.
-    """
-    if df.empty:
-        print("DataFrame is empty. No statistics to calculate.")
-        return None
-    
-    # Calculate statistics
-    return {
-        'mean': df.mean().to_dict(),
-        'median': df.median().to_dict(),
-        'std_dev': df.std().to_dict()
-    }
-
-def main() -> None:
-    """
-    Main function to run the example code for creating a DataFrame and calculating statistics.
-    """
-    # Example data
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 4, 3, 2, 1],
-        'C': [2, 3, np.nan, 5, 6]  # np.nan to demonstrate handling missing values
-    }
-    
     try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:")
-        print(df)
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: Error parsing the file.")
+        return None
 
-        # Calculate and print statistics
-        stats = calculate_statistics(df)
-        print("\nCalculated statistics:")
-        print(stats)
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and resetting the index.
+    
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
+        
+    Returns:
+        pd.DataFrame: The cleaned DataFrame.
+    """
+    if df is not None:
+        df_cleaned = df.dropna().reset_index(drop=True)  # Drop rows with missing values
+        return df_cleaned
+    else:
+        raise ValueError("Input DataFrame is None.")
 
-    except ValueError as e:
-        print(f"ValueError: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Analyze the DataFrame by printing basic statistics.
+    
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+    """
+    if df is not None:
+        print("DataFrame Statistics:")
+        print(df.describe())  # Print basic statistics of the DataFrame
+    else:
+        raise ValueError("Input DataFrame is None.")
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data from a CSV file.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+    """
+    df = load_data(file_path)  # Load data from the CSV file
+    cleaned_df = clean_data(df)  # Clean the loaded data
+    analyze_data(cleaned_df)  # Analyze the cleaned data
 
 if __name__ == "__main__":
-    main()
+    main("path/to/your/data.csv")  # Replace with your actual file path
