@@ -2,58 +2,73 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.90
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-19T18:31:07.279458
+Learned: 2025-10-19T19:02:38.966513
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List, Dict
 
-def load_and_process_data(file_path: str, delimiter: str = ',', drop_columns: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file, process it by dropping specified columns, and return a cleaned DataFrame.
+    Load a CSV file into a Pandas DataFrame.
 
-    Parameters:
-    - file_path (str): The path to the CSV file.
-    - delimiter (str): The delimiter used in the CSV file. Default is ','.
-    - drop_columns (Optional[list]): List of column names to drop from the DataFrame.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    - pd.DataFrame: A cleaned DataFrame ready for analysis.
+        pd.DataFrame: A DataFrame containing the loaded data.
 
     Raises:
-    - FileNotFoundError: If the specified file cannot be found.
-    - ValueError: If drop_columns contains columns not in the DataFrame.
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, delimiter=delimiter)
-
-        # Drop specified columns if provided
-        if drop_columns:
-            for column in drop_columns:
-                if column in df.columns:
-                    df.drop(column, axis=1, inplace=True)
-                else:
-                    raise ValueError(f"Column '{column}' not found in DataFrame.")
-
-        # Return the processed DataFrame
-        return df
-
+        data = pd.read_csv(file_path)
+        return data
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty. {e}")
         raise
 
-# Example usage
-if __name__ == "__main__":
+def summarize_data(df: pd.DataFrame) -> Dict[str, any]:
+    """
+    Generate a summary of the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
+
+    Returns:
+        Dict[str, any]: A dictionary containing summary statistics.
+    """
+    summary = {
+        'shape': df.shape,
+        'columns': df.columns.tolist(),
+        'head': df.head().to_dict(orient='records'),
+        'description': df.describe(include='all').to_dict()
+    }
+    return summary
+
+def main(file_path: str) -> None:
+    """
+    Main function to load and summarize data.
+
+    Args:
+        file_path (str): The path to the CSV file to be processed.
+    """
     try:
-        df = load_and_process_data('data.csv', drop_columns=['unnecessary_column'])
-        print(df.head())
+        data = load_data(file_path)
+        summary = summarize_data(data)
+        print("Data Summary:")
+        print(summary)
     except Exception as e:
-        print(f"Failed to process data: {e}")
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    # Replace 'data.csv' with your actual file path
+    main('data.csv')
