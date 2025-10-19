@@ -1,55 +1,50 @@
 """
 numpy - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-16T14:35:01.486361
+Learned: 2025-10-19T19:34:34.664586
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
-from typing import List, Union
+from typing import Tuple
 
-def calculate_statistics(data: List[Union[int, float]]) -> dict:
+def create_array(shape: Tuple[int, int], fill_value: float = 0.0) -> np.ndarray:
     """
-    Calculate basic statistics (mean, median, and standard deviation) for a list of numbers.
-
+    Creates a NumPy array of a given shape and fills it with a specified value.
+    
     Parameters:
-    data (List[Union[int, float]]): A list of numeric values.
-
+    shape (Tuple[int, int]): The shape of the array (rows, columns).
+    fill_value (float): The value to fill the array with. Default is 0.0.
+    
     Returns:
-    dict: A dictionary containing mean, median, and standard deviation.
+    np.ndarray: A NumPy array filled with the specified value.
     
     Raises:
-    ValueError: If the input list is empty.
+    ValueError: If the shape contains non-positive integers.
     """
-    if not data:
-        raise ValueError("Input list must not be empty.")
-
-    # Convert the list to a NumPy array for efficient calculations
-    array_data = np.array(data)
-
-    # Calculate statistics
-    mean_value = np.mean(array_data)
-    median_value = np.median(array_data)
-    std_dev_value = np.std(array_data)
-
-    # Prepare the result as a dictionary
-    statistics = {
-        'mean': mean_value,
-        'median': median_value,
-        'std_dev': std_dev_value
-    }
+    if any(dim <= 0 for dim in shape):
+        raise ValueError("Shape dimensions must be positive integers.")
     
-    return statistics
+    return np.full(shape, fill_value)
+
+def main() -> None:
+    """
+    Main function to demonstrate the creation of a NumPy array.
+    """
+    try:
+        # Define the shape of the array
+        array_shape = (3, 4)
+        # Create a 3x4 array filled with 5.0
+        array = create_array(array_shape, fill_value=5.0)
+        # Print the created array
+        print("Created NumPy Array:")
+        print(array)
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    sample_data = [10, 20, 30, 40, 50]
-    try:
-        stats = calculate_statistics(sample_data)
-        print("Statistics:", stats)
-    except ValueError as e:
-        print("Error:", e)
+    main()
