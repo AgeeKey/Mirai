@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.95
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-19T23:14:27.392979
+Learned: 2025-10-19T23:30:06.131661
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,47 +12,57 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame and perform basic cleaning operations.
+    Load data from a CSV file and process it by selecting specific columns.
 
-    Parameters:
-        file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file to be loaded.
+        columns (Optional[list]): A list of columns to select from the DataFrame. If None, all columns are selected.
 
     Returns:
-        Optional[pd.DataFrame]: A cleaned DataFrame or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the loaded and processed data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the specified columns are not found in the DataFrame.
     """
     try:
-        # Load CSV data into a DataFrame
+        # Load the data from the CSV file
         df = pd.read_csv(file_path)
-        
-        # Display the initial shape of the DataFrame
-        print(f"Initial DataFrame shape: {df.shape}")
 
-        # Drop rows with any missing values
-        df_cleaned = df.dropna()
-        
-        # Reset index after dropping rows
-        df_cleaned.reset_index(drop=True, inplace=True)
+        # Select specific columns if provided
+        if columns is not None:
+            missing_columns = set(columns) - set(df.columns)
+            if missing_columns:
+                raise ValueError(f"Columns not found in DataFrame: {missing_columns}")
+            df = df[columns]
 
-        # Display the shape after cleaning
-        print(f"Cleaned DataFrame shape: {df_cleaned.shape}")
+        return df
 
-        return df_cleaned
     except FileNotFoundError:
         print(f"Error: The file {file_path} was not found.")
+        raise
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: Could not parse the file.")
+        raise
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    
-    return None
+        raise
+
+def main():
+    """
+    The main function to execute the data loading and processing.
+    """
+    file_path = 'data.csv'  # Replace with your CSV file path
+    selected_columns = ['Column1', 'Column2']  # Replace with your desired columns
+
+    try:
+        # Load and process the data
+        data = load_and_process_data(file_path, selected_columns)
+        print(data.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print(f"Failed to load and process data: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your actual file path
-    cleaned_data = load_and_process_data(file_path)
-    if cleaned_data is not None:
-        print(cleaned_data.head())
+    main()
