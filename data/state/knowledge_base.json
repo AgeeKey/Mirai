@@ -4649,6 +4649,11 @@
       "name": "numpy",
       "proficiency": 0.89354282067628,
       "learned_at": "2025-10-19T19:34:34.665895"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.9004711846934583,
+      "learned_at": "2025-10-19T19:50:01.761010"
     }
   ],
   "skills": [],

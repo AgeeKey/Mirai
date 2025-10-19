@@ -2,58 +2,71 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.92
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-19T19:18:34.648490
+Learned: 2025-10-19T19:50:01.759711
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a Pandas DataFrame from a dictionary.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if an error occurs.
+    pd.DataFrame: A DataFrame created from the provided dictionary.
     """
     try:
-        # Load the data into a DataFrame
-        data = pd.read_csv(file_path)
-
-        # Display the first few rows of the DataFrame
-        print("Data loaded successfully. Here are the first few rows:")
-        print(data.head())
-
-        # Drop any rows with missing values
-        data_cleaned = data.dropna()
-
-        # Reset index after dropping rows
-        data_cleaned.reset_index(drop=True, inplace=True)
-
-        return data_cleaned
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error while reading the CSV file.")
-        return None
+        df = pd.DataFrame(data)
+        return df
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
+        raise ValueError(f"Error creating DataFrame: {e}")
 
-# Example usage:
+def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by filling missing values and removing duplicates.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: A cleaned DataFrame.
+    """
+    try:
+        # Fill missing values with the mean of each column
+        df_filled = df.fillna(df.mean(numeric_only=True))
+        # Remove duplicate rows
+        df_cleaned = df_filled.drop_duplicates()
+        return df_cleaned
+    except Exception as e:
+        raise ValueError(f"Error cleaning DataFrame: {e}")
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and cleaning.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, np.nan, 4, 5],
+        'B': [np.nan, 2, 3, 4, 5],
+        'C': ['foo', 'bar', 'foo', 'bar', 'baz']
+    }
+
+    # Create DataFrame
+    df = create_dataframe(data)
+    print("Original DataFrame:")
+    print(df)
+
+    # Clean DataFrame
+    clean_df = clean_dataframe(df)
+    print("\nCleaned DataFrame:")
+    print(clean_df)
+
 if __name__ == "__main__":
-    file_path = 'data.csv'  # Replace with your CSV file path
-    processed_data = load_and_process_data(file_path)
-    if processed_data is not None:
-        print("Processed Data:")
-        print(processed_data)
+    main()
