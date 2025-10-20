@@ -3,92 +3,73 @@ fastapi - Verified Learning Artifact
 
 Quality Grade: D
 Overall Score: 0.70
-Tests Passed: 1/1
-Learned: 2025-10-18T17:12:35.676131
+Tests Passed: 0/1
+Learned: 2025-10-20T13:47:06.659559
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 app = FastAPI()
 
-# Data model for a User
-class User(BaseModel):
+class Item(BaseModel):
     id: int
     name: str
-    email: str
+    description: Optional[str] = None
+    price: float
+    tax: Optional[float] = None
 
-# In-memory storage for users
-users_db: List[User] = []
+# In-memory database simulation
+items_db: List[Item] = []
 
-@app.post("/users/", response_model=User)
-async def create_user(user: User) -> User:
+@app.post("/items/", response_model=Item)
+async def create_item(item: Item):
     """
-    Create a new user and store it in the in-memory database.
-
-    Args:
-        user (User): The user data to be created.
-
-    Returns:
-        User: The created user.
+    Create a new item and store it in the in-memory database.
     """
-    # Check if user with the same id already exists
-    if any(u.id == user.id for u in users_db):
-        raise HTTPException(status_code=400, detail="User with this ID already exists.")
-    
-    users_db.append(user)  # Add user to the in-memory database
-    return user
+    items_db.append(item)
+    return item
 
-@app.get("/users/", response_model=List[User])
-async def get_users() -> List[User]:
+@app.get("/items/", response_model=List[Item])
+async def read_items():
     """
-    Retrieve all users from the in-memory database.
-
-    Returns:
-        List[User]: A list of all users.
+    Retrieve all items from the in-memory database.
     """
-    return users_db  # Return the list of users
+    return items_db
 
-@app.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: int) -> User:
+@app.get("/items/{item_id}", response_model=Item)
+async def read_item(item_id: int):
     """
-    Retrieve a user by their ID.
-
-    Args:
-        user_id (int): The ID of the user to retrieve.
-
-    Raises:
-        HTTPException: If the user is not found.
-
-    Returns:
-        User: The requested user.
+    Retrieve a specific item by its ID.
     """
-    user = next((u for u in users_db if u.id == user_id), None)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found.")
-    
-    return user  # Return the requested user
+    for item in items_db:
+        if item.id == item_id:
+            return item
+    raise HTTPException(status_code=404, detail="Item not found")
 
-@app.delete("/users/{user_id}", response_model=User)
-async def delete_user(user_id: int) -> User:
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: int, item: Item):
     """
-    Delete a user by their ID.
-
-    Args:
-        user_id (int): The ID of the user to delete.
-
-    Raises:
-        HTTPException: If the user is not found.
-
-    Returns:
-        User: The deleted user.
+    Update an existing item by its ID.
     """
-    user = next((u for u in users_db if u.id == user_id), None)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found.")
-    
-    users_db.remove(user)  # Remove the user from the in-memory database
-    return user  # Return the deleted user
+    for index, existing_item in enumerate(items_db):
+        if existing_item.id == item_id:
+            items_db[index] = item
+            return item
+    raise HTTPException(status_code=404, detail="Item not found")
+
+@app.delete("/items/{item_id}", response_model=dict)
+async def delete_item(item_id: int):
+    """
+    Delete an item by its ID.
+    """
+    for index, existing_item in enumerate(items_db):
+        if existing_item.id == item_id:
+            del items_db[index]
+            return {"detail": "Item deleted"}
+    raise HTTPException(status_code=404, detail="Item not found")
+
+# To run the application, use the command: uvicorn <filename>:app --reload
