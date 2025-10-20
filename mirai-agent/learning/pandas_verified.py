@@ -2,80 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-20T17:49:43.385628
+Learned: 2025-10-20T18:05:48.460663
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame.
+    Load data from a CSV file into a DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file, or None if an error occurs.
+        pd.DataFrame: A DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        # Load the data from the CSV file
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: There was a parsing error - {e}")
+        raise
 
-def filter_data(data: pd.DataFrame, column_name: str, threshold: float) -> pd.DataFrame:
+def filter_data(df: pd.DataFrame, column_name: str, threshold: float) -> pd.DataFrame:
     """
-    Filter the DataFrame based on a threshold for a specific column.
+    Filter the DataFrame based on a threshold for a specified column.
 
     Args:
-        data (pd.DataFrame): The DataFrame to filter.
-        column_name (str): The column name to apply the threshold on.
+        df (pd.DataFrame): The DataFrame to filter.
+        column_name (str): The column to apply the filter on.
         threshold (float): The threshold value for filtering.
 
     Returns:
-        pd.DataFrame: A DataFrame containing rows where the specified column's value exceeds the threshold.
-    """
-    if column_name not in data.columns:
-        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-    
-    # Filter the DataFrame based on the threshold
-    filtered_data = data[data[column_name] > threshold]
-    return filtered_data
+        pd.DataFrame: A DataFrame containing rows where column values exceed the threshold.
 
-def main() -> None:
+    Raises:
+        KeyError: If the specified column does not exist in the DataFrame.
     """
-    Main function to execute data loading and filtering.
+    if column_name not in df.columns:
+        raise KeyError(f"Column '{column_name}' does not exist in the DataFrame.")
+    
+    filtered_df = df[df[column_name] > threshold]
+    return filtered_df
+
+def main(file_path: str, column_name: str, threshold: float) -> None:
     """
-    # Path to the CSV file
-    file_path = 'data.csv'
-    
-    # Load the data
-    data = load_data(file_path)
-    
-    # Proceed only if data is loaded successfully
-    if data is not None:
-        try:
-            # Filter the data for a specified column and threshold
-            column_name = 'value'
-            threshold = 10.0
-            filtered_data = filter_data(data, column_name, threshold)
-            print("Filtered Data:")
-            print(filtered_data)
-        except ValueError as e:
-            print(e)
+    Main function to load, filter, and display data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+        column_name (str): The column to filter on.
+        threshold (float): The threshold value for filtering.
+    """
+    df = load_data(file_path)
+    filtered_df = filter_data(df, column_name, threshold)
+    print(filtered_df)
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main("data.csv", "sales", 1000.0)
