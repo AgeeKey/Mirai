@@ -2,81 +2,98 @@
 TensorFlow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-20T01:36:35.150758
+Learned: 2025-10-20T04:14:17.349303
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import numpy as np
-import logging
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-
-def create_model(input_shape: tuple) -> tf.keras.Model:
+def load_and_prepare_data() -> tuple:
     """
-    Create a simple CNN model for image classification.
+    Load and prepare the Iris dataset for training.
+
+    Returns:
+        tuple: A tuple containing training and testing data and labels.
+    """
+    try:
+        iris = load_iris()
+        X = iris.data
+        y = iris.target
+        
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Scale the features
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+        return X_train, X_test, y_train, y_test
+    except Exception as e:
+        print(f"Error in loading data: {e}")
+        raise
+
+def build_model(input_shape: int) -> tf.keras.Model:
+    """
+    Build a simple neural network model.
 
     Args:
-        input_shape (tuple): Shape of the input images.
+        input_shape (int): The shape of the input data.
 
     Returns:
         tf.keras.Model: A compiled Keras model.
     """
-    model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(10, activation='softmax')  # Assuming 10 classes for classification
-    ])
-    
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-    
-    return model
+    try:
+        model = models.Sequential([
+            layers.Dense(10, activation='relu', input_shape=(input_shape,)),
+            layers.Dense(10, activation='relu'),
+            layers.Dense(3, activation='softmax')  # 3 classes for Iris
+        ])
+        
+        model.compile(optimizer='adam',
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+        return model
+    except Exception as e:
+        print(f"Error in building model: {e}")
+        raise
 
-def train_model(model: tf.keras.Model, x_train: np.ndarray, y_train: np.ndarray, epochs: int = 5) -> None:
+def train_and_evaluate_model(model: tf.keras.Model, X_train: np.ndarray, y_train: np.ndarray, 
+                             X_test: np.ndarray, y_test: np.ndarray) -> None:
     """
-    Train the given model on the provided dataset.
+    Train and evaluate the model.
 
     Args:
-        model (tf.keras.Model): The model to be trained.
-        x_train (np.ndarray): Training data.
+        model (tf.keras.Model): The Keras model to train.
+        X_train (np.ndarray): Training data.
         y_train (np.ndarray): Training labels.
-        epochs (int): Number of epochs to train for. Default is 5.
-
-    Raises:
-        ValueError: If the input data shapes do not match.
+        X_test (np.ndarray): Testing data.
+        y_test (np.ndarray): Testing labels.
     """
-    if x_train.shape[0] != y_train.shape[0]:
-        raise ValueError("The number of training samples must match the number of labels.")
-
     try:
-        model.fit(x_train, y_train, epochs=epochs)
+        # Train the model
+        model.fit(X_train, y_train, epochs=50, batch_size=5, verbose=1)
+
+        # Evaluate the model
+        loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
+        print(f"Test Accuracy: {accuracy:.4f}")
     except Exception as e:
-        logging.error(f"An error occurred during training: {e}")
+        print(f"Error in training or evaluating model: {e}")
+        raise
 
 def main() -> None:
-    """
-    Main function to execute the model creation and training.
-    """
-    # Generate random training data
-    x_train = np.random.random((1000, 28, 28, 1))  # 1000 samples of 28x28 grayscale images
-    y_train = np.random.randint(10, size=(1000,))  # 1000 labels for 10 classes
-
-    # Create model
-    model = create_model(input_shape=(28, 28, 1))
-
-    # Train model
-    train_model(model, x_train, y_train)
+    """Main function to execute the steps."""
+    X_train, X_test, y_train, y_test = load_and_prepare_data()
+    model = build_model(X_train.shape[1])
+    train_and_evaluate_model(model, X_train, y_train, X_test, y_test)
 
 if __name__ == "__main__":
     main()

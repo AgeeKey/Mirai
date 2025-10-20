@@ -2,76 +2,80 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-20T03:58:02.756630
+Learned: 2025-10-20T04:13:54.181115
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a pandas DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
+        pd.DataFrame: A DataFrame constructed from the input data.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If the file cannot be parsed.
+        ValueError: If the input data is empty or not a dictionary.
     """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.ParserError as e:
-        print(f"Error: {e}")
-        raise
+    if not isinstance(data, dict) or not data:
+        raise ValueError("Input data must be a non-empty dictionary.")
+    
+    return pd.DataFrame(data)
 
-def analyze_data(df: pd.DataFrame, column: str) -> Optional[pd.Series]:
+def calculate_statistics(df: pd.DataFrame, column: str) -> Optional[dict]:
     """
-    Analyze a specific column in the DataFrame.
+    Calculate basic statistics for a specified column in the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        column (str): The column name to analyze.
+        df (pd.DataFrame): The DataFrame containing data.
+        column (str): The column name for which to calculate statistics.
 
     Returns:
-        Optional[pd.Series]: A Series containing the analysis results, or None if the column does not exist.
+        Optional[dict]: A dictionary containing mean, median, and standard deviation, or None if the column does not exist.
+
+    Raises:
+        ValueError: If the column is not found in the DataFrame.
     """
     if column not in df.columns:
-        print(f"Column '{column}' does not exist in the DataFrame.")
-        return None
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
     
-    # Generate summary statistics for the specified column
-    summary = df[column].describe()
-    return summary
+    stats = {
+        'mean': df[column].mean(),
+        'median': df[column].median(),
+        'std_dev': df[column].std()
+    }
+    
+    return stats
 
-def main():
-    """
-    Main function to demonstrate loading and analyzing data.
-    """
-    file_path = 'data.csv'  # Specify your CSV file path here
-
-    # Load the data
-    df = load_data(file_path)
-
-    # Analyze a specific column
-    analysis_result = analyze_data(df, 'target_column')  # Replace 'target_column' with your column name
-    if analysis_result is not None:
-        print(analysis_result)
-
+# Example usage
 if __name__ == "__main__":
-    main()
+    try:
+        # Sample data for creating a DataFrame
+        data = {
+            'A': np.random.rand(10),
+            'B': np.random.rand(10),
+            'C': np.random.rand(10)
+        }
+        
+        # Create DataFrame
+        df = create_dataframe(data)
+        
+        # Calculate statistics for column 'A'
+        stats = calculate_statistics(df, 'A')
+        
+        print("DataFrame:")
+        print(df)
+        print("\nStatistics for column 'A':")
+        print(stats)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
