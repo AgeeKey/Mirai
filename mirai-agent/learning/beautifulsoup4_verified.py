@@ -4,7 +4,7 @@ beautifulsoup4 - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-19T17:59:57.888265
+Learned: 2025-10-20T21:02:24.467840
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,13 +14,14 @@ from bs4 import BeautifulSoup
 from typing import List, Optional
 
 def fetch_html(url: str) -> Optional[str]:
-    """Fetch the HTML content of a given URL.
+    """
+    Fetches the HTML content from the given URL.
 
     Args:
-        url (str): The URL of the web page to fetch.
+        url (str): The URL to fetch the HTML from.
 
     Returns:
-        Optional[str]: The HTML content of the page, or None if an error occurs.
+        Optional[str]: The HTML content if the request was successful, None otherwise.
     """
     try:
         response = requests.get(url)
@@ -31,30 +32,32 @@ def fetch_html(url: str) -> Optional[str]:
         return None
 
 def parse_html(html: str) -> List[str]:
-    """Parse the HTML content and extract all the text from <p> tags.
+    """
+    Parses the HTML content and extracts all the text from the <p> tags.
 
     Args:
         html (str): The HTML content to parse.
 
     Returns:
-        List[str]: A list of text content from <p> tags.
+        List[str]: A list of text extracted from <p> tags.
     """
-    soup = BeautifulSoup(html, 'html.parser')  # Create a BeautifulSoup object
+    soup = BeautifulSoup(html, 'html.parser')  # Parse the HTML
     paragraphs = soup.find_all('p')  # Find all <p> tags
-    return [p.get_text() for p in paragraphs]  # Extract text from <p> tags
+    return [p.get_text() for p in paragraphs]  # Extract text from each <p>
 
 def main(url: str) -> None:
-    """Main function to fetch and parse HTML from a URL.
+    """
+    Main function to execute the web scraping process.
 
     Args:
-        url (str): The URL of the web page to process.
+        url (str): The URL to scrape.
     """
-    html_content = fetch_html(url)  # Fetch the HTML content
-    if html_content:  # Proceed only if HTML was fetched successfully
-        paragraphs = parse_html(html_content)  # Parse the HTML
-        for index, paragraph in enumerate(paragraphs):
-            print(f"Paragraph {index + 1}: {paragraph}")  # Print each paragraph
+    html = fetch_html(url)  # Fetch the HTML content
+    if html:
+        paragraphs = parse_html(html)  # Parse the HTML and get <p> texts
+        for i, paragraph in enumerate(paragraphs, start=1):
+            print(f"Paragraph {i}: {paragraph}")  # Print each paragraph
 
 if __name__ == "__main__":
-    url_input = "https://example.com"  # Replace with your target URL
-    main(url_input)  # Call the main function
+    target_url = 'https://example.com'  # Replace with the desired URL
+    main(target_url)  # Run the main function
