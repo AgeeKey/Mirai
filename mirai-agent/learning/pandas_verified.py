@@ -1,76 +1,81 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-20T17:33:38.177652
+Learned: 2025-10-20T17:49:43.385628
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Creates a pandas DataFrame from a given dictionary.
+    Load a CSV file into a pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
-
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary are inconsistent.
+        Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file, or None if an error occurs.
     """
-    # Check if all columns have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same length.")
+    try:
+        # Load the data from the CSV file
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-    # Create a DataFrame
-    return pd.DataFrame(data)
-
-def calculate_mean(df: pd.DataFrame, column: str) -> float:
+def filter_data(data: pd.DataFrame, column_name: str, threshold: float) -> pd.DataFrame:
     """
-    Calculates the mean of a specified column in a DataFrame.
+    Filter the DataFrame based on a threshold for a specific column.
 
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        column (str): The column name for which to calculate the mean.
+        data (pd.DataFrame): The DataFrame to filter.
+        column_name (str): The column name to apply the threshold on.
+        threshold (float): The threshold value for filtering.
 
     Returns:
-        float: The mean of the specified column.
-
-    Raises:
-        KeyError: If the column does not exist in the DataFrame.
+        pd.DataFrame: A DataFrame containing rows where the specified column's value exceeds the threshold.
     """
-    # Check if the column exists in the DataFrame
-    if column not in df.columns:
-        raise KeyError(f"Column '{column}' does not exist in the DataFrame.")
+    if column_name not in data.columns:
+        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
     
-    # Calculate and return the mean
-    return df[column].mean()
+    # Filter the DataFrame based on the threshold
+    filtered_data = data[data[column_name] > threshold]
+    return filtered_data
+
+def main() -> None:
+    """
+    Main function to execute data loading and filtering.
+    """
+    # Path to the CSV file
+    file_path = 'data.csv'
+    
+    # Load the data
+    data = load_data(file_path)
+    
+    # Proceed only if data is loaded successfully
+    if data is not None:
+        try:
+            # Filter the data for a specified column and threshold
+            column_name = 'value'
+            threshold = 10.0
+            filtered_data = filter_data(data, column_name, threshold)
+            print("Filtered Data:")
+            print(filtered_data)
+        except ValueError as e:
+            print(e)
 
 if __name__ == "__main__":
-    # Sample data
-    data = {
-        "Name": ["Alice", "Bob", "Charlie"],
-        "Age": [25, 30, 35],
-        "Salary": [50000, 60000, 70000]
-    }
-
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:")
-        print(df)
-
-        # Calculate mean salary
-        mean_salary = calculate_mean(df, "Salary")
-        print(f"Mean Salary: {mean_salary}")
-
-    except (ValueError, KeyError) as e:
-        print(f"Error: {e}")
+    main()
