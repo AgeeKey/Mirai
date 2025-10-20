@@ -4,79 +4,74 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-20T03:42:18.896353
+Learned: 2025-10-20T03:58:02.756630
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
-from typing import Tuple
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
-    
-    Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    Load data from a CSV file into a pandas DataFrame.
+
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame constructed from the provided data.
+        pd.DataFrame: A DataFrame containing the loaded data.
 
     Raises:
-    ValueError: If the input data is invalid (e.g., columns have different lengths).
-    """
-    if not data:
-        raise ValueError("Input data cannot be empty")
-    
-    length = len(next(iter(data.values())))
-    for key, value in data.items():
-        if len(value) != length:
-            raise ValueError(f"Column '{key}' has a different length than the others.")
-
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> Tuple[float, float]:
-    """
-    Calculate the mean and standard deviation of a DataFrame's numeric columns.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    Tuple[float, float]: A tuple containing the mean and standard deviation of the DataFrame.
-    """
-    if df.empty:
-        raise ValueError("DataFrame is empty")
-    
-    mean = df.mean().mean()  # Mean of all numeric columns
-    std_dev = df.std().mean()  # Standard deviation of all numeric columns
-    return mean, std_dev
-
-def main() -> None:
-    """
-    Main function to create a DataFrame, calculate statistics, and print results.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If the file cannot be parsed.
     """
     try:
-        # Sample data for DataFrame creation
-        data = {
-            "A": [1, 2, 3, 4, 5],
-            "B": [5, 4, 3, 2, 1],
-            "C": [2, 3, np.nan, 5, 6]
-        }
-        
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:")
-        print(df)
-        
-        # Calculate statistics
-        mean, std_dev = calculate_statistics(df)
-        print(f"Mean of DataFrame: {mean}")
-        print(f"Standard Deviation of DataFrame: {std_dev}")
-
-    except ValueError as e:
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
         print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: {e}")
+        raise
+
+def analyze_data(df: pd.DataFrame, column: str) -> Optional[pd.Series]:
+    """
+    Analyze a specific column in the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        column (str): The column name to analyze.
+
+    Returns:
+        Optional[pd.Series]: A Series containing the analysis results, or None if the column does not exist.
+    """
+    if column not in df.columns:
+        print(f"Column '{column}' does not exist in the DataFrame.")
+        return None
+    
+    # Generate summary statistics for the specified column
+    summary = df[column].describe()
+    return summary
+
+def main():
+    """
+    Main function to demonstrate loading and analyzing data.
+    """
+    file_path = 'data.csv'  # Specify your CSV file path here
+
+    # Load the data
+    df = load_data(file_path)
+
+    # Analyze a specific column
+    analysis_result = analyze_data(df, 'target_column')  # Replace 'target_column' with your column name
+    if analysis_result is not None:
+        print(analysis_result)
 
 if __name__ == "__main__":
     main()
