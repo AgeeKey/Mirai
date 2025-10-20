@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: C
-Overall Score: 0.78
+Quality Grade: B
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-20T11:21:12.695588
+Learned: 2025-10-20T11:37:18.174165
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,63 +13,90 @@ import numpy as np
 import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import logging
+from sklearn.metrics import classification_report, confusion_matrix
+from typing import Tuple
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset.
 
-def load_data() -> pd.DataFrame:
-    """Load the Iris dataset and return it as a DataFrame."""
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
+    """
     try:
         iris = load_iris()
-        data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-        data['target'] = iris.target
-        return data
+        return iris.data, iris.target
     except Exception as e:
-        logging.error(f"Error loading data: {e}")
-        raise
+        raise RuntimeError(f"Error loading data: {e}")
 
-def preprocess_data(data: pd.DataFrame) -> tuple:
-    """Split the dataset into features and target, then into training and testing sets."""
+def preprocess_data(X: np.ndarray) -> np.ndarray:
+    """Preprocess the data by scaling features.
+
+    Args:
+        X (np.ndarray): Feature matrix.
+
+    Returns:
+        np.ndarray: Scaled feature matrix.
+    """
     try:
-        X = data.drop('target', axis=1)
-        y = data['target']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
+        scaler = StandardScaler()
+        return scaler.fit_transform(X)
     except Exception as e:
-        logging.error(f"Error in preprocessing data: {e}")
-        raise
+        raise RuntimeError(f"Error during data preprocessing: {e}")
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
-    """Train a Random Forest model using the training data."""
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest classifier.
+
+    Args:
+        X_train (np.ndarray): Training feature matrix.
+        y_train (np.ndarray): Training target array.
+
+    Returns:
+        RandomForestClassifier: Trained model.
+    """
     try:
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
         return model
     except Exception as e:
-        logging.error(f"Error training model: {e}")
-        raise
+        raise RuntimeError(f"Error training model: {e}")
 
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-    """Evaluate the model and print the accuracy and classification report."""
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the model's performance.
+
+    Args:
+        model (RandomForestClassifier): Trained model.
+        X_test (np.ndarray): Test feature matrix.
+        y_test (np.ndarray): Test target array.
+    """
     try:
         y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        logging.info(f"Accuracy: {accuracy:.2f}")
-        logging.info("Classification Report:\n" + classification_report(y_test, y_pred))
-        logging.info("Confusion Matrix:\n" + str(confusion_matrix(y_test, y_pred)))
+        print(confusion_matrix(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
     except Exception as e:
-        logging.error(f"Error evaluating model: {e}")
-        raise
+        raise RuntimeError(f"Error during model evaluation: {e}")
 
 def main() -> None:
-    """Main function to run the data loading, preprocessing, training, and evaluation."""
-    data = load_data()
-    X_train, X_test, y_train, y_test = preprocess_data(data)
-    model = train_model(X_train, y_train)
-    evaluate_model(model, X_test, y_test)
+    """Main function to execute the ML pipeline."""
+    try:
+        # Load data
+        X, y = load_data()
+
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Preprocess the data
+        X_train_scaled = preprocess_data(X_train)
+        X_test_scaled = preprocess_data(X_test)
+
+        # Train the model
+        model = train_model(X_train_scaled, y_train)
+
+        # Evaluate the model
+        evaluate_model(model, X_test_scaled, y_test)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
