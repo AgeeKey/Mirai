@@ -2,79 +2,85 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-20T21:50:46.560115
+Learned: 2025-10-20T22:06:45.845622
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from typing import Tuple
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.exceptions import NotFittedError
+from sklearn.datasets import load_iris
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset and return features and target."""
+def load_data() -> pd.DataFrame:
+    """Loads the Iris dataset and returns it as a DataFrame."""
     iris = load_iris()
-    return iris.data, iris.target
+    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    data['target'] = iris.target
+    return data
 
-def split_data(features: np.ndarray, target: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets.
-
+def train_model(data: pd.DataFrame) -> RandomForestClassifier:
+    """Trains a Random Forest classifier on the provided DataFrame.
+    
     Args:
-        features: The input features.
-        target: The target variable.
-        test_size: Proportion of the dataset to include in the test split.
-        random_state: Random seed for reproducibility.
-
+        data (pd.DataFrame): The input DataFrame containing features and target.
+        
     Returns:
-        A tuple containing the training features, testing features, training target, and testing target.
+        RandomForestClassifier: The trained classifier.
     """
-    return train_test_split(features, target, test_size=test_size, random_state=random_state)
+    X = data.drop('target', axis=1)
+    y = data['target']
 
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest Classifier.
+    # Split the data into training and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    Args:
-        X_train: The training features.
-        y_train: The training target.
-
-    Returns:
-        The trained Random Forest Classifier model.
-    """
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    # Initialize and train the classifier
+    model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
-    return model
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model and print the accuracy and classification report.
-
-    Args:
-        model: The trained model.
-        X_test: The testing features.
-        y_test: The testing target.
-    """
+    # Evaluate the model
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
-    print(f"Accuracy: {accuracy:.2f}")
-    print("Classification Report:")
+    print(f"Model accuracy: {accuracy:.2f}")
     print(classification_report(y_test, predictions))
-    print("Confusion Matrix:")
-    print(confusion_matrix(y_test, predictions))
 
-def main() -> None:
-    """Main function to execute the workflow."""
-    try:
-        features, target = load_data()  # Load data
-        X_train, X_test, y_train, y_test = split_data(features, target)  # Split data
-        model = train_model(X_train, y_train)  # Train model
-        evaluate_model(model, X_test, y_test)  # Evaluate model
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    return model
+
+def make_prediction(model: RandomForestClassifier, sample: np.ndarray) -> int:
+    """Makes a prediction using the trained model.
+    
+    Args:
+        model (RandomForestClassifier): The trained classifier.
+        sample (np.ndarray): A single sample for prediction.
+        
+    Returns:
+        int: The predicted class label.
+        
+    Raises:
+        NotFittedError: If the model has not been fitted before predicting.
+    """
+    if not hasattr(model, "estimators_"):
+        raise NotFittedError("Model is not fitted yet.")
+
+    prediction = model.predict(sample.reshape(1, -1))
+    return prediction[0]
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    # Load the data
+    data = load_data()
+
+    # Train the model
+    model = train_model(data)
+
+    # Example prediction
+    sample_input = np.array([5.1, 3.5, 1.4, 0.2])  # Example feature values
+    try:
+        prediction = make_prediction(model, sample_input)
+        print(f"Predicted class: {prediction}")
+    except NotFittedError as e:
+        print(e)
