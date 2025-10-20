@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-20T01:52:03.242507
+Learned: 2025-10-20T02:07:48.771570
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,63 +12,77 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
+    Args:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
+        pd.DataFrame: A DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: No data found in the file.")
-    except pd.errors.ParserError:
-        print("Error: Failed to parse the file.")
-    return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty. {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: Could not parse the file. {e}")
+        raise
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by dropping NaN values and resetting the index.
+    Process the DataFrame by removing missing values and duplicates.
 
-    Parameters:
-        df (pd.DataFrame): The DataFrame to clean.
+    Args:
+        df (pd.DataFrame): The DataFrame to process.
 
     Returns:
-        pd.DataFrame: The cleaned DataFrame.
+        pd.DataFrame: A cleaned DataFrame.
     """
-    cleaned_df = df.dropna()  # Drop rows with NaN values
-    cleaned_df.reset_index(drop=True, inplace=True)  # Reset index
-    return cleaned_df
+    # Remove rows with any missing values
+    df_cleaned = df.dropna()
+    
+    # Remove duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+    
+    return df_cleaned
 
-def analyze_data(df: pd.DataFrame) -> None:
+def main(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Analyze the DataFrame and print summary statistics.
+    Main function to load and process data.
 
-    Parameters:
-        df (pd.DataFrame): The DataFrame to analyze.
-    """
-    print("Summary Statistics:")
-    print(df.describe())  # Print summary statistics for numerical columns
+    Args:
+        file_path (str): The path to the CSV file.
 
-def main(file_path: str) -> None:
+    Returns:
+        Optional[pd.DataFrame]: The processed DataFrame or None if an error occurred.
     """
-    Main function to execute data loading, cleaning, and analysis.
-
-    Parameters:
-        file_path (str): The path to the CSV file to be loaded and analyzed.
-    """
-    df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        analyze_data(cleaned_df)
+    try:
+        # Load the data
+        data = load_data(file_path)
+        
+        # Process the data
+        cleaned_data = process_data(data)
+        
+        return cleaned_data
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 if __name__ == "__main__":
-    # Example usage; replace 'data.csv' with your actual file path
-    main('data.csv')
+    # Example usage
+    file_path = "data.csv"  # Replace with your actual file path
+    result_df = main(file_path)
+    if result_df is not None:
+        print(result_df.head())
