@@ -5579,6 +5579,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8717325342283431,
       "learned_at": "2025-10-20T20:14:48.871339"
+    },
+    {
+      "name": "numpy",
+      "proficiency": 0.9587133940442948,
+      "learned_at": "2025-10-20T20:30:23.764572"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8006544154721101,
+      "learned_at": "2025-10-20T20:30:50.840244"
     }
   ],
   "skills": [],

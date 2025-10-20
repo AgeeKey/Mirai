@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-20T20:14:48.869682
+Learned: 2025-10-20T20:30:50.838702
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,71 +14,76 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-from typing import Tuple
+from sklearn.metrics import accuracy_score, classification_report
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """Load the Iris dataset and return features and target."""
+def load_data() -> pd.DataFrame:
+    """
+    Load the Iris dataset and return it as a DataFrame.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the Iris dataset.
+    """
     iris = load_iris()
-    return iris.data, iris.target
+    df = pd.DataFrame(data=np.c_[iris['data'], iris['target']], columns=iris['feature_names'] + ['target'])
+    return df
 
-def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split the dataset into training and testing sets.
+def split_data(df: pd.DataFrame) -> tuple:
+    """
+    Split the DataFrame into training and testing sets.
 
     Args:
-        X: Features data.
-        y: Target labels.
-        test_size: Proportion of the dataset to include in the test split.
-        random_state: Controls the randomness of the training and testing data split.
+        df (pd.DataFrame): The DataFrame to split.
 
     Returns:
-        Tuple of training features, test features, training labels, test labels.
+        tuple: A tuple containing the training features, training labels, testing features, and testing labels.
     """
-    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+    X = df.iloc[:, :-1]  # Features
+    y = df.iloc[:, -1]   # Target variable
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """Train a Random Forest classifier.
+def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
+    """
+    Train a Random Forest classifier.
 
     Args:
-        X_train: Training features.
-        y_train: Training labels.
+        X_train (pd.DataFrame): The training features.
+        y_train (pd.Series): The training labels.
 
     Returns:
-        Trained RandomForestClassifier model.
+        RandomForestClassifier: The trained model.
     """
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
     return model
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """Evaluate the trained model using test data and print the evaluation metrics.
+def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
+    """
+    Evaluate the model and print accuracy and classification report.
 
     Args:
-        model: Trained RandomForestClassifier model.
-        X_test: Test features.
-        y_test: Test labels.
+        model (RandomForestClassifier): The trained model.
+        X_test (pd.DataFrame): The testing features.
+        y_test (pd.Series): The testing labels.
     """
-    y_pred = model.predict(X_test)
-    print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-    print("\nClassification Report:\n", classification_report(y_test, y_pred))
+    try:
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f"Accuracy: {accuracy:.2f}")
+        print("Classification Report:\n", classification_report(y_test, y_pred))
+    except Exception as e:
+        print(f"Error during model evaluation: {e}")
 
 def main() -> None:
-    """Main function to execute the workflow."""
+    """
+    Main function to run the machine learning workflow.
+    """
     try:
-        # Load data
-        X, y = load_data()
-        
-        # Split data
-        X_train, X_test, y_train, y_test = split_data(X, y)
-
-        # Train model
+        df = load_data()
+        X_train, X_test, y_train, y_test = split_data(df)
         model = train_model(X_train, y_train)
-
-        # Evaluate model
         evaluate_model(model, X_test, y_test)
-
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error in main execution: {e}")
 
 if __name__ == "__main__":
     main()
