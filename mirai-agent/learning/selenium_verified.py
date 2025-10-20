@@ -4,51 +4,47 @@ selenium - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.80
 Tests Passed: 0/1
-Learned: 2025-10-19T18:46:53.080587
+Learned: 2025-10-20T07:07:47.019112
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 import time
 
 def setup_driver() -> webdriver.Chrome:
-    """Set up the Chrome WebDriver with options."""
+    """Sets up the Chrome WebDriver with options."""
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run headless for non-GUI environments
-    chrome_service = ChromeService(executable_path='path/to/chromedriver')  # Adjust path as needed
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-    return driver
+    chrome_options.add_argument("--headless")  # Run headless Chrome
+    chrome_service = Service('path/to/chromedriver')  # Update with the correct path
+    return webdriver.Chrome(service=chrome_service, options=chrome_options)
 
-def navigate_to_page(driver: webdriver.Chrome, url: str) -> None:
-    """Navigate to the specified URL using the WebDriver."""
+def visit_website(driver: webdriver.Chrome, url: str) -> None:
+    """Visits the specified URL using the provided WebDriver."""
     try:
         driver.get(url)
         time.sleep(2)  # Wait for the page to load
-    except TimeoutException:
-        print("Failed to load the page within the timeout period.")
+    except WebDriverException as e:
+        print(f"Error visiting {url}: {e}")
 
-def find_element(driver: webdriver.Chrome, by: By, value: str) -> None:
-    """Find an element on the page and print its text."""
+def find_element(driver: webdriver.Chrome, by: str, value: str) -> None:
+    """Finds an element by the specified method and value."""
     try:
-        element = driver.find_element(by, value)
+        element = driver.find_element(By.__getattribute__(by.upper()), value)
         print(f"Element found: {element.text}")
     except NoSuchElementException:
-        print(f"No element found with {by} = '{value}'")
+        print(f"Element not found using {by} with value: {value}")
 
 def main() -> None:
     """Main function to execute the Selenium script."""
     driver = setup_driver()
-    try:
-        url = "https://example.com"  # Replace with the target URL
-        navigate_to_page(driver, url)
-        find_element(driver, By.TAG_NAME, "h1")  # Example to find an <h1> tag
-    finally:
-        driver.quit()  # Ensure the driver is closed
+    visit_website(driver, "https://www.example.com")
+    find_element(driver, "id", "exampleId")  # Change 'exampleId' to the actual ID you want to find
+    driver.quit()
 
 if __name__ == "__main__":
     main()
