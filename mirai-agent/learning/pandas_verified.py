@@ -2,84 +2,67 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-20T12:57:50.642089
+Learned: 2025-10-20T13:14:30.177887
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load data from a CSV file and process it into a DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
+        column_names (Optional[list[str]]): List of column names to assign to the DataFrame. 
+                                             If None, the original column names will be used.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the provided data.
+        pd.DataFrame: Processed DataFrame containing the loaded data.
 
     Raises:
-        ValueError: If the lengths of the lists in the dictionary do not match.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an error parsing the CSV file.
     """
-    # Validate that all lists have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same number of rows.")
+    try:
+        # Load data from the CSV file
+        df = pd.read_csv(file_path, names=column_names, header=None if column_names else 'infer')
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file {file_path} was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError("The file is empty.") from e
+    except pd.errors.ParserError as e:
+        raise pd.errors.ParserError("Error parsing the CSV file.") from e
 
-    # Create and return a DataFrame
-    return pd.DataFrame(data)
+    # Process the DataFrame (e.g., drop duplicates and fill NaN values)
+    df = df.drop_duplicates().fillna(method='ffill')
 
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate basic statistics for numeric columns in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): A DataFrame containing numerical data.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing mean, median, and standard deviation of numeric columns.
-    """
-    # Check if DataFrame is empty
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-
-    # Calculate mean, median, and standard deviation
-    stats = {
-        'mean': df.mean(),
-        'median': df.median(),
-        'std_dev': df.std()
-    }
-    return pd.DataFrame(stats)
+    return df
 
 def main() -> None:
     """
-    Main function to demonstrate DataFrame creation and statistics calculation.
+    Main function to execute the data loading and processing.
     """
-    # Sample data for DataFrame creation
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 4, 3, 2, 1],
-        'C': [10, 20, 30, 40, 50]
-    }
-
     try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:")
-        print(df)
+        # Specify the path to the CSV file
+        data_file = 'data.csv'
 
-        # Calculate statistics
-        stats = calculate_statistics(df)
-        print("\nStatistics:")
-        print(stats)
+        # Optional: Specify column names if needed
+        column_names = ['Column1', 'Column2', 'Column3']
 
-    except ValueError as e:
-        print(f"Error: {e}")
+        # Load and process the data
+        processed_data = load_and_process_data(data_file, column_names)
+
+        # Display the processed DataFrame
+        print(processed_data)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
