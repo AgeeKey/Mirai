@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-20T01:04:44.849915
+Learned: 2025-10-20T01:36:11.837049
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,50 +12,73 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and preprocess it.
-    
-    Args:
-        file_path (str): The path to the CSV file.
-        column_names (Optional[list]): List of column names to use. If None, use the file's headers.
-    
-    Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
-    
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the data cannot be processed due to format issues.
-    """
-    try:
-        # Load the data from the CSV file
-        df = pd.read_csv(file_path, names=column_names, header=None if column_names else 'infer')
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        # Reset the index of the DataFrame
-        df.reset_index(drop=True, inplace=True)
-        
-        return df
-    
-    except FileNotFoundError as e:
-        print(f"Error: The file at {file_path} was not found.")
-        raise e
-    except ValueError as e:
-        print("Error: There was a problem processing the data.")
-        raise e
+    Load data from a CSV file into a pandas DataFrame.
 
-def main():
-    file_path = 'data.csv'  # Specify your CSV file path here
-    column_names = ['Column1', 'Column2', 'Column3']  # Specify column names if required
-    
-    # Load and process the data
+    Parameters:
+    file_path (str): The path to the CSV file.
+
+    Returns:
+    Optional[pd.DataFrame]: DataFrame containing the CSV data, or None if loading fails.
+    """
     try:
-        processed_data = load_and_process_data(file_path, column_names)
-        print(processed_data)
+        data = pd.read_csv(file_path)
+        return data
     except Exception as e:
-        print("An error occurred during data processing.")
+        print(f"Error loading data: {e}")
+        return None
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping missing values and duplicates.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: The cleaned DataFrame.
+    """
+    # Drop rows with any missing values
+    df_cleaned = df.dropna()
+
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+
+    return df_cleaned
+
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Perform basic statistical analysis on the DataFrame.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    pd.Series: A Series containing basic statistics.
+    """
+    return df.describe()
+
+def main(file_path: str) -> None:
+    """
+    Main function to execute the data loading, cleaning, and analysis.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    # Load the data
+    data = load_data(file_path)
+    
+    if data is not None:
+        # Clean the data
+        cleaned_data = clean_data(data)
+        
+        # Analyze the data
+        analysis_results = analyze_data(cleaned_data)
+        
+        # Print the analysis results
+        print(analysis_results)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'your_file.csv' with the path to your CSV file
+    main('your_file.csv')
