@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-20T05:01:25.828069
+Learned: 2025-10-20T05:17:14.298046
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,49 +14,52 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a Pandas DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Parameters:
     file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the data, or None if loading fails.
+    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)  # Load the CSV into a DataFrame
+        df = pd.read_csv(file_path)
         return df
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
+        print(f"Error: The file at {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
-        print(f"Error: The file {file_path} is empty.")
+        print(f"Error: The file at {file_path} is empty.")
         return None
     except pd.errors.ParserError:
-        print(f"Error: The file {file_path} could not be parsed.")
+        print(f"Error: The file at {file_path} could not be parsed.")
         return None
 
-def summarize_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> None:
     """
-    Summarize the DataFrame with descriptive statistics and data types.
+    Perform basic analysis on the DataFrame and print summary statistics.
 
     Parameters:
-    df (pd.DataFrame): The DataFrame to summarize.
+    df (pd.DataFrame): The DataFrame to analyze.
     """
-    if df is not None:
+    if df is not None and not df.empty:
         print("Data Summary:")
-        print(df.describe())  # Print descriptive statistics
-        print("\nData Types:")
-        print(df.dtypes)  # Print data types of each column
+        print(df.describe())  # Print summary statistics
+        print("\nMissing Values:")
+        print(df.isnull().sum())  # Print missing values per column
     else:
-        print("No data to summarize.")
+        print("No data to analyze.")
 
-def main() -> None:
+def main(file_path: str) -> None:
     """
-    Main function to execute the data loading and summarization.
+    Main function to load and analyze data from a CSV file.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
     """
-    file_path = 'data.csv'  # Specify the path to your CSV file
-    df = load_data(file_path)  # Load the data
-    summarize_data(df)  # Summarize the data
+    df = load_data(file_path)
+    analyze_data(df)
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    # Example usage: replace 'your_file.csv' with the actual file path
+    main('your_file.csv')

@@ -5009,6 +5009,16 @@
       "name": "mlflow",
       "proficiency": 0.8556859065129134,
       "learned_at": "2025-10-20T05:01:47.164240"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.8251577963613067,
+      "learned_at": "2025-10-20T05:17:14.317890"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8686453913979242,
+      "learned_at": "2025-10-20T05:17:36.135648"
     }
   ],
   "skills": [],
