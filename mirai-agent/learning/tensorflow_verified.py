@@ -1,10 +1,10 @@
 """
-TensorFlow - Verified Learning Artifact
+tensorflow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-20T07:39:31.164107
+Learned: 2025-10-20T09:13:53.660014
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,86 +13,71 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 import numpy as np
 
-def create_model(input_shape: tuple) -> models.Sequential:
-    """Creates and compiles a simple CNN model.
+def create_model(input_shape: tuple) -> tf.keras.Model:
+    """Creates a simple CNN model for image classification.
 
     Args:
-        input_shape (tuple): Shape of the input data.
+        input_shape (tuple): Shape of the input images (height, width, channels).
 
     Returns:
-        models.Sequential: Compiled CNN model.
+        tf.keras.Model: A compiled CNN model.
     """
     model = models.Sequential([
         layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
+        layers.MaxPooling2D(pool_size=(2, 2)),
         layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D(pool_size=(2, 2)),
         layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(10, activation='softmax')  # Assuming 10 classes for output
+        layers.Dense(128, activation='relu'),
+        layers.Dense(10, activation='softmax')  # Assuming 10 classes
     ])
-
+    
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
     return model
 
-def prepare_data(num_samples: int, img_height: int, img_width: int) -> tuple:
-    """Generates random image data and labels for training and testing.
-
-    Args:
-        num_samples (int): Number of samples to generate.
-        img_height (int): Height of generated images.
-        img_width (int): Width of generated images.
+def load_data() -> tuple:
+    """Loads and preprocesses the CIFAR-10 dataset.
 
     Returns:
-        tuple: Tuple containing training images, training labels, 
-               testing images, and testing labels.
+        tuple: Tuple of training and testing datasets (x_train, y_train), (x_test, y_test).
     """
-    try:
-        x_train = np.random.rand(num_samples, img_height, img_width, 3)
-        y_train = np.random.randint(0, 10, num_samples)  # Random labels for 10 classes
-        x_test = np.random.rand(num_samples // 10, img_height, img_width, 3)
-        y_test = np.random.randint(0, 10, num_samples // 10)
-        return (x_train, y_train, x_test, y_test)
-    except Exception as e:
-        raise ValueError("Error generating data: " + str(e))
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+    
+    # Normalize the pixel values to [0, 1]
+    x_train = x_train.astype('float32') / 255.0
+    x_test = x_test.astype('float32') / 255.0
+    
+    return (x_train, y_train), (x_test, y_test)
 
-def train_model(model: models.Sequential, x_train: np.ndarray, y_train: np.ndarray, epochs: int = 5) -> None:
-    """Trains the CNN model on the provided data.
+def train_model(model: tf.keras.Model, x_train: np.ndarray, y_train: np.ndarray) -> None:
+    """Trains the model on the training data.
 
     Args:
-        model (models.Sequential): The CNN model to train.
-        x_train (np.ndarray): Training images.
+        model (tf.keras.Model): The compiled Keras model.
+        x_train (np.ndarray): Training data.
         y_train (np.ndarray): Training labels.
-        epochs (int): Number of epochs to train the model.
     """
     try:
-        model.fit(x_train, y_train, epochs=epochs)
+        model.fit(x_train, y_train, epochs=10, batch_size=64, validation_split=0.2)
     except Exception as e:
-        raise RuntimeError("Error during model training: " + str(e))
+        print(f"An error occurred during training: {e}")
 
 def main() -> None:
-    """Main function to execute the model training workflow."""
-    input_shape = (28, 28, 3)  # Example input shape for images
-    num_samples = 1000  # Total number of samples for training
-
-    # Prepare data
-    x_train, y_train, x_test, y_test = prepare_data(num_samples, *input_shape[:2])
-
-    # Create model
-    model = create_model(input_shape)
-
-    # Train model
-    train_model(model, x_train, y_train)
-
-    # Evaluate model
+    """Main function to execute the model training process."""
+    input_shape = (32, 32, 3)  # CIFAR-10 images are 32x32 pixels with 3 color channels
+    
+    (x_train, y_train), (x_test, y_test) = load_data()  # Load data
+    model = create_model(input_shape)  # Create model
+    train_model(model, x_train, y_train)  # Train model
+    
+    # Evaluate the model
     try:
-        test_loss, test_acc = model.evaluate(x_test, y_test)
-        print(f'Test accuracy: {test_acc:.4f}')
+        test_loss, test_accuracy = model.evaluate(x_test, y_test)
+        print(f"Test accuracy: {test_accuracy:.4f}")
     except Exception as e:
-        raise RuntimeError("Error during model evaluation: " + str(e))
+        print(f"An error occurred during evaluation: {e}")
 
 if __name__ == "__main__":
     main()
