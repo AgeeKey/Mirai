@@ -2,72 +2,86 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-20T09:29:22.964225
+Learned: 2025-10-20T09:45:13.876922
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
-from typing import Optional
+from typing import List, Optional
 
-def create_dataframe(data: Optional[dict] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Create a DataFrame from the provided dictionary.
+    Load data from a CSV file into a Pandas DataFrame.
 
-    Args:
-        data (Optional[dict]): A dictionary with data to create the DataFrame.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame created from the provided data.
-    """
-    if data is None:
-        raise ValueError("Input data cannot be None.")
+    pd.DataFrame: A DataFrame containing the loaded data.
     
+    Raises:
+    FileNotFoundError: If the file does not exist.
+    pd.errors.EmptyDataError: If the file is empty.
+    pd.errors.ParserError: If the file cannot be parsed.
+    """
     try:
-        df = pd.DataFrame(data)
+        df = pd.read_csv(file_path)
         return df
-    except Exception as e:
-        raise RuntimeError("An error occurred while creating the DataFrame.") from e
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
+        print("Error: The file is empty.")
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: The file could not be parsed.")
+        raise e
 
-def calculate_statistics(df: pd.DataFrame) -> pd.Series:
+def clean_data(df: pd.DataFrame, columns_to_drop: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Calculate basic statistics for each numeric column in the DataFrame.
+    Clean the DataFrame by dropping specified columns and handling missing values.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+    columns_to_drop (Optional[List[str]]): List of columns to drop from the DataFrame.
 
     Returns:
-        pd.Series: A Series containing the mean, median, and standard deviation of each numeric column.
+    pd.DataFrame: A cleaned DataFrame.
     """
-    if df.empty:
-        raise ValueError("The DataFrame is empty.")
-    
-    try:
-        stats = pd.Series({
-            'mean': df.mean(),
-            'median': df.median(),
-            'std_dev': df.std()
-        })
-        return stats
-    except Exception as e:
-        raise RuntimeError("An error occurred while calculating statistics.") from e
+    if columns_to_drop:
+        df = df.drop(columns=columns_to_drop, errors='ignore')  # Ignore if columns not found
+    df = df.dropna()  # Drop rows with missing values
+    return df
+
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame and print results.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    """
+    print("DataFrame Description:")
+    print(df.describe())  # Print summary statistics
+    print("\nDataFrame Info:")
+    print(df.info())  # Print DataFrame info
+
+def main(file_path: str, columns_to_drop: Optional[List[str]] = None) -> None:
+    """
+    Main function to load, clean, and analyze data.
+
+    Parameters:
+    file_path (str): The path to the CSV file.
+    columns_to_drop (Optional[List[str]]): List of columns to drop from the DataFrame.
+    """
+    df = load_data(file_path)  # Load data from CSV
+    df = clean_data(df, columns_to_drop)  # Clean the data
+    analyze_data(df)  # Analyze the data
 
 if __name__ == "__main__":
-    # Sample data to create the DataFrame
-    sample_data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 6, 7, 8, 9],
-        'C': [10, 11, 12, 13, 14]
-    }
-    
-    # Create the DataFrame
-    df = create_dataframe(sample_data)
-    
-    # Calculate statistics
-    statistics = calculate_statistics(df)
-    
-    # Print the resulting statistics
-    print(statistics)
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual file path
+    columns_to_drop = ['unnecessary_column']  # Replace with actual columns to drop
+    main(file_path, columns_to_drop)
