@@ -4,108 +4,104 @@ scikit-learn - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-20T05:33:25.537593
+Learned: 2025-10-20T05:49:08.483009
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.exceptions import NotFittedError
+from typing import Tuple
 
-def load_data(file_path: str) -> pd.DataFrame:
+def load_and_prepare_data() -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load dataset from a CSV file.
-
-    Args:
-        file_path (str): Path to the CSV file.
-
+    Load the Iris dataset and split it into features and target.
+    
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
+        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise ValueError("No data found in the file.") from e
+        iris = load_iris()
+        X, y = iris.data, iris.target
+        return X, y
     except Exception as e:
-        raise Exception("An error occurred while loading the data.") from e
+        raise RuntimeError("Error loading the Iris dataset.") from e
 
-def preprocess_data(data: pd.DataFrame, target_column: str) -> tuple:
+def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Preprocess the data by separating features and target variable.
-
-    Args:
-        data (pd.DataFrame): The input DataFrame.
-        target_column (str): The name of the target column.
-
-    Returns:
-        tuple: Features (X) and target (y) as separate DataFrames.
-    """
-    if target_column not in data.columns:
-        raise ValueError(f"Target column '{target_column}' not found in data.")
-
-    X = data.drop(columns=[target_column])
-    y = data[target_column]
-    return X, y
-
-def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
-    """
-    Train a Random Forest classifier on the provided data.
-
-    Args:
-        X (pd.DataFrame): Feature set.
-        y (pd.Series): Target variable.
-
-    Returns:
-        RandomForestClassifier: The trained Random Forest model.
-    """
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X, y)
-    return model
-
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-    """
-    Evaluate the trained model using accuracy and confusion matrix.
-
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (pd.DataFrame): Test feature set.
-        y_test (pd.Series): Test target variable.
-
-    Returns:
-        None
-    """
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+    Split the dataset into training and testing sets.
     
-    print("Accuracy:", accuracy)
-    print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-    print("Classification Report:\n", classification_report(y_test, y_pred))
-
-def main(file_path: str, target_column: str) -> None:
-    """
-    Main function to load data, train, and evaluate the model.
-
     Args:
-        file_path (str): Path to the CSV file.
-        target_column (str): The name of the target column.
-
+        X (np.ndarray): Feature array.
+        y (np.ndarray): Target array.
+        test_size (float): Proportion of the dataset to include in the test split.
+        random_state (int): Random seed for reproducibility.
+        
     Returns:
-        None
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Training and testing feature and target arrays.
     """
-    data = load_data(file_path)
-    
-    X, y = preprocess_data(data, target_column)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    model = train_model(X_train, y_train)
-    evaluate_model(model, X_test, y_test)
+    try:
+        return train_test_split(X, y, test_size=test_size, random_state=random_state)
+    except ValueError as e:
+        raise ValueError("Error splitting the dataset.") from e
+
+class IrisModel:
+    def __init__(self) -> None:
+        """Initialize the Random Forest Classifier."""
+        self.model = RandomForestClassifier()
+
+    def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
+        """
+        Train the model on the training dataset.
+        
+        Args:
+            X_train (np.ndarray): Training feature array.
+            y_train (np.ndarray): Training target array.
+        """
+        try:
+            self.model.fit(X_train, y_train)
+        except Exception as e:
+            raise RuntimeError("Error during model training.") from e
+
+    def predict(self, X_test: np.ndarray) -> np.ndarray:
+        """
+        Predict the class labels for the provided test features.
+        
+        Args:
+            X_test (np.ndarray): Testing feature array.
+        
+        Returns:
+            np.ndarray: Predicted class labels.
+        """
+        try:
+            return self.model.predict(X_test)
+        except NotFittedError as e:
+            raise RuntimeError("Model is not fitted. Call the train method first.") from e
+        except Exception as e:
+            raise RuntimeError("Error during prediction.") from e
+
+def main() -> None:
+    """Main function to execute the model training and evaluation."""
+    try:
+        X, y = load_and_prepare_data()
+        X_train, X_test, y_train, y_test = split_data(X, y)
+
+        model = IrisModel()
+        model.train(X_train, y_train)
+
+        predictions = model.predict(X_test)
+        accuracy = accuracy_score(y_test, predictions)
+        
+        print(f"Accuracy: {accuracy:.2f}")
+        print("Classification Report:")
+        print(classification_report(y_test, predictions))
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example usage with a sample CSV file path and target column name
-    main("path/to/your/data.csv", "target_column_name")
+    main()
