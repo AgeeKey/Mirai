@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-20T18:37:59.555477
+Learned: 2025-10-20T18:53:59.770158
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,27 +12,18 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file, process it, and return a DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Args:
+    Parameters:
         file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A processed DataFrame or None if an error occurs.
+        Optional[pd.DataFrame]: DataFrame containing the data, or None if loading failed.
     """
     try:
-        # Load the CSV file into a DataFrame
         df = pd.read_csv(file_path)
-        
-        # Check for missing values and fill them with the mean of the column
-        for column in df.select_dtypes(include='number').columns:
-            df[column].fillna(df[column].mean(), inplace=True)
-
-        # Drop any duplicate rows
-        df.drop_duplicates(inplace=True)
-
         return df
     except FileNotFoundError:
         print(f"Error: The file at {file_path} was not found.")
@@ -43,19 +34,34 @@ def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
     except pd.errors.ParserError:
         print("Error: There was a parsing error with the file.")
         return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
 
-def main():
+def analyze_data(df: pd.DataFrame) -> None:
     """
-    Main function to load and process data from a specified CSV file.
+    Perform basic data analysis on the DataFrame.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame to analyze.
     """
-    file_path = 'data/sample_data.csv'  # Specify your CSV file path here
-    data = load_and_process_data(file_path)
-    
-    if data is not None:
-        print(data.head())  # Display the first few rows of the processed DataFrame
+    if df is not None:
+        print("Data Overview:")
+        print(df.head())  # Display the first few rows
+        print("\nSummary Statistics:")
+        print(df.describe())  # Display summary statistics
+        print("\nMissing Values:")
+        print(df.isnull().sum())  # Display count of missing values
+    else:
+        print("No data to analyze.")
+
+def main(file_path: str) -> None:
+    """
+    Main function to load and analyze data from a specified CSV file.
+
+    Parameters:
+        file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)
+    analyze_data(df)
 
 if __name__ == "__main__":
-    main()
+    # Example usage, replace 'data.csv' with your actual file path.
+    main('data.csv')
