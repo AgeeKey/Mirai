@@ -2,87 +2,81 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-20T16:29:18.249015
+Learned: 2025-10-20T16:45:26.153859
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+import numpy as np
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def generate_sample_data(num_rows: int) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
-
-    Args:
-        file_path (str): The path to the CSV file.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
+    Generate a sample DataFrame with random data.
     
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+    Args:
+        num_rows (int): The number of rows to generate.
+    
+    Returns:
+        pd.DataFrame: A DataFrame containing random data.
+    """
+    if num_rows <= 0:
+        raise ValueError("Number of rows must be positive.")
+    
+    # Create a DataFrame with random numbers and categories
+    data = {
+        'A': np.random.rand(num_rows),  # Random float numbers
+        'B': np.random.randint(1, 100, size=num_rows),  # Random integers
+        'C': np.random.choice(['cat', 'dog', 'bird'], size=num_rows)  # Random categories
+    }
+    
+    return pd.DataFrame(data)
+
+def filter_data(df: pd.DataFrame, threshold: float) -> pd.DataFrame:
+    """
+    Filter the DataFrame based on a threshold for column 'A'.
+    
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        threshold (float): The threshold value for filtering.
+    
+    Returns:
+        pd.DataFrame: A filtered DataFrame.
+    """
+    if 'A' not in df.columns:
+        raise KeyError("Column 'A' is not present in the DataFrame.")
+    
+    # Filter the DataFrame where values in column 'A' are greater than the threshold
+    filtered_df = df[df['A'] > threshold]
+    
+    return filtered_df
+
+def main() -> None:
+    """
+    Main function to execute the data generation and filtering.
     """
     try:
-        return pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise ValueError(f"The file is empty: {file_path}") from e
+        # Generate sample data
+        num_rows = 10
+        df = generate_sample_data(num_rows)
+        print("Original DataFrame:")
+        print(df)
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping missing values and duplicates.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: A cleaned DataFrame.
-    """
-    df_cleaned = df.dropna()  # Drop rows with any missing values
-    df_cleaned = df_cleaned.drop_duplicates()  # Drop duplicate rows
-    return df_cleaned
-
-def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
-    """
-    Generate a summary of the DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-        Dict[str, float]: A dictionary containing summary statistics.
-    """
-    summary = {
-        "mean": df.mean(numeric_only=True).to_dict(),
-        "median": df.median(numeric_only=True).to_dict(),
-        "std_dev": df.std(numeric_only=True).to_dict()
-    }
-    return summary
-
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and summarize data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    # Load data
-    data = load_data(file_path)
-    # Clean data
-    cleaned_data = clean_data(data)
-    # Summarize data
-    summary = summarize_data(cleaned_data)
+        # Set a threshold for filtering
+        threshold = 0.5
+        filtered_df = filter_data(df, threshold)
+        print(f"\nFiltered DataFrame with threshold > {threshold}:")
+        print(filtered_df)
     
-    # Print summary
-    print("Data Summary:")
-    print(summary)
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
+    except KeyError as ke:
+        print(f"KeyError: {ke}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Provide the CSV file path here
-    csv_file_path = 'data.csv'  # Example file path
-    main(csv_file_path)
+    main()

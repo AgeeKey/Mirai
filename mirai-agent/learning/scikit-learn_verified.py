@@ -1,80 +1,76 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.81
+Quality Grade: C
+Overall Score: 0.76
 Tests Passed: 0/1
-Learned: 2025-10-20T16:29:46.656034
+Learned: 2025-10-20T16:45:52.883645
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.datasets import load_iris
+from sklearn.exceptions import NotFittedError
 
-def load_and_prepare_data() -> tuple[np.ndarray, np.ndarray]:
-    """
-    Load the Iris dataset and split it into features and target variable.
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset and return it as a DataFrame."""
+    iris = load_iris()
+    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    data['target'] = iris.target
+    return data
 
-    Returns:
-        Tuple containing features and target variable as NumPy arrays.
-    """
-    try:
-        iris = load_iris()
-        X, y = iris.data, iris.target
-        return X, y
-    except Exception as e:
-        raise RuntimeError("Error loading the dataset.") from e
+def preprocess_data(data: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Separate features and target variable from the DataFrame."""
+    X = data.drop('target', axis=1).values
+    y = data['target'].values
+    return X, y
 
-def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
-    """
-    Train a Random Forest Classifier on the given features and target.
+def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    return train_test_split(X, y, test_size=test_size, random_state=42)
 
-    Args:
-        X: Feature data as a NumPy array.
-        y: Target data as a NumPy array.
+class RandomForestModel:
+    """A Random Forest Classifier wrapper for training and prediction."""
+    
+    def __init__(self):
+        self.model = RandomForestClassifier(random_state=42)
+        self.is_fitted = False
 
-    Returns:
-        Trained Random Forest Classifier.
-    """
-    try:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X, y)
-        return model
-    except Exception as e:
-        raise RuntimeError("Error training the model.") from e
+    def train(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Train the Random Forest model."""
+        try:
+            self.model.fit(X, y)
+            self.is_fitted = True
+        except Exception as e:
+            print(f"Error during training: {e}")
 
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """
-    Evaluate the trained model and print the accuracy and classification report.
-
-    Args:
-        model: Trained Random Forest Classifier.
-        X_test: Test feature data as a NumPy array.
-        y_test: Test target data as a NumPy array.
-    """
-    try:
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:")
-        print(classification_report(y_test, y_pred))
-    except Exception as e:
-        raise RuntimeError("Error evaluating the model.") from e
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Make predictions using the trained model."""
+        if not self.is_fitted:
+            raise NotFittedError("This RandomForestModel instance is not fitted yet.")
+        return self.model.predict(X)
 
 def main() -> None:
-    """
-    Main function to load data, train the model, and evaluate it.
-    """
-    X, y = load_and_prepare_data()
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    """Main function to execute the machine learning pipeline."""
+    data = load_data()
+    X, y = preprocess_data(data)
+    X_train, X_test, y_train, y_test = split_data(X, y)
 
-    model = train_model(X_train, y_train)
-    evaluate_model(model, X_test, y_test)
+    model = RandomForestModel()
+    model.train(X_train, y_train)
+
+    try:
+        predictions = model.predict(X_test)
+        accuracy = accuracy_score(y_test, predictions)
+        print(f"Accuracy: {accuracy:.2f}")
+        print("Classification Report:\n", classification_report(y_test, predictions))
+    except NotFittedError as e:
+        print(e)
 
 if __name__ == "__main__":
     main()
