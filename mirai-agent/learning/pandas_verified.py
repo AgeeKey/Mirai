@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-20T14:02:49.975258
+Learned: 2025-10-20T14:19:05.366717
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,19 +14,19 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a pandas DataFrame.
-    
-    Parameters:
-    file_path (str): The path to the CSV file.
-    
+    Load data from a CSV file into a Pandas DataFrame.
+
+    Args:
+        file_path (str): The path to the CSV file.
+
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if loading fails.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        df = pd.read_csv(file_path)
+        return df
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print(f"Error: The file at {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
@@ -35,39 +35,27 @@ def load_data(file_path: str) -> Optional[pd.DataFrame]:
         print("Error: The file could not be parsed.")
         return None
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Clean the DataFrame by dropping NaN values and resetting the index.
-    
-    Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
-    
-    Returns:
-    pd.DataFrame: A cleaned DataFrame.
-    """
-    if df is None:
-        raise ValueError("Input DataFrame cannot be None.")
-    
-    # Drop rows with any NaN values
-    cleaned_df = df.dropna()
-    
-    # Reset the index of the DataFrame
-    cleaned_df.reset_index(drop=True, inplace=True)
-    return cleaned_df
+    Print a summary of the DataFrame.
 
-def main(file_path: str):
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
     """
-    Main function to load and clean data from a CSV file.
-    
-    Parameters:
-    file_path (str): The path to the CSV file.
+    print("Data Summary:")
+    print(df.describe())  # Print summary statistics
+    print("\nMissing Values:")
+    print(df.isnull().sum())  # Print count of missing values for each column
+
+def main() -> None:
     """
+    Main function to execute the data loading and summarization.
+    """
+    file_path = 'data.csv'  # Set the path to the CSV file
     df = load_data(file_path)
+    
     if df is not None:
-        cleaned_df = clean_data(df)
-        print("Cleaned DataFrame:")
-        print(cleaned_df)
+        summarize_data(df)
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")
+    main()
