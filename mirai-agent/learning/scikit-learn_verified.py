@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.83
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-20T22:22:41.443239
+Learned: 2025-10-20T22:38:36.178672
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,74 +14,46 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.exceptions import NotFittedError
+from sklearn.metrics import accuracy_score, classification_report
+from typing import Tuple
 
-def load_data() -> pd.DataFrame:
-    """Load the Iris dataset and return it as a DataFrame."""
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return features and target."""
     iris = load_iris()
-    return pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    return iris.data, iris.target
 
-def split_data(df: pd.DataFrame) -> tuple:
-    """Split the DataFrame into training and testing sets.
-    
-    Args:
-        df (pd.DataFrame): The DataFrame containing the dataset.
-        
-    Returns:
-        tuple: A tuple containing the training and testing sets.
-    """
-    X = df.iloc[:, :-1]  # Features
-    y = df.iloc[:, -1]   # Target variable
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+def split_data(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-class IrisModel:
-    """A class for training and predicting with a Random Forest model."""
-    
-    def __init__(self) -> None:
-        self.model = RandomForestClassifier(random_state=42)
-    
-    def train(self, X: np.ndarray, y: np.ndarray) -> None:
-        """Train the Random Forest model.
-        
-        Args:
-            X (np.ndarray): Features for training.
-            y (np.ndarray): Target variable for training.
-        """
-        self.model.fit(X, y)
-    
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        """Predict using the trained model.
-        
-        Args:
-            X (np.ndarray): Features for prediction.
-        
-        Returns:
-            np.ndarray: Predicted labels.
-        """
-        try:
-            return self.model.predict(X)
-        except NotFittedError as e:
-            print("Model is not fitted yet. Please train the model first.")
-            raise e
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model on the training data."""
+    model = RandomForestClassifier()
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the model and print accuracy and classification report."""
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"Accuracy: {accuracy:.2f}")
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
 
 def main() -> None:
-    """Main function to execute the training and prediction process."""
+    """Main function to execute the machine learning pipeline."""
     try:
-        df = load_data()
-        # Add the target column to DataFrame for splitting
-        df['target'] = load_iris().target
+        # Load and prepare data
+        X, y = load_data()
         
-        X_train, X_test, y_train, y_test = split_data(df)
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = split_data(X, y)
         
-        model = IrisModel()
-        model.train(X_train, y_train)
+        # Train the model
+        model = train_model(X_train, y_train)
         
-        y_pred = model.predict(X_test)
-        
-        # Display the results
-        print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-        print("\nClassification Report:\n", classification_report(y_test, y_pred))
+        # Evaluate the model
+        evaluate_model(model, X_test, y_test)
     
     except Exception as e:
         print(f"An error occurred: {e}")
