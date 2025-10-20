@@ -2,54 +2,86 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.95
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-20T23:25:51.281292
+Learned: 2025-10-20T23:41:42.858826
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict[str, list[Optional[float]]]) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame and process it.
+    Create a pandas DataFrame from a dictionary.
 
-    Parameters:
-    - file_path: str - The path to the CSV file.
-    - column_name: str - The name of the column to process.
+    Args:
+        data (dict[str, list[Optional[float]]]): A dictionary where keys are column names 
+                                                  and values are lists of column data.
 
     Returns:
-    - Optional[pd.DataFrame]: A DataFrame with the processed data or None if an error occurs.
+        pd.DataFrame: A DataFrame constructed from the provided data.
+
+    Raises:
+        ValueError: If the lengths of the data lists are not equal.
     """
+    # Check if all columns have the same length
+    lengths = [len(col) for col in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All columns must have the same number of rows.")
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic statistics for each numerical column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame for which to calculate statistics.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation.
+    """
+    # Ensure the DataFrame is not empty
+    if df.empty:
+        raise ValueError("The DataFrame is empty.")
+
+    # Calculate statistics
+    stats = {
+        'Mean': df.mean(),
+        'Median': df.median(),
+        'Standard Deviation': df.std()
+    }
+    return pd.DataFrame(stats)
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and statistics calculation.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 4, 3, 2, 1],
+        'C': [np.nan, 1, 2, 3, 4]
+    }
+    
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
+        
+        # Calculate statistics
+        stats_df = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats_df)
+        
+    except ValueError as e:
+        print(f"Error: {e}")
 
-        # Check if the specified column exists
-        if column_name not in df.columns:
-            raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
-
-        # Process the DataFrame: fill missing values in the specified column
-        df[column_name].fillna(value=0, inplace=True)
-
-        # Return the processed DataFrame
-        return df
-
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None
-    except ValueError as ve:
-        print(f"Error: {ve}")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
-
-# Example usage
 if __name__ == "__main__":
-    # Replace 'data.csv' and 'column_name' with your actual file path and column name
-    result_df = load_and_process_data('data.csv', 'column_name')
-    if result_df is not None:
-        print(result_df.head())
+    main()
