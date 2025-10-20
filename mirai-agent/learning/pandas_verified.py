@@ -4,84 +4,75 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-20T09:45:13.876922
+Learned: 2025-10-20T10:01:11.226964
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Optional
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Load a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the loaded data.
-    
-    Raises:
-    FileNotFoundError: If the file does not exist.
-    pd.errors.EmptyDataError: If the file is empty.
-    pd.errors.ParserError: If the file cannot be parsed.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
+        return None
+    except pd.errors.ParserError:
         print("Error: The file could not be parsed.")
-        raise e
+        return None
 
-def clean_data(df: pd.DataFrame, columns_to_drop: Optional[List[str]] = None) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by dropping specified columns and handling missing values.
+    Clean the DataFrame by removing rows with missing values.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
-    columns_to_drop (Optional[List[str]]): List of columns to drop from the DataFrame.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-    pd.DataFrame: A cleaned DataFrame.
+        pd.DataFrame: The cleaned DataFrame.
     """
-    if columns_to_drop:
-        df = df.drop(columns=columns_to_drop, errors='ignore')  # Ignore if columns not found
-    df = df.dropna()  # Drop rows with missing values
-    return df
+    cleaned_df = df.dropna()  # Remove rows with missing values
+    return cleaned_df
 
-def analyze_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> pd.Series:
     """
-    Perform basic analysis on the DataFrame and print results.
+    Analyze the DataFrame by calculating the mean of each numerical column.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-    """
-    print("DataFrame Description:")
-    print(df.describe())  # Print summary statistics
-    print("\nDataFrame Info:")
-    print(df.info())  # Print DataFrame info
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
 
-def main(file_path: str, columns_to_drop: Optional[List[str]] = None) -> None:
+    Returns:
+        pd.Series: A Series containing the mean of each numerical column.
     """
-    Main function to load, clean, and analyze data.
+    return df.mean()  # Calculate mean of numerical columns
 
-    Parameters:
-    file_path (str): The path to the CSV file.
-    columns_to_drop (Optional[List[str]]): List of columns to drop from the DataFrame.
+def main(file_path: str) -> None:
     """
-    df = load_data(file_path)  # Load data from CSV
-    df = clean_data(df, columns_to_drop)  # Clean the data
-    analyze_data(df)  # Analyze the data
+    Main function to load, clean, and analyze data from a CSV file.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    data = load_data(file_path)
+    if data is not None:
+        cleaned_data = clean_data(data)
+        analysis_results = analyze_data(cleaned_data)
+        print("Analysis Results:\n", analysis_results)
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your actual file path
-    columns_to_drop = ['unnecessary_column']  # Replace with actual columns to drop
-    main(file_path, columns_to_drop)
+    # Replace 'your_file.csv' with the path to your CSV file
+    main('your_file.csv')
