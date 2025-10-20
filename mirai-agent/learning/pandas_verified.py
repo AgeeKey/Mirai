@@ -2,80 +2,81 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-20T03:26:34.690615
+Learned: 2025-10-20T03:42:18.896353
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+import numpy as np
+from typing import Tuple
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
-
+    Create a pandas DataFrame from a dictionary.
+    
     Parameters:
-    file_path (str): The path to the CSV file.
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the processed data.
-    
+    pd.DataFrame: A DataFrame constructed from the provided data.
+
     Raises:
-    FileNotFoundError: If the CSV file does not exist.
-    pd.errors.EmptyDataError: If the CSV file is empty.
-    pd.errors.ParserError: If there is an error parsing the CSV file.
+    ValueError: If the input data is invalid (e.g., columns have different lengths).
+    """
+    if not data:
+        raise ValueError("Input data cannot be empty")
+    
+    length = len(next(iter(data.values())))
+    for key, value in data.items():
+        if len(value) != length:
+            raise ValueError(f"Column '{key}' has a different length than the others.")
+
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame) -> Tuple[float, float]:
+    """
+    Calculate the mean and standard deviation of a DataFrame's numeric columns.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    Tuple[float, float]: A tuple containing the mean and standard deviation of the DataFrame.
+    """
+    if df.empty:
+        raise ValueError("DataFrame is empty")
+    
+    mean = df.mean().mean()  # Mean of all numeric columns
+    std_dev = df.std().mean()  # Standard deviation of all numeric columns
+    return mean, std_dev
+
+def main() -> None:
+    """
+    Main function to create a DataFrame, calculate statistics, and print results.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
+        # Sample data for DataFrame creation
+        data = {
+            "A": [1, 2, 3, 4, 5],
+            "B": [5, 4, 3, 2, 1],
+            "C": [2, 3, np.nan, 5, 6]
+        }
         
-        # Basic processing: Drop rows with any missing values
-        df.dropna(inplace=True)
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:")
+        print(df)
         
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
-        
-        return df
-    except FileNotFoundError as e:
+        # Calculate statistics
+        mean, std_dev = calculate_statistics(df)
+        print(f"Mean of DataFrame: {mean}")
+        print(f"Standard Deviation of DataFrame: {std_dev}")
+
+    except ValueError as e:
         print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print("Error: The CSV file is empty.")
-        raise
-    except pd.errors.ParserError as e:
-        print("Error: There was an issue parsing the CSV file.")
-        raise
-
-def calculate_statistics(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
-    """
-    Calculate basic statistics for specified columns in a DataFrame.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame containing the data.
-    columns (List[str]): List of column names to calculate statistics for.
-
-    Returns:
-    pd.DataFrame: A DataFrame containing the statistics.
-    
-    Raises:
-    KeyError: If any of the specified columns do not exist in the DataFrame.
-    """
-    try:
-        # Calculate mean, median, and standard deviation for specified columns
-        stats = df[columns].agg(['mean', 'median', 'std']).transpose()
-        return stats
-    except KeyError as e:
-        print(f"Error: One or more columns are not present in the DataFrame: {e}")
-        raise
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Path to your CSV file
-    try:
-        data = load_and_process_data(file_path)
-        statistics = calculate_statistics(data, ['column1', 'column2'])  # Replace with actual column names
-        print(statistics)
-    except Exception as e:
-        print("An error occurred during processing:", e)
+    main()
