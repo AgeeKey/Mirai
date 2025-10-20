@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-20T06:20:33.923461
+Learned: 2025-10-20T06:36:21.651526
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,50 +12,49 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it.
+    Load a CSV file into a Pandas DataFrame and filter columns if specified.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
-    column_names (Optional[list]): List of column names to use; if None, uses the file's header.
+    Args:
+        file_path (str): The path to the CSV file.
+        column_filter (Optional[list]): A list of columns to keep in the DataFrame. 
+                                         If None, all columns are kept.
 
     Returns:
-    pd.DataFrame: Processed DataFrame.
-
+        pd.DataFrame: A DataFrame containing the loaded data, filtered by the specified columns.
+    
     Raises:
-    FileNotFoundError: If the specified file does not exist.
-    ValueError: If the file is empty or cannot be parsed.
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is an issue parsing the file.
     """
     try:
         # Load the data from the CSV file
-        df = pd.read_csv(file_path, header=0 if column_names is None else None)
-        
-        # Assign column names if provided
-        if column_names is not None:
-            if len(column_names) != df.shape[1]:
-                raise ValueError("Number of column names provided does not match the number of columns in the CSV.")
-            df.columns = column_names
-        
-        # Drop any rows with missing values
-        df.dropna(inplace=True)
-        
+        df = pd.read_csv(file_path)
+
+        # Filter columns if a column filter is provided
+        if column_filter is not None:
+            df = df[column_filter]
+
         return df
     
-    except FileNotFoundError as e:
-        print(f"Error: The file '{file_path}' was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: Could not parse the file.")
-        raise e
+    except FileNotFoundError as fnf_error:
+        print(f"Error: {fnf_error}")
+        raise
+    except pd.errors.EmptyDataError as empty_error:
+        print(f"Error: The file is empty. {empty_error}")
+        raise
+    except pd.errors.ParserError as parse_error:
+        print(f"Error: There was a parsing error. {parse_error}")
+        raise
 
-# Example usage
 if __name__ == "__main__":
+    # Example usage
+    file_path = 'data/sample_data.csv'  # Modify this path as needed
+    columns_to_keep = ['column1', 'column2']  # Specify columns to keep
     try:
-        data_frame = load_and_process_data("data.csv", column_names=["Column1", "Column2", "Column3"])
-        print(data_frame.head())
+        processed_data = load_and_process_data(file_path, columns_to_keep)
+        print(processed_data.head())  # Display the first few rows of the DataFrame
     except Exception as e:
         print(f"An error occurred: {e}")
