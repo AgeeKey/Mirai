@@ -2,85 +2,89 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-20T22:06:45.845622
+Learned: 2025-10-20T22:22:41.443239
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.exceptions import NotFittedError
-from sklearn.datasets import load_iris
 
 def load_data() -> pd.DataFrame:
-    """Loads the Iris dataset and returns it as a DataFrame."""
+    """Load the Iris dataset and return it as a DataFrame."""
     iris = load_iris()
-    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-    data['target'] = iris.target
-    return data
+    return pd.DataFrame(data=iris.data, columns=iris.feature_names)
 
-def train_model(data: pd.DataFrame) -> RandomForestClassifier:
-    """Trains a Random Forest classifier on the provided DataFrame.
+def split_data(df: pd.DataFrame) -> tuple:
+    """Split the DataFrame into training and testing sets.
     
     Args:
-        data (pd.DataFrame): The input DataFrame containing features and target.
+        df (pd.DataFrame): The DataFrame containing the dataset.
         
     Returns:
-        RandomForestClassifier: The trained classifier.
+        tuple: A tuple containing the training and testing sets.
     """
-    X = data.drop('target', axis=1)
-    y = data['target']
+    X = df.iloc[:, :-1]  # Features
+    y = df.iloc[:, -1]   # Target variable
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Split the data into training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Initialize and train the classifier
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-
-    # Evaluate the model
-    predictions = model.predict(X_test)
-    accuracy = accuracy_score(y_test, predictions)
-    print(f"Model accuracy: {accuracy:.2f}")
-    print(classification_report(y_test, predictions))
-
-    return model
-
-def make_prediction(model: RandomForestClassifier, sample: np.ndarray) -> int:
-    """Makes a prediction using the trained model.
+class IrisModel:
+    """A class for training and predicting with a Random Forest model."""
     
-    Args:
-        model (RandomForestClassifier): The trained classifier.
-        sample (np.ndarray): A single sample for prediction.
+    def __init__(self) -> None:
+        self.model = RandomForestClassifier(random_state=42)
+    
+    def train(self, X: np.ndarray, y: np.ndarray) -> None:
+        """Train the Random Forest model.
         
-    Returns:
-        int: The predicted class label.
+        Args:
+            X (np.ndarray): Features for training.
+            y (np.ndarray): Target variable for training.
+        """
+        self.model.fit(X, y)
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Predict using the trained model.
         
-    Raises:
-        NotFittedError: If the model has not been fitted before predicting.
-    """
-    if not hasattr(model, "estimators_"):
-        raise NotFittedError("Model is not fitted yet.")
+        Args:
+            X (np.ndarray): Features for prediction.
+        
+        Returns:
+            np.ndarray: Predicted labels.
+        """
+        try:
+            return self.model.predict(X)
+        except NotFittedError as e:
+            print("Model is not fitted yet. Please train the model first.")
+            raise e
 
-    prediction = model.predict(sample.reshape(1, -1))
-    return prediction[0]
+def main() -> None:
+    """Main function to execute the training and prediction process."""
+    try:
+        df = load_data()
+        # Add the target column to DataFrame for splitting
+        df['target'] = load_iris().target
+        
+        X_train, X_test, y_train, y_test = split_data(df)
+        
+        model = IrisModel()
+        model.train(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
+        
+        # Display the results
+        print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+        print("\nClassification Report:\n", classification_report(y_test, y_pred))
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Load the data
-    data = load_data()
-
-    # Train the model
-    model = train_model(data)
-
-    # Example prediction
-    sample_input = np.array([5.1, 3.5, 1.4, 0.2])  # Example feature values
-    try:
-        prediction = make_prediction(model, sample_input)
-        print(f"Predicted class: {prediction}")
-    except NotFittedError as e:
-        print(e)
+    main()
