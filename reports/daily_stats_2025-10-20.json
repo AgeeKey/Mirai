@@ -1,33 +1,33 @@
 {
-  "total_lines": 15086,
-  "error_count": 76,
+  "total_lines": 15078,
+  "error_count": 77,
   "warning_count": 351,
-  "info_count": 8540,
+  "info_count": 8533,
   "autonomous_cycles": 274,
   "todo_count": 0,
   "errors": [
-    "2025-10-19 06:41:11,517 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-19 07:12:33,851 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-19 07:12:33,852 [ERROR] ❌ Ошибка в цикле: 'NoneType' object is not subscriptable",
-    "TypeError: 'NoneType' object is not subscriptable",
     "2025-10-19 07:44:10,259 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-19 08:15:53,432 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-19 08:47:50,210 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-19 09:19:28,722 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-19 09:19:28,723 [ERROR] ❌ Ошибка в цикле: 'NoneType' object is not subscriptable",
-    "2025-10-19 09:51:05,332 [WARNING]    ⚠️ Не удалось: 'top_errors'"
+    "TypeError: 'NoneType' object is not subscriptable",
+    "2025-10-19 09:51:05,332 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-19 10:22:32,591 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-19 10:54:00,911 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-19 11:25:25,404 [WARNING]    ⚠️ Не удалось: 'top_errors'"
   ],
   "warnings": [
-    "2025-10-19 06:24:45,270 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:30:24,550 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:35:28,189 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:40:30,814 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:41:11,517 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-19 06:46:11,872 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:51:14,156 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:56:16,187 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-19 06:56:30,311 [WARNING] Security violation: requests\\.",
-    "2025-10-19 06:56:30,469 [WARNING] Security violation: requests\\."
+    "2025-10-19 07:27:40,458 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:33:21,996 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:38:24,865 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:43:27,123 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:44:10,259 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-19 07:49:10,568 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:54:13,924 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 07:59:16,358 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 08:04:59,984 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-19 08:10:02,299 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
@@ -44,7 +44,7 @@
     },
     {
       "message": "✅ LEARNING COMPLETE: pandas",
-      "count": 82
+      "count": 81
     },
     {
       "message": "✅ LEARNING COMPLETE: scikit-learn",
@@ -56,34 +56,22 @@
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-19.md",
-      "count": 16
+      "count": 15
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-19.json",
-      "count": 16
+      "count": 15
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
       "count": 10
     },
     {
-      "message": "✅ LEARNING COMPLETE: TensorFlow",
-      "count": 6
+      "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-20.md",
+      "count": 7
     }
   ],
   "cycle_numbers": [
-    159,
-    160,
-    161,
-    162,
-    163,
-    164,
-    165,
-    166,
-    167,
-    168,
-    169,
-    170,
     171,
     172,
     173,
@@ -345,16 +333,28 @@
     429,
     430,
     431,
-    432
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444
   ],
   "timestamp_first": [
     "Oct",
     "19",
-    "06:24:44"
+    "07:27:40"
   ],
   "timestamp_last": [
     "Oct",
     "20",
-    "06:20:55"
+    "07:23:49"
   ]
 }
