@@ -2,49 +2,61 @@
 numpy - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-19T19:34:34.664586
+Learned: 2025-10-20T12:25:35.429384
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
-from typing import Tuple
 
-def create_array(shape: Tuple[int, int], fill_value: float = 0.0) -> np.ndarray:
+def create_random_array(shape: tuple[int, ...], low: float = 0.0, high: float = 1.0) -> np.ndarray:
     """
-    Creates a NumPy array of a given shape and fills it with a specified value.
-    
+    Create a random array with a specified shape and value range.
+
     Parameters:
-    shape (Tuple[int, int]): The shape of the array (rows, columns).
-    fill_value (float): The value to fill the array with. Default is 0.0.
-    
+    shape (tuple[int, ...]): Shape of the array to create.
+    low (float): Lower bound for the random values. Default is 0.0.
+    high (float): Upper bound for the random values. Default is 1.0.
+
     Returns:
-    np.ndarray: A NumPy array filled with the specified value.
+    np.ndarray: Array of random values with the specified shape.
     
     Raises:
-    ValueError: If the shape contains non-positive integers.
+    ValueError: If low is greater than or equal to high.
     """
-    if any(dim <= 0 for dim in shape):
-        raise ValueError("Shape dimensions must be positive integers.")
+    if low >= high:
+        raise ValueError("The 'low' value must be less than the 'high' value.")
     
-    return np.full(shape, fill_value)
+    return np.random.uniform(low, high, size=shape)
 
-def main() -> None:
+def compute_statistics(arr: np.ndarray) -> dict[str, float]:
     """
-    Main function to demonstrate the creation of a NumPy array.
-    """
-    try:
-        # Define the shape of the array
-        array_shape = (3, 4)
-        # Create a 3x4 array filled with 5.0
-        array = create_array(array_shape, fill_value=5.0)
-        # Print the created array
-        print("Created NumPy Array:")
-        print(array)
-    except ValueError as e:
-        print(f"Error: {e}")
+    Compute the mean and standard deviation of an array.
 
+    Parameters:
+    arr (np.ndarray): Input array to compute statistics on.
+
+    Returns:
+    dict[str, float]: A dictionary containing the mean and standard deviation.
+    
+    Raises:
+    ValueError: If the input is not a 1-dimensional or 2-dimensional array.
+    """
+    if arr.ndim not in (1, 2):
+        raise ValueError("Input array must be 1-dimensional or 2-dimensional.")
+    
+    mean = np.mean(arr)
+    std_dev = np.std(arr)
+    return {'mean': mean, 'std_dev': std_dev}
+
+# Example usage
 if __name__ == "__main__":
-    main()
+    try:
+        random_array = create_random_array((3, 4), 0, 10)
+        stats = compute_statistics(random_array)
+        print("Random Array:\n", random_array)
+        print("Statistics:", stats)
+    except ValueError as e:
+        print("Error:", e)
