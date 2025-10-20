@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.93
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-20T00:17:34.838594
+Learned: 2025-10-20T00:33:17.028055
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,40 +12,53 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_analyze_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and perform basic analysis.
-    
+    Load data from a CSV file and perform basic processing.
+
     Args:
-        file_path (str): Path to the CSV file.
-        
+        file_path (str): The path to the CSV file.
+        index_col (Optional[str]): Column to set as index. Defaults to None.
+
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
+        pd.DataFrame: Processed DataFrame.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        # Load the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
-
-        # Display basic information about the DataFrame
-        print("DataFrame Info:")
-        print(df.info())
-
-        # Display summary statistics of the DataFrame
-        print("\nSummary Statistics:")
-        print(df.describe())
-
+        # Load the data from the CSV file
+        df = pd.read_csv(file_path, index_col=index_col)
+        
+        # Display the first few rows of the DataFrame
+        print("Data loaded successfully. Here are the first few rows:")
+        print(df.head())
+        
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+        
+        # Reset index if no index column is specified
+        if index_col is None:
+            df.reset_index(drop=True, inplace=True)
+            
         return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
+    except FileNotFoundError as e:
+        print(f"Error: The file '{file_path}' was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
+        raise e
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        raise e
 
-    return None
-
-# Example usage
 if __name__ == "__main__":
-    data_frame = load_and_analyze_data('example_data.csv')
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual file path
+    try:
+        processed_data = load_and_process_data(file_path)
+        print("Processed DataFrame:")
+        print(processed_data)
+    except Exception as e:
+        print("An error occurred during data processing.")
