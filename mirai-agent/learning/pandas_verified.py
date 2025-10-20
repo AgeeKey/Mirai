@@ -1,81 +1,73 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-20T13:46:34.260038
+Learned: 2025-10-20T14:02:49.975258
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and process it to remove missing values.
-
-    Args:
-        file_path (str): The path to the CSV file to be loaded.
-
+    Load data from a CSV file into a pandas DataFrame.
+    
+    Parameters:
+    file_path (str): The path to the CSV file.
+    
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
-
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if loading fails.
     """
     try:
-        # Load data from CSV file
         data = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
-        raise
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-    # Drop rows with any missing values
-    processed_data = data.dropna()
-
-    return processed_data
-
-def summarize_data(data: pd.DataFrame) -> Dict[str, float]:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate summary statistics for the DataFrame.
-
-    Args:
-        data (pd.DataFrame): The DataFrame containing the data to summarize.
-
-    Returns:
-        Dict[str, float]: A dictionary with summary statistics.
-    """
-    # Calculate summary statistics
-    summary = {
-        'mean': data.mean().to_dict(),
-        'median': data.median().to_dict(),
-        'std_dev': data.std().to_dict()
-    }
+    Clean the DataFrame by dropping NaN values and resetting the index.
     
-    return summary
-
-def main() -> None:
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+    
+    Returns:
+    pd.DataFrame: A cleaned DataFrame.
     """
-    Main function to load, process data and display summary statistics.
+    if df is None:
+        raise ValueError("Input DataFrame cannot be None.")
+    
+    # Drop rows with any NaN values
+    cleaned_df = df.dropna()
+    
+    # Reset the index of the DataFrame
+    cleaned_df.reset_index(drop=True, inplace=True)
+    return cleaned_df
+
+def main(file_path: str):
     """
-    file_path = 'data.csv'  # Specify the path to your data file
-
-    # Load and process the data
-    data = load_and_process_data(file_path)
-
-    # Summarize the data
-    summary = summarize_data(data)
-
-    # Print the summary statistics
-    print("Summary Statistics:")
-    for key, value in summary.items():
-        print(f"{key}: {value}")
+    Main function to load and clean data from a CSV file.
+    
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)
+    if df is not None:
+        cleaned_df = clean_data(df)
+        print("Cleaned DataFrame:")
+        print(cleaned_df)
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main("data.csv")
