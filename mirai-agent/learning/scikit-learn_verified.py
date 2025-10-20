@@ -1,81 +1,55 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.81
+Quality Grade: C
+Overall Score: 0.77
 Tests Passed: 0/1
-Learned: 2025-10-20T02:55:18.398775
+Learned: 2025-10-20T03:26:53.664302
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.datasets import load_iris
 from typing import Tuple
 
-def load_data() -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Load the Iris dataset and return features and target.
-
-    Returns:
-        Tuple[pd.DataFrame, pd.Series]: Features and target variable.
-    """
+def load_data() -> Tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return the features and target."""
     iris = load_iris()
-    X = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-    y = pd.Series(data=iris.target, name='species')
-    return X, y
+    return iris.data, iris.target
 
-def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
-    """
-    Train a Random Forest model on the provided features and target.
+def split_data(features: np.ndarray, target: np.ndarray, test_size: float = 0.2, random_state: int = 42) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split the dataset into training and testing sets."""
+    return train_test_split(features, target, test_size=test_size, random_state=random_state)
 
-    Args:
-        X (pd.DataFrame): Features for training.
-        y (pd.Series): Target variable for training.
-
-    Returns:
-        RandomForestClassifier: Trained Random Forest model.
-    """
+def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest classifier and return the trained model."""
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
     try:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X, y)
-        return model
+        model.fit(X_train, y_train)
     except Exception as e:
-        print(f"Error during model training: {e}")
-        raise
+        raise RuntimeError("Model training failed") from e
+    return model
 
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-    """
-    Evaluate the trained model on the test set.
-
-    Args:
-        model (RandomForestClassifier): Trained model to evaluate.
-        X_test (pd.DataFrame): Test features.
-        y_test (pd.Series): True labels for the test set.
-    """
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the trained model on the test set and print the results."""
     try:
-        y_pred = model.predict(X_test)
-        print("Confusion Matrix:")
-        print(confusion_matrix(y_test, y_pred))
-        print("\nClassification Report:")
-        print(classification_report(y_test, y_pred))
+        predictions = model.predict(X_test)
+        print("Confusion Matrix:\n", confusion_matrix(y_test, predictions))
+        print("\nClassification Report:\n", classification_report(y_test, predictions))
     except Exception as e:
-        print(f"Error during model evaluation: {e}")
-        raise
+        raise RuntimeError("Model evaluation failed") from e
 
 def main() -> None:
-    """
-    Main function to execute the training and evaluation of the model.
-    """
-    X, y = load_data()  # Load the dataset
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)  # Split the data
-    
-    model = train_model(X_train, y_train)  # Train the model
-    evaluate_model(model, X_test, y_test)  # Evaluate the model
+    """Main function to execute the machine learning pipeline."""
+    features, target = load_data()
+    X_train, X_test, y_train, y_test = split_data(features, target)
+    model = train_model(X_train, y_train)
+    evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
     main()
