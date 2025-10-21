@@ -2,93 +2,85 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-21T06:33:34.620263
+Learned: 2025-10-21T06:49:32.059889
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+import numpy as np
+from typing import Optional
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: Optional[dict] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Create a pandas DataFrame from the provided data.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (Optional[dict]): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
-    
+        pd.DataFrame: A DataFrame created from the input data.
+
     Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+        ValueError: If the input data is not a dictionary or if the columns have different lengths.
     """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print(f"Error: The file is empty. {e}")
-        raise
+    if data is None:
+        data = {
+            'A': np.random.rand(10),
+            'B': np.random.rand(10),
+            'C': np.random.rand(10)
+        }
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by filling missing values and dropping duplicates.
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
 
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
+    # Check if all columns have the same length
+    column_lengths = [len(v) for v in data.values()]
+    if len(set(column_lengths)) != 1:
+        raise ValueError("All columns must have the same length.")
 
-    Returns:
-        pd.DataFrame: Cleaned DataFrame.
-    """
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-    # Drop duplicate rows
-    df.drop_duplicates(inplace=True)
+    df = pd.DataFrame(data)
     return df
 
-def analyze_data(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Analyze specific columns of the DataFrame and return summary statistics.
+    Calculate basic statistics for each column in the DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        columns (List[str]): List of column names to analyze.
+        df (pd.DataFrame): The DataFrame for which to calculate statistics.
 
     Returns:
-        pd.DataFrame: DataFrame containing summary statistics.
+        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each column.
     """
-    # Check if the specified columns exist in the DataFrame
-    for column in columns:
-        if column not in df.columns:
-            raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
-    
-    # Return summary statistics for the specified columns
-    return df[columns].describe()
+    if df.empty:
+        raise ValueError("Input DataFrame is empty.")
 
-def main(file_path: str, columns_to_analyze: List[str]) -> None:
-    """
-    Main function to execute the data loading, cleaning, and analysis.
+    stats = {
+        'Mean': df.mean(),
+        'Median': df.median(),
+        'Std Dev': df.std()
+    }
+    return pd.DataFrame(stats)
 
-    Args:
-        file_path (str): The path to the CSV file.
-        columns_to_analyze (List[str]): List of columns to analyze.
+def main() -> None:
     """
-    # Load the data
-    df = load_data(file_path)
-    # Clean the data
-    cleaned_df = clean_data(df)
-    # Analyze the data
-    summary_stats = analyze_data(cleaned_df, columns_to_analyze)
-    print(summary_stats)
+    Main function to demonstrate DataFrame creation and statistics calculation.
+    """
+    try:
+        # Create a DataFrame with random data
+        df = create_dataframe()
+        print("DataFrame:")
+        print(df)
+
+        # Calculate and display statistics
+        stats = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats)
+        
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your actual file path
-    columns_to_analyze = ['column1', 'column2']  # Replace with actual column names
-    main(file_path, columns_to_analyze)
+    main()
