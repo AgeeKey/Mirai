@@ -6109,6 +6109,16 @@
       "name": "fastapi",
       "proficiency": 0.713160889397494,
       "learned_at": "2025-10-21T10:17:52.984377"
+    },
+    {
+      "name": "Beautiful Soup",
+      "proficiency": 0.8359372078146584,
+      "learned_at": "2025-10-21T10:33:25.687775"
+    },
+    {
+      "name": "TensorFlow",
+      "proficiency": 0.869336807815064,
+      "learned_at": "2025-10-21T10:33:58.089955"
     }
   ],
   "skills": [],
