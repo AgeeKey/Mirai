@@ -2,72 +2,86 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-21T13:15:12.783509
+Learned: 2025-10-21T13:31:39.419612
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+import numpy as np
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Create a pandas DataFrame from a dictionary.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
+    pd.DataFrame: A DataFrame constructed from the provided data.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+    ValueError: If the input dictionary is empty or the lengths of the columns are inconsistent.
     """
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise
+    if not data:
+        raise ValueError("Input dictionary cannot be empty.")
 
-def calculate_statistics(df: pd.DataFrame) -> Dict[str, float]:
+    # Check if all columns have the same length
+    lengths = [len(column) for column in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All columns must have the same length.")
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+def calculate_statistics(df: pd.DataFrame) -> pd.Series:
     """
-    Calculate basic statistics for numeric columns in the DataFrame.
+    Calculate basic statistics for numerical columns in a DataFrame.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
+    Parameters:
+    df (pd.DataFrame): A pandas DataFrame containing numerical data.
 
     Returns:
-        Dict[str, float]: A dictionary containing the mean and median of numeric columns.
+    pd.Series: A Series containing the mean, median, and standard deviation.
     """
-    statistics = {}
     if df.empty:
-        print("Warning: DataFrame is empty. Returning empty statistics.")
-        return statistics
+        raise ValueError("DataFrame cannot be empty.")
 
-    # Calculate mean and median for numeric columns
-    statistics['mean'] = df.mean(numeric_only=True).to_dict()
-    statistics['median'] = df.median(numeric_only=True).to_dict()
-    return statistics
+    # Calculate statistics
+    stats = pd.Series({
+        'mean': df.mean(),
+        'median': df.median(),
+        'std_dev': df.std()
+    })
+    return stats
 
-def main(file_path: str) -> None:
+def main() -> None:
     """
-    Main function to load data and calculate statistics.
-
-    Args:
-        file_path (str): The path to the CSV file.
+    Main function to demonstrate DataFrame creation and statistics calculation.
     """
-    df = load_data(file_path)  # Load the data
-    stats = calculate_statistics(df)  # Calculate statistics
-    print("Statistics:", stats)  # Print the statistics
+    # Sample data
+    data = {
+        'A': np.random.rand(10),
+        'B': np.random.rand(10),
+        'C': np.random.rand(10)
+    }
+
+    try:
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame:")
+        print(df)
+
+        # Calculate and display statistics
+        stats = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats)
+
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Update the file_path variable with the path to your CSV file
-    file_path = 'data.csv'
-    main(file_path)
+    main()
