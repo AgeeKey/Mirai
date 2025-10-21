@@ -1,62 +1,60 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.98
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-21T12:10:13.744610
+Learned: 2025-10-21T12:26:39.744517
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load data from a CSV file, process it, and return a DataFrame.
+    Create a pandas DataFrame from a list of dictionaries.
 
     Parameters:
-    file_path (str): The path to the CSV file.
+    data (List[dict]): A list of dictionaries containing the data.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the processed data, or None if an error occurs.
+    pd.DataFrame: A DataFrame containing the provided data.
+    
+    Raises:
+    ValueError: If the input data is empty or not a list of dictionaries.
     """
-    try:
-        # Load the data from the specified CSV file
-        data = pd.read_csv(file_path)
-        
-        # Display the first few rows of the DataFrame
-        print("Data loaded successfully. Here are the first few rows:")
-        print(data.head())
-        
-        # Drop any rows with missing values
-        cleaned_data = data.dropna()
-        
-        # Return the cleaned DataFrame
-        return cleaned_data
-    
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input data must be a list of dictionaries.")
+    if not data:
+        raise ValueError("Input data cannot be empty.")
 
-# Example usage
+    return pd.DataFrame(data)
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and basic operations.
+    """
+    # Sample data
+    sample_data = [
+        {"Name": "Alice", "Age": 30, "City": "New York"},
+        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
+        {"Name": "Charlie", "Age": 35, "City": "Chicago"}
+    ]
+
+    try:
+        # Create DataFrame from sample data
+        df = create_dataframe(sample_data)
+        print("Created DataFrame:")
+        print(df)
+
+        # Basic operation: Calculate average age
+        average_age = df['Age'].mean()
+        print(f"\nAverage Age: {average_age:.2f}")
+
+    except ValueError as e:
+        print(f"Error: {e}")
+
 if __name__ == "__main__":
-    # Specify the path to the CSV file
-    csv_file_path = 'data.csv'
-    
-    # Call the function to load and process the data
-    processed_data = load_and_process_data(csv_file_path)
-    
-    # If data was processed successfully, display its shape
-    if processed_data is not None:
-        print(f"Processed data shape: {processed_data.shape}")
+    main()
