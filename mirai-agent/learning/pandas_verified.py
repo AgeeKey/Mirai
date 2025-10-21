@@ -2,61 +2,73 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-21T21:24:20.130690
+Learned: 2025-10-21T21:39:56.338082
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file, filter columns, and perform basic cleaning.
+    Create a pandas DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
-        column_filter (Optional[list]): List of columns to retain in the DataFrame.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: A DataFrame representing the input data.
 
     Raises:
-        FileNotFoundError: If the provided file path does not exist.
-        ValueError: If column_filter contains columns not in the DataFrame.
+        ValueError: If the input data is not in the correct format.
     """
     try:
-        # Load the dataset
-        df = pd.read_csv(file_path)
-
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-
-        # Filter columns if specified
-        if column_filter is not None:
-            missing_cols = set(column_filter) - set(df.columns)
-            if missing_cols:
-                raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
-            df = df[column_filter]
-
+        df = pd.DataFrame(data)
         return df
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        raise
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        raise
-
-# Example usage
-if __name__ == "__main__":
-    try:
-        data = load_and_process_data('data.csv', column_filter=['column1', 'column2'])
-        print(data.head())
     except Exception as e:
-        print(f"An error occurred: {e}")
+        raise ValueError("Error creating DataFrame: " + str(e))
+
+def calculate_statistics(df: pd.DataFrame) -> dict:
+    """
+    Calculate basic statistics for each numeric column in the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        dict: A dictionary containing the mean and standard deviation for each numeric column.
+    """
+    stats = {}
+    for column in df.select_dtypes(include=[np.number]).columns:
+        stats[column] = {
+            'mean': df[column].mean(),
+            'std_dev': df[column].std()
+        }
+    return stats
+
+def main() -> None:
+    """Main function to run the example."""
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 6, 7, 8, 9],
+        'C': ['a', 'b', 'c', 'd', 'e']
+    }
+
+    # Create DataFrame
+    df = create_dataframe(data)
+    print("DataFrame created:")
+    print(df)
+
+    # Calculate statistics
+    try:
+        stats = calculate_statistics(df)
+        print("\nStatistics:")
+        print(stats)
+    except ValueError as e:
+        print(e)
+
+if __name__ == '__main__':
+    main()
