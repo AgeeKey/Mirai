@@ -2,9 +2,9 @@
 schedule - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-21T01:00:42.471478
+Learned: 2025-10-21T02:36:07.089283
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,28 +12,34 @@ This code has been verified by MIRAI's NASA-level learning system.
 import schedule
 import time
 import logging
+from typing import Callable
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def job() -> None:
-    """Function that represents the scheduled job which will run periodically."""
-    logging.info("Job is running...")
+    """Function to be scheduled that prints a message."""
+    logging.info("Job is running!")
 
-def schedule_jobs() -> None:
-    """Schedule the jobs to run at specified intervals."""
-    schedule.every(10).seconds.do(job)  # Schedule job to run every 10 seconds
-    logging.info("Jobs have been scheduled.")
+def schedule_job(interval: str, func: Callable[[], None]) -> None:
+    """Schedules a job at the specified interval.
+    
+    Args:
+        interval (str): A string representing the scheduling interval.
+        func (Callable[[], None]): The function to schedule.
+    """
+    try:
+        schedule.every().day.at(interval).do(func)
+        logging.info(f"Scheduled job at {interval} every day.")
+    except Exception as e:
+        logging.error(f"Error scheduling job: {e}")
 
 def run_scheduler() -> None:
-    """Run the scheduler to continuously check for scheduled jobs."""
+    """Runs the scheduler to execute scheduled jobs."""
     while True:
-        try:
-            schedule.run_pending()  # Run any jobs that are scheduled to run
-            time.sleep(1)  # Wait for 1 second before checking again
-        except Exception as e:
-            logging.error(f"An error occurred: {e}")
+        schedule.run_pending()
+        time.sleep(1)
 
 if __name__ == "__main__":
-    schedule_jobs()  # Set up the jobs
-    run_scheduler()  # Start the scheduler
+    schedule_job("10:00", job)  # Schedule job to run every day at 10:00 AM
+    run_scheduler()
