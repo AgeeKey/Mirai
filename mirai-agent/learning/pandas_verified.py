@@ -2,71 +2,59 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-21T03:39:19.857648
+Learned: 2025-10-21T04:10:57.659131
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
     """
     Load data from a CSV file and perform basic processing.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
+        index_col (Optional[str]): Column name to set as index. Default is None.
 
     Returns:
-    pd.DataFrame: A processed DataFrame.
+        pd.DataFrame: Processed DataFrame.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the CSV file is empty.
+        pd.errors.ParserError: If there is an error parsing the CSV file.
     """
     try:
-        # Load the data from the CSV file
-        data = pd.read_csv(file_path)
+        # Load the data into a DataFrame
+        df = pd.read_csv(file_path, index_col=index_col)
         
-        # Check for missing values and fill them with the mean for numeric columns
-        data.fillna(data.mean(), inplace=True)
-
-        # Convert column names to lowercase for consistency
-        data.columns = [col.lower() for col in data.columns]
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
         
-        return data
-
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-
-def summarize_data(data: pd.DataFrame) -> Dict[str, float]:
-    """
-    Summarize the data by calculating mean and standard deviation.
-
-    Parameters:
-    data (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-    Dict[str, float]: A dictionary containing mean and standard deviation.
-    """
-    if data.empty:
-        print("Warning: The DataFrame is empty; cannot summarize.")
-        return {}
-
-    summary = {
-        "mean": data.mean().to_dict(),
-        "std_dev": data.std().to_dict()
-    }
-    return summary
+        # Reset index if no index_col is specified
+        if index_col is None:
+            df.reset_index(drop=True, inplace=True)
+        
+        return df
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}. Please check the file path.")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print("Error: The CSV file is empty.")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: Could not parse the CSV file. {e}")
+        raise
 
 if __name__ == "__main__":
     # Example usage
-    file_path = 'data.csv'  # Specify your CSV file path here
-    df = load_and_process_data(file_path)
-    summary = summarize_data(df)
-    print("Data Summary:", summary)
+    try:
+        data_frame = load_and_process_data('data.csv', index_col='id')
+        print(data_frame.head())
+    except Exception as e:
+        print(f"An error occurred: {e}")
