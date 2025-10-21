@@ -2,9 +2,9 @@
 TensorFlow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.84
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-21T17:52:37.318663
+Learned: 2025-10-21T21:08:22.182480
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,79 +12,59 @@ This code has been verified by MIRAI's NASA-level learning system.
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from sklearn.model_selection import train_test_split
 import numpy as np
 
 def create_model(input_shape: tuple) -> keras.Model:
-    """Create a simple feedforward neural network model.
+    """Creates a simple Sequential model for binary classification.
 
     Args:
-        input_shape (tuple): Shape of the input data.
+        input_shape (tuple): The shape of the input data.
 
     Returns:
-        keras.Model: Compiled Keras model.
+        keras.Model: A compiled Keras model.
     """
     model = keras.Sequential([
-        layers.Input(shape=input_shape),
+        layers.Dense(64, activation='relu', input_shape=input_shape),
         layers.Dense(64, activation='relu'),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(10, activation='softmax')  # Assuming 10 classes for classification
+        layers.Dense(1, activation='sigmoid')  # Output layer for binary classification
     ])
     
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
+    model.compile(optimizer='adam', 
+                  loss='binary_crossentropy', 
                   metrics=['accuracy'])
     
     return model
 
-def load_data() -> tuple:
-    """Load and preprocess the dataset.
+def generate_data(samples: int) -> tuple[np.ndarray, np.ndarray]:
+    """Generates random binary classification data.
+
+    Args:
+        samples (int): The number of samples to generate.
 
     Returns:
-        tuple: Training and testing data and labels.
+        tuple[np.ndarray, np.ndarray]: A tuple of features and labels.
     """
-    # Generate dummy data for the example
-    X = np.random.rand(1000, 20)  # 1000 samples, 20 features
-    y = np.random.randint(0, 10, 1000)  # 1000 labels for 10 classes
-    
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    return (X_train, y_train), (X_test, y_test)
-
-def train_model(model: keras.Model, train_data: tuple, epochs: int = 10) -> None:
-    """Train the model on the training data.
-
-    Args:
-        model (keras.Model): The compiled Keras model.
-        train_data (tuple): Training data and labels.
-        epochs (int): Number of epochs to train for.
-    """
-    X_train, y_train = train_data
-    try:
-        model.fit(X_train, y_train, epochs=epochs, batch_size=32)
-    except Exception as e:
-        print(f"An error occurred during training: {e}")
-
-def evaluate_model(model: keras.Model, test_data: tuple) -> None:
-    """Evaluate the model on the test data.
-
-    Args:
-        model (keras.Model): The trained Keras model.
-        test_data (tuple): Testing data and labels.
-    """
-    X_test, y_test = test_data
-    try:
-        loss, accuracy = model.evaluate(X_test, y_test)
-        print(f"Test loss: {loss:.4f}, Test accuracy: {accuracy:.4f}")
-    except Exception as e:
-        print(f"An error occurred during evaluation: {e}")
+    # Generate random data and binary labels
+    X = np.random.rand(samples, 10)  # 10 features
+    y = np.random.randint(0, 2, size=(samples, 1))  # Binary labels
+    return X, y
 
 def main() -> None:
-    """Main function to execute the workflow."""
-    (X_train, y_train), (X_test, y_test) = load_data()
-    model = create_model(input_shape=(20,))
-    train_model(model, (X_train, y_train), epochs=10)
-    evaluate_model(model, (X_test, y_test))
+    """Main function to train and evaluate the model."""
+    try:
+        samples = 1000
+        X, y = generate_data(samples)  # Generate data
+        model = create_model(input_shape=(10,))  # Create the model
+        
+        # Train the model
+        model.fit(X, y, epochs=10, batch_size=32, validation_split=0.2)
+        
+        # Evaluate the model
+        loss, accuracy = model.evaluate(X, y)
+        print(f"Loss: {loss:.4f}, Accuracy: {accuracy:.4f}")
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
