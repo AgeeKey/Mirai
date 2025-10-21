@@ -6389,6 +6389,16 @@
       "name": "TensorFlow",
       "proficiency": 0.8405098836052236,
       "learned_at": "2025-10-21T17:52:37.320356"
+    },
+    {
+      "name": "airflow",
+      "proficiency": 0.9259259259259259,
+      "learned_at": "2025-10-21T18:08:11.165682"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.868979828884597,
+      "learned_at": "2025-10-21T18:08:34.269697"
     }
   ],
   "skills": [],
