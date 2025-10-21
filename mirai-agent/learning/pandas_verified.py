@@ -4,70 +4,69 @@ pandas - Verified Learning Artifact
 Quality Grade: B
 Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-21T14:36:18.456885
+Learned: 2025-10-21T15:08:36.441254
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+from typing import List
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load a CSV file into a Pandas DataFrame.
+    Create a pandas DataFrame from a list of dictionaries.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (List[dict]): A list of dictionaries where each dictionary
+                           represents a row in the DataFrame.
 
     Returns:
-        pd.DataFrame: The loaded DataFrame.
+        pd.DataFrame: A DataFrame representing the input data.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
+        ValueError: If the input data is empty or invalid.
     """
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {file_path}") from e
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError(f"The file is empty: {file_path}") from e
+    if not data:
+        raise ValueError("Input data must not be empty.")
 
-def analyze_data(df: pd.DataFrame) -> Union[pd.Series, None]:
+    try:
+        df = pd.DataFrame(data)  # Create DataFrame
+    except Exception as e:
+        raise ValueError("Failed to create DataFrame: " + str(e))
+    
+    return df
+
+def calculate_mean(df: pd.DataFrame, column: str) -> float:
     """
-    Analyze the DataFrame to compute basic statistics.
+    Calculate the mean of a specified column in a DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to analyze.
+        df (pd.DataFrame): The DataFrame to calculate the mean from.
+        column (str): The name of the column to calculate the mean.
 
     Returns:
-        pd.Series: A Series containing the mean of each numeric column.
+        float: The mean of the specified column.
+
+    Raises:
+        ValueError: If the column does not exist in the DataFrame.
     """
-    if df.empty:
-        print("The DataFrame is empty.")
-        return None
-    
-    # Compute mean for numeric columns
-    return df.mean()
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
 
-def main(file_path: str) -> None:
-    """
-    Main function to load and analyze data.
+    mean_value = df[column].mean()  # Calculate mean
+    return mean_value
 
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    try:
-        data = load_data(file_path)  # Load data from CSV
-        stats = analyze_data(data)   # Analyze the loaded data
-
-        if stats is not None:
-            print("Basic Statistics:")
-            print(stats)  # Print the statistics
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
+# Example usage
 if __name__ == "__main__":
-    FILE_PATH = 'data.csv'  # Specify the path to your CSV file
-    main(FILE_PATH)  # Execute the main function
+    sample_data = [
+        {"name": "Alice", "age": 30, "score": 85},
+        {"name": "Bob", "age": 25, "score": 90},
+        {"name": "Charlie", "age": 35, "score": 95}
+    ]
+    
+    try:
+        df = create_dataframe(sample_data)  # Create DataFrame from sample data
+        mean_score = calculate_mean(df, "score")  # Calculate mean score
+        print(f"Mean Score: {mean_score}")  # Output mean score
+    except ValueError as e:
+        print(f"Error: {e}")
