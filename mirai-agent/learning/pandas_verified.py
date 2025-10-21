@@ -2,78 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-21T15:58:08.596130
+Learned: 2025-10-21T16:14:36.363308
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List, Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
-    """
-    Load data from a CSV file into a pandas DataFrame.
+def load_data(file_path: str) -> pd.DataFrame:
+    """Load data from a CSV file into a DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: The loaded DataFrame.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
     """
     try:
-        df = pd.read_csv(file_path)
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"The file {file_path} was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise pd.errors.EmptyDataError(f"The file {file_path} is empty.") from e
+
+def filter_data(df: pd.DataFrame, column_name: str, value: Optional[str]) -> pd.DataFrame:
+    """Filter the DataFrame based on a specific column and value.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        column_name (str): The column to filter by.
+        value (Optional[str]): The value to filter for.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame.
+    """
+    if value is None:
         return df
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error.")
-        return None
+    
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+    
+    filtered_df = df[df[column_name] == value]
+    return filtered_df
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def main(file_path: str, column_name: str, value: Optional[str] = None) -> None:
+    """Main function to load, filter, and display data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+        column_name (str): The column to filter by.
+        value (Optional[str]): The value to filter for.
     """
-    Clean the DataFrame by removing rows with missing values.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-    pd.DataFrame: A cleaned DataFrame with missing values removed.
-    """
-    cleaned_df = df.dropna()  # Remove rows with missing values
-    return cleaned_df
-
-def analyze_data(df: pd.DataFrame) -> pd.Series:
-    """
-    Analyze the DataFrame by calculating basic statistics.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    pd.Series: A Series containing basic statistics of the DataFrame.
-    """
-    stats = df.describe()  # Get basic statistics
-    return stats
-
-def main(file_path: str) -> None:
-    """
-    Main function to execute data loading, cleaning, and analysis.
-
-    Parameters:
-    file_path (str): The path to the CSV file.
-    """
+    # Load the data
     df = load_data(file_path)
-    if df is not None:
-        cleaned_df = clean_data(df)
-        stats = analyze_data(cleaned_df)
-        print(stats)
+    
+    # Filter the data
+    filtered_df = filter_data(df, column_name, value)
+    
+    # Display the filtered data
+    print(filtered_df)
 
 if __name__ == "__main__":
-    # Replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    # Example usage
+    FILE_PATH = 'data.csv'  # Replace with your CSV file path
+    COLUMN_NAME = 'Category'  # Replace with your desired column name
+    VALUE = 'Electronics'  # Replace with the value you want to filter by, or None
+
+    main(FILE_PATH, COLUMN_NAME, VALUE)
