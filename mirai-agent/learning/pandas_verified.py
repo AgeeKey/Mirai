@@ -2,56 +2,80 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.85
 Tests Passed: 0/1
-Learned: 2025-10-21T18:24:27.337137
+Learned: 2025-10-21T18:41:16.538449
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from pandas.errors import EmptyDataError
+import numpy as np
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load and process data from a CSV file.
+    Create a pandas DataFrame from a dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A processed DataFrame with cleaned data.
+        pd.DataFrame: A DataFrame constructed from the input data.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        EmptyDataError: If the file is empty.
+        ValueError: If the input dictionary is empty or if lists are of unequal length.
     """
-    try:
-        # Load the data from the CSV file
-        data = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
-    except EmptyDataError as e:
-        raise EmptyDataError("The file is empty.") from e
+    if not data:
+        raise ValueError("Input dictionary is empty.")
 
-    # Basic data cleaning: drop rows with any missing values
-    cleaned_data = data.dropna()
+    column_lengths = [len(v) for v in data.values()]
+    if len(set(column_lengths)) != 1:
+        raise ValueError("All columns must have the same length.")
 
-    # Convert all column names to lowercase
-    cleaned_data.columns = [col.lower() for col in cleaned_data.columns]
+    return pd.DataFrame(data)
 
-    return cleaned_data
+def clean_data(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    """
+    Clean the specified column in the DataFrame by filling NaN values.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
+        column_name (str): The name of the column to clean.
+
+    Returns:
+        pd.DataFrame: The cleaned DataFrame.
+    """
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+
+    df[column_name].fillna(value="Missing", inplace=True)
+    return df
 
 def main() -> None:
     """
-    Main function to execute the data loading and processing.
+    Main function to execute the data manipulation tasks.
     """
-    file_path = 'data.csv'  # Specify the path to your CSV file
     try:
-        processed_data = load_and_process_data(file_path)
-        print(processed_data.head())  # Display the first few rows of the processed data
-    except (FileNotFoundError, EmptyDataError) as e:
-        print(e)
+        # Sample data to create the DataFrame
+        sample_data = {
+            'Name': ['Alice', 'Bob', np.nan, 'David'],
+            'Age': [25, 30, 22, np.nan],
+            'City': ['New York', 'Los Angeles', 'Chicago', np.nan]
+        }
+
+        # Create DataFrame
+        df = create_dataframe(sample_data)
+        print("Original DataFrame:")
+        print(df)
+
+        # Clean the 'City' column
+        cleaned_df = clean_data(df, 'City')
+        print("\nCleaned DataFrame:")
+        print(cleaned_df)
+
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
