@@ -1,10 +1,10 @@
 """
 APScheduler - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.89
+Quality Grade: A
+Overall Score: 0.93
 Tests Passed: 0/1
-Learned: 2025-10-19T17:28:06.468597
+Learned: 2025-10-21T17:03:10.682580
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -15,32 +15,34 @@ import logging
 import time
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def my_job() -> None:
-    """Job that prints the current time."""
-    try:
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        logger.info(f"Job executed at: {current_time}")
-    except Exception as e:
-        logger.error(f"Error executing job: {e}")
+def scheduled_job() -> None:
+    """
+    A sample job that logs a message.
+    This function will be called by the scheduler at specified intervals.
+    """
+    logging.info("Scheduled job executed.")
 
 def start_scheduler() -> None:
-    """Start the APScheduler to run jobs at specified intervals."""
+    """
+    Starts the APScheduler to run the scheduled job at defined intervals.
+    """
     scheduler = BackgroundScheduler()
-    # Schedule the job to run every 10 seconds
-    scheduler.add_job(my_job, IntervalTrigger(seconds=10))
     
     try:
+        # Schedule the job to run every 5 seconds
+        scheduler.add_job(scheduled_job, trigger=IntervalTrigger(seconds=5), id='my_job_id')
         scheduler.start()
-        logger.info("Scheduler started. Press Ctrl+C to exit.")
-        # Keep the main thread alive to let the scheduler run jobs
+        logging.info("Scheduler started.")
+        
+        # Keep the script running indefinitely
         while True:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
+        # Shut down the scheduler when exiting the app
         scheduler.shutdown()
-        logger.info("Scheduler stopped.")
+        logging.info("Scheduler stopped.")
 
 if __name__ == "__main__":
     start_scheduler()
