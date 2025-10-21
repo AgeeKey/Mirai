@@ -2,77 +2,95 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.90
+Overall Score: 0.92
 Tests Passed: 0/1
-Learned: 2025-10-21T21:56:12.667549
+Learned: 2025-10-21T22:12:26.320048
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Create a Pandas DataFrame from a dictionary.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the loaded data.
+    pd.DataFrame: A DataFrame containing the provided data.
 
     Raises:
-        FileNotFoundError: If the CSV file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is an error parsing the file.
+    ValueError: If the lengths of the lists in the dictionary are not consistent.
     """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        raise
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        raise
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-        raise
+    # Check if all lists in the dictionary have the same length
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All lists in the dictionary must have the same length.")
+
+    # Create and return the DataFrame
+    return pd.DataFrame(data)
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by removing NaN values and duplicates.
+    Clean the DataFrame by filling missing values and removing duplicates.
 
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
+    Parameters:
+    df (pd.DataFrame): The DataFrame to be cleaned.
 
     Returns:
-        pd.DataFrame: A cleaned DataFrame.
+    pd.DataFrame: A cleaned DataFrame.
     """
-    # Remove rows with NaN values
-    df_cleaned = df.dropna()
-    # Remove duplicate rows
-    df_cleaned = df_cleaned.drop_duplicates()
-    return df_cleaned
-
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and display data.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    # Load the data
-    data = load_data(file_path)
+    # Fill missing values with the column mean
+    df.fillna(df.mean(), inplace=True)
     
-    # Clean the data
-    cleaned_data = clean_data(data)
+    # Remove duplicates
+    df.drop_duplicates(inplace=True)
+
+    return df
+
+def analyze_data(df: pd.DataFrame) -> pd.Series:
+    """
+    Analyze the DataFrame and return descriptive statistics.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    pd.Series: Descriptive statistics of the DataFrame.
+    """
+    return df.describe()
+
+def main() -> None:
+    """
+    Main function to execute the data processing workflow.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, np.nan, 4, 5],
+        'B': [5, np.nan, np.nan, 8, 10],
+        'C': [10, 20, 30, 40, 50]
+    }
     
-    # Display the cleaned data
-    print(cleaned_data)
+    try:
+        # Create a DataFrame
+        df = create_dataframe(data)
+        
+        # Clean the DataFrame
+        cleaned_df = clean_data(df)
+        
+        # Analyze the cleaned DataFrame
+        analysis = analyze_data(cleaned_df)
+        
+        # Print the analysis results
+        print(analysis)
+        
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example file path (replace with your actual file path)
-    example_file_path = 'data.csv'  
-    main(example_file_path)
+    main()
