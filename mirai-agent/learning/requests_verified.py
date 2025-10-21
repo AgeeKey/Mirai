@@ -1,52 +1,51 @@
 """
 requests - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 1/1
-Learned: 2025-10-21T14:04:06.605207
+Learned: 2025-10-21T16:30:42.068183
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import requests
 from requests.exceptions import HTTPError, RequestException
-from typing import Optional, Dict
+from typing import Any, Dict
 
-def fetch_data(url: str, params: Optional[Dict[str, str]] = None) -> Optional[dict]:
+def fetch_data(url: str) -> Dict[str, Any]:
     """
-    Fetch data from a given URL using a GET request.
+    Fetches data from the specified URL using an HTTP GET request.
 
     Args:
         url (str): The URL to send the GET request to.
-        params (Optional[Dict[str, str]]): Optional query parameters for the request.
 
     Returns:
-        Optional[dict]: The JSON response as a dictionary, or None if an error occurred.
+        Dict[str, Any]: The JSON response from the server.
+
+    Raises:
+        ValueError: If the URL is invalid.
+        HTTPError: If the HTTP request returned an unsuccessful status code.
+        RequestException: For other request-related errors.
     """
+    if not url.startswith("http"):
+        raise ValueError("Invalid URL provided. Please ensure it starts with 'http' or 'https'.")
+
     try:
-        # Send a GET request to the specified URL
-        response = requests.get(url, params=params)
-
-        # Raise an exception for HTTP errors
-        response.raise_for_status()
-
-        # Return the JSON response
-        return response.json()
-        
+        response = requests.get(url)  # Send GET request to the URL
+        response.raise_for_status()  # Raise an error for bad responses (4XX and 5XX)
+        return response.json()  # Return the JSON response as a dictionary
     except HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")  # Log HTTP errors
+        raise
     except RequestException as req_err:
-        print(f"Request error occurred: {req_err}")  # Log request errors
-    except ValueError as json_err:
-        print(f"JSON decode error: {json_err}")  # Log JSON decoding errors
-    return None
+        print(f"Request exception occurred: {req_err}")  # Log request errors
+        raise
 
 if __name__ == "__main__":
-    # Example usage of the fetch_data function
-    url = "https://api.example.com/data"
-    parameters = {"key": "value"}
-    
-    data = fetch_data(url, params=parameters)
-    if data is not None:
-        print(data)
+    url = "https://jsonplaceholder.typicode.com/posts/1"  # Example URL
+    try:
+        data = fetch_data(url)  # Fetch data from the URL
+        print(data)  # Print the fetched data
+    except Exception as e:
+        print(f"An error occurred: {e}")  # Print any errors
