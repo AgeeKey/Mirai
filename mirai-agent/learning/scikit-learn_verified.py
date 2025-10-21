@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.85
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-21T20:35:39.601077
+Learned: 2025-10-21T20:52:07.958586
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,78 +12,96 @@ This code has been verified by MIRAI's NASA-level learning system.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.datasets import load_iris
-from typing import Tuple
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load the Iris dataset.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Features and target arrays.
-    """
-    try:
-        iris = load_iris()
-        return iris.data, iris.target
-    except Exception as e:
-        raise RuntimeError("Error loading data: " + str(e))
-
-def train_model(X: np.ndarray, y: np.ndarray) -> LogisticRegression:
-    """
-    Train a logistic regression model.
+    Load data from a CSV file.
 
     Args:
-        X (np.ndarray): Feature array.
-        y (np.ndarray): Target array.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        LogisticRegression: Trained logistic regression model.
+        pd.DataFrame: The loaded data as a pandas DataFrame.
     """
     try:
-        model = LogisticRegression(max_iter=200)
-        model.fit(X, y)
-        return model
+        data = pd.read_csv(file_path)
+        return data
     except Exception as e:
-        raise RuntimeError("Error training model: " + str(e))
+        raise RuntimeError(f"Error loading data: {e}")
 
-def evaluate_model(model: LogisticRegression, X_test: np.ndarray, y_test: np.ndarray) -> None:
+def preprocess_data(df: pd.DataFrame, target_column: str) -> tuple:
     """
-    Evaluate the trained model.
+    Preprocess the data by separating features and target variable.
 
     Args:
-        model (LogisticRegression): Trained logistic regression model.
-        X_test (np.ndarray): Test feature array.
-        y_test (np.ndarray): Test target array.
-    """
-    try:
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
-    except Exception as e:
-        raise RuntimeError("Error evaluating model: " + str(e))
+        df (pd.DataFrame): The input DataFrame.
+        target_column (str): The name of the target column.
 
-def main() -> None:
+    Returns:
+        tuple: A tuple containing features (X) and target (y).
     """
-    Main function to execute the workflow.
+    if target_column not in df.columns:
+        raise ValueError("Target column not found in DataFrame")
+
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+    return X, y
+
+def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
     """
-    try:
-        # Load data
-        X, y = load_data()
-        
-        # Split data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    Train a Random Forest model.
 
-        # Train the model
-        model = train_model(X_train, y_train)
+    Args:
+        X (pd.DataFrame): Features for training.
+        y (pd.Series): Target variable for training.
 
-        # Evaluate the model
-        evaluate_model(model, X_test, y_test)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    Returns:
+        RandomForestClassifier: The trained Random Forest model.
+    """
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X, y)
+    return model
+
+def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
+    """
+    Evaluate the model and print the accuracy and classification report.
+
+    Args:
+        model (RandomForestClassifier): The trained model.
+        X_test (pd.DataFrame): Features for testing.
+        y_test (pd.Series): True labels for testing.
+    """
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"Accuracy: {accuracy:.2f}")
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
+
+def main(file_path: str, target_column: str) -> None:
+    """
+    Main function to load data, preprocess it, train the model, and evaluate it.
+
+    Args:
+        file_path (str): The path to the CSV data file.
+        target_column (str): The name of the target column.
+    """
+    # Load data
+    data = load_data(file_path)
+
+    # Preprocess data
+    X, y = preprocess_data(data, target_column)
+
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Train model
+    model = train_model(X_train, y_train)
+
+    # Evaluate model
+    evaluate_model(model, X_test, y_test)
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    main('data.csv', 'target_column_name')
