@@ -1,60 +1,54 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.98
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-21T08:09:15.594544
+Learned: 2025-10-21T08:25:22.990631
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, List
 
-def load_and_process_data(file_path: str, index_col: Optional[str] = None) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a pandas DataFrame from a list of dictionaries.
 
-    Args:
-        file_path (str): The path to the CSV file.
-        index_col (Optional[str]): Column to set as index. Defaults to None.
+    Parameters:
+        data (List[dict]): A list of dictionaries where the keys represent column names.
 
     Returns:
-        pd.DataFrame: A processed DataFrame.
+        Optional[pd.DataFrame]: A DataFrame constructed from the provided data, or None if data is empty.
     """
+    if not data:
+        print("Error: The input data list is empty.")
+        return None
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, index_col=index_col)
-
-        # Display initial data information
-        print("Initial data loaded:")
-        print(df.info())
-
-        # Drop any rows with missing values
-        df = df.dropna()
-
-        # Reset index if index_col was not specified
-        if index_col is None:
-            df.reset_index(drop=True, inplace=True)
-
-        # Provide a summary of the processed DataFrame
-        print("Processed data summary:")
-        print(df.describe())
-
+        df = pd.DataFrame(data)
         return df
-
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file '{file_path}' is empty.")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame on error
+        print(f"Error creating DataFrame: {e}")
+        return None
 
-# Example usage (uncomment the following line to run):
-# df = load_and_process_data('data.csv', index_col='id')
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation.
+    """
+    # Sample data to create DataFrame
+    sample_data = [
+        {"Name": "Alice", "Age": 30, "City": "New York"},
+        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
+        {"Name": "Charlie", "Age": 35, "City": "Chicago"},
+    ]
+
+    # Create the DataFrame
+    df = create_dataframe(sample_data)
+
+    if df is not None:
+        print("DataFrame created successfully:")
+        print(df)
+
+if __name__ == "__main__":
+    main()
