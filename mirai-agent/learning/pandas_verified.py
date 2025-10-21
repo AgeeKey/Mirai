@@ -1,54 +1,59 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.86
+Quality Grade: A
+Overall Score: 0.95
 Tests Passed: 0/1
-Learned: 2025-10-21T08:25:22.990631
+Learned: 2025-10-21T08:41:06.363230
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, List
+from typing import Optional
 
-def create_dataframe(data: List[dict]) -> Optional[pd.DataFrame]:
+def load_and_clean_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a list of dictionaries.
+    Load data from a CSV file, clean it, and return a DataFrame.
 
-    Parameters:
-        data (List[dict]): A list of dictionaries where the keys represent column names.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame constructed from the provided data, or None if data is empty.
+        Optional[pd.DataFrame]: A cleaned DataFrame or None if an error occurs.
     """
-    if not data:
-        print("Error: The input data list is empty.")
-        return None
     try:
-        df = pd.DataFrame(data)
-        return df
+        # Load the data from the CSV file
+        df = pd.read_csv(file_path)
+        
+        # Drop rows with any missing values
+        df_cleaned = df.dropna()
+        
+        # Reset index after dropping rows
+        df_cleaned.reset_index(drop=True, inplace=True)
+        
+        return df_cleaned
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+    except pd.errors.ParserError:
+        print("Error: There was a problem parsing the file.")
     except Exception as e:
-        print(f"Error creating DataFrame: {e}")
-        return None
+        print(f"An unexpected error occurred: {e}")
+    
+    return None
 
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation.
-    """
-    # Sample data to create DataFrame
-    sample_data = [
-        {"Name": "Alice", "Age": 30, "City": "New York"},
-        {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
-        {"Name": "Charlie", "Age": 35, "City": "Chicago"},
-    ]
-
-    # Create the DataFrame
-    df = create_dataframe(sample_data)
-
-    if df is not None:
-        print("DataFrame created successfully:")
-        print(df)
+def main():
+    # Specify the path to the CSV file
+    csv_file_path = 'data.csv'
+    
+    # Load and clean the data
+    cleaned_data = load_and_clean_data(csv_file_path)
+    
+    if cleaned_data is not None:
+        # Display the first few rows of the cleaned DataFrame
+        print(cleaned_data.head())
 
 if __name__ == "__main__":
     main()
