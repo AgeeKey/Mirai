@@ -1,58 +1,86 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-21T10:49:38.257641
+Learned: 2025-10-21T11:05:50.890508
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it into a DataFrame.
-    
+    Create a pandas DataFrame from a given dictionary.
+
     Args:
-        file_path (str): The path to the CSV file.
-        column_names (Optional[list]): Optional list of column names to use. If None, will use the default names.
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: A processed DataFrame.
-
+        pd.DataFrame: A DataFrame constructed from the input data.
+    
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the data is empty or cannot be processed.
+        ValueError: If the input dictionary is empty or if columns have different lengths.
+    """
+    if not data:
+        raise ValueError("Input dictionary is empty.")
+    
+    # Check if all columns have the same length
+    column_lengths = [len(v) for v in data.values()]
+    if len(set(column_lengths)) > 1:
+        raise ValueError("All columns must have the same length.")
+    
+    df = pd.DataFrame(data)
+    return df
+
+def add_column(df: pd.DataFrame, column_name: str, data: list) -> pd.DataFrame:
+    """
+    Add a new column to the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to which the column will be added.
+        column_name (str): The name of the new column.
+        data (list): A list of data to populate the new column.
+    
+    Returns:
+        pd.DataFrame: The DataFrame with the new column added.
+    
+    Raises:
+        ValueError: If the length of data does not match the number of rows in the DataFrame.
+    """
+    if len(data) != len(df):
+        raise ValueError("Length of data must match number of rows in the DataFrame.")
+    
+    df[column_name] = data
+    return df
+
+def main() -> None:
+    """
+    Main function to demonstrate the creation and manipulation of a DataFrame.
     """
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, names=column_names) if column_names else pd.read_csv(file_path)
+        # Sample data
+        data = {
+            'Name': ['Alice', 'Bob', 'Charlie'],
+            'Age': [25, 30, 35],
+            'City': ['New York', 'Los Angeles', 'Chicago']
+        }
 
-        # Check for empty DataFrame
-        if df.empty:
-            raise ValueError("The loaded DataFrame is empty.")
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("Initial DataFrame:")
+        print(df)
 
-        # Perform basic processing: drop duplicates and fill missing values
-        df = df.drop_duplicates()
-        df.fillna(method='ffill', inplace=True)
+        # Add a new column
+        df = add_column(df, 'Salary', [70000, 80000, 90000])
+        print("\nDataFrame after adding Salary column:")
+        print(df)
 
-        return df
-
-    except FileNotFoundError as e:
-        print(f"Error: The file '{file_path}' was not found.")
-        raise e
     except ValueError as e:
         print(f"Error: {e}")
-        raise e
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = "data/sample_data.csv"  # Specify your CSV file path here
-    try:
-        processed_data = load_and_process_data(file_path)
-        print(processed_data)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    main()
