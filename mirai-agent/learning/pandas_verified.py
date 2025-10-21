@@ -2,26 +2,26 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-21T06:17:45.022310
+Learned: 2025-10-21T06:33:34.620263
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, Tuple
+from typing import List
 
 def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Load data from a CSV file into a Pandas DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
 
     Returns:
         pd.DataFrame: DataFrame containing the loaded data.
-
+    
     Raises:
         FileNotFoundError: If the file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
@@ -30,42 +30,65 @@ def load_data(file_path: str) -> pd.DataFrame:
         data = pd.read_csv(file_path)
         return data
     except FileNotFoundError as e:
-        raise FileNotFoundError(f"The file {file_path} was not found.") from e
+        print(f"Error: {e}")
+        raise
     except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError("The file is empty.") from e
+        print(f"Error: The file is empty. {e}")
+        raise
 
-def summarize_data(df: pd.DataFrame) -> Tuple[int, pd.Series]:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Summarize the DataFrame by returning the number of rows and a description of the data.
+    Clean the DataFrame by filling missing values and dropping duplicates.
 
     Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-        Tuple[int, pd.Series]: A tuple containing the number of rows and a description of the DataFrame.
+        pd.DataFrame: Cleaned DataFrame.
     """
-    num_rows = len(df)
-    description = df.describe(include='all')
-    return num_rows, description
+    # Fill missing values with the mean of each column
+    df.fillna(df.mean(), inplace=True)
+    # Drop duplicate rows
+    df.drop_duplicates(inplace=True)
+    return df
 
-def main(file_path: str) -> None:
+def analyze_data(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     """
-    Main function to load data and summarize it.
+    Analyze specific columns of the DataFrame and return summary statistics.
 
     Args:
-        file_path (str): The path to the CSV file to be analyzed.
+        df (pd.DataFrame): The DataFrame to analyze.
+        columns (List[str]): List of column names to analyze.
+
+    Returns:
+        pd.DataFrame: DataFrame containing summary statistics.
+    """
+    # Check if the specified columns exist in the DataFrame
+    for column in columns:
+        if column not in df.columns:
+            raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+    
+    # Return summary statistics for the specified columns
+    return df[columns].describe()
+
+def main(file_path: str, columns_to_analyze: List[str]) -> None:
+    """
+    Main function to execute the data loading, cleaning, and analysis.
+
+    Args:
+        file_path (str): The path to the CSV file.
+        columns_to_analyze (List[str]): List of columns to analyze.
     """
     # Load the data
-    data = load_data(file_path)
-    
-    # Summarize the data
-    num_rows, description = summarize_data(data)
-    
-    # Print the results
-    print(f"Number of rows: {num_rows}")
-    print("Data Description:")
-    print(description)
+    df = load_data(file_path)
+    # Clean the data
+    cleaned_df = clean_data(df)
+    # Analyze the data
+    summary_stats = analyze_data(cleaned_df, columns_to_analyze)
+    print(summary_stats)
 
 if __name__ == "__main__":
-    # Example usage: replace 'your_file.csv' with an actual CSV file path
-    main('your_file.csv')
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual file path
+    columns_to_analyze = ['column1', 'column2']  # Replace with actual column names
+    main(file_path, columns_to_analyze)
