@@ -5839,6 +5839,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8138949114076736,
       "learned_at": "2025-10-21T03:08:03.723687"
+    },
+    {
+      "name": "matplotlib",
+      "proficiency": 0.8506184380177961,
+      "learned_at": "2025-10-21T03:23:34.949722"
+    },
+    {
+      "name": "requests",
+      "proficiency": 0.9204246609995844,
+      "learned_at": "2025-10-21T03:23:52.659637"
     }
   ],
   "skills": [],
