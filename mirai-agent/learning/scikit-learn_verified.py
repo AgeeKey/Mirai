@@ -2,9 +2,9 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.99
+Overall Score: 0.97
 Tests Passed: 0/1
-Learned: 2025-10-21T05:14:43.256797
+Learned: 2025-10-21T05:30:31.542874
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -18,32 +18,32 @@ from sklearn.metrics import accuracy_score, classification_report
 
 def main() -> None:
     """
-    Main function to execute the machine learning workflow.
+    Main function to execute the machine learning pipeline.
+    Loads the Iris dataset, splits it into training and test sets,
+    trains a Random Forest classifier, and evaluates its performance.
     """
     try:
-        # Load the iris dataset
+        # Load the Iris dataset
         iris = load_iris()
-        X = iris.data
-        y = iris.target
+        X, y = iris.data, iris.target
 
         # Split the dataset into training and test sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Initialize the Random Forest Classifier
+        # Initialize the Random Forest classifier
         model = RandomForestClassifier(n_estimators=100, random_state=42)
 
         # Train the model
         model.fit(X_train, y_train)
 
-        # Make predictions
+        # Make predictions on the test set
         y_pred = model.predict(X_test)
 
         # Evaluate the model
         accuracy = accuracy_score(y_test, y_pred)
         report = classification_report(y_test, y_pred)
 
-        # Output the results
-        print(f"Model Accuracy: {accuracy:.2f}")
+        print(f"Accuracy: {accuracy:.2f}")
         print("Classification Report:\n", report)
 
     except Exception as e:

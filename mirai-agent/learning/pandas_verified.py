@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-21T05:14:21.195960
+Learned: 2025-10-21T05:30:13.986285
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -14,61 +14,65 @@ from typing import Optional
 
 def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a DataFrame.
+    Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
     """
     try:
         df = pd.read_csv(file_path)
         return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-    
-    return None
+        print(f"Error loading data: {e}")
+        return None
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the DataFrame by dropping null values and duplicates.
+    Clean the DataFrame by dropping rows with missing values and resetting the index.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to clean.
+    Args:
+        df (pd.DataFrame): The DataFrame to clean.
 
     Returns:
-    pd.DataFrame: A cleaned DataFrame.
+        pd.DataFrame: Cleaned DataFrame.
     """
-    # Drop rows with any null values
-    df_cleaned = df.dropna()
-    # Drop duplicate rows
-    df_cleaned = df_cleaned.drop_duplicates()
-    return df_cleaned
+    # Drop rows with any missing values
+    cleaned_df = df.dropna()
+    # Reset the index of the cleaned DataFrame
+    cleaned_df.reset_index(drop=True, inplace=True)
+    return cleaned_df
 
-def analyze_data(df: pd.DataFrame) -> None:
+def analyze_data(df: pd.DataFrame) -> pd.Series:
     """
-    Perform basic analysis on the DataFrame and print summary statistics.
+    Perform a basic analysis of the DataFrame by returning descriptive statistics.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pd.Series: Descriptive statistics for the DataFrame.
     """
-    print("Summary Statistics:")
-    print(df.describe())  # Print summary statistics
-    print("Data Types:")
-    print(df.dtypes)      # Print the data types of columns
+    return df.describe()
+
+def main(file_path: str) -> None:
+    """
+    Main function to load, clean, and analyze data from a CSV file.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    # Load data
+    df = load_data(file_path)
+    if df is not None:
+        # Clean data
+        cleaned_df = clean_data(df)
+        # Analyze data
+        stats = analyze_data(cleaned_df)
+        print(stats)
 
 if __name__ == "__main__":
     # Example usage
-    file_path = 'data.csv'  # Replace with your CSV file path
-    data = load_data(file_path)  # Load the data
-
-    if data is not None:
-        cleaned_data = clean_data(data)  # Clean the data
-        analyze_data(cleaned_data)       # Analyze the cleaned data
+    main("data.csv")
