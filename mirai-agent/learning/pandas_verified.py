@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.90
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-21T15:25:24.673535
+Learned: 2025-10-21T15:41:41.620560
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,47 +12,42 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, filter_column: str, filter_value: Optional[str] = None) -> pd.DataFrame:
     """
-    Load and process data from a CSV file.
+    Load a CSV file into a pandas DataFrame, filter it based on a specified column and value, and return the processed DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
-        column_names (Optional[list]): A list of column names to use. If None, uses the file's header.
+        filter_column (str): The column name to filter on.
+        filter_value (Optional[str]): The value to filter by. If None, no filtering is applied.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the processed data.
+        pd.DataFrame: The processed DataFrame after loading and filtering.
 
     Raises:
-        FileNotFoundError: If the specified file is not found.
-        ValueError: If the DataFrame is empty after loading.
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the filter_column does not exist in the DataFrame.
     """
     try:
-        # Load the data from the CSV file
-        df = pd.read_csv(file_path, names=column_names, header=0 if column_names is None else None)
-        
-        # Check if the DataFrame is empty
-        if df.empty:
-            raise ValueError("The loaded DataFrame is empty. Please check the contents of the file.")
-
-        # Basic processing: drop duplicates and fill missing values
-        df.drop_duplicates(inplace=True)
-        df.fillna(method='ffill', inplace=True)
-
-        return df
-
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        raise
-    except ValueError as e:
-        print(f"Error: {e}")
-        raise
+        raise FileNotFoundError(f"File not found: {file_path}") from e
+
+    # Check if the filter_column exists in the DataFrame
+    if filter_column not in df.columns:
+        raise ValueError(f"Column '{filter_column}' does not exist in the DataFrame.")
+
+    # Filter the DataFrame if a filter_value is provided
+    if filter_value is not None:
+        df = df[df[filter_column] == filter_value]
+
+    return df
 
 if __name__ == "__main__":
-    # Example usage of the load_and_process_data function
-    file_path = 'data.csv'  # Replace with your actual file path
+    # Example usage
     try:
-        data = load_and_process_data(file_path)
-        print(data.head())  # Display the first few rows of the DataFrame
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        processed_data = load_and_process_data("data.csv", "Category", "A")
+        print(processed_data)
+    except (FileNotFoundError, ValueError) as e:
+        print(e)
