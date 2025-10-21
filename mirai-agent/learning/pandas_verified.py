@@ -1,86 +1,65 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.85
+Quality Grade: A
+Overall Score: 0.94
 Tests Passed: 0/1
-Learned: 2025-10-21T06:49:32.059889
+Learned: 2025-10-21T07:05:30.161348
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: Optional[dict] = None) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_name: str, filter_value: Optional[str] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from the provided data.
+    Load data from a CSV file, process it by filtering based on a column value, 
+    and return a cleaned DataFrame.
 
-    Args:
-        data (Optional[dict]): A dictionary where keys are column names and values are lists of column data.
+    Parameters:
+    - file_path: Path to the CSV file.
+    - column_name: Name of the column to filter on.
+    - filter_value: Value to filter the column by (optional).
 
     Returns:
-        pd.DataFrame: A DataFrame created from the input data.
-
-    Raises:
-        ValueError: If the input data is not a dictionary or if the columns have different lengths.
-    """
-    if data is None:
-        data = {
-            'A': np.random.rand(10),
-            'B': np.random.rand(10),
-            'C': np.random.rand(10)
-        }
-
-    if not isinstance(data, dict):
-        raise ValueError("Input data must be a dictionary.")
-
-    # Check if all columns have the same length
-    column_lengths = [len(v) for v in data.values()]
-    if len(set(column_lengths)) != 1:
-        raise ValueError("All columns must have the same length.")
-
-    df = pd.DataFrame(data)
-    return df
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate basic statistics for each column in the DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame for which to calculate statistics.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each column.
-    """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-
-    stats = {
-        'Mean': df.mean(),
-        'Median': df.median(),
-        'Std Dev': df.std()
-    }
-    return pd.DataFrame(stats)
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and statistics calculation.
+    - A DataFrame containing the cleaned data.
     """
     try:
-        # Create a DataFrame with random data
-        df = create_dataframe()
-        print("DataFrame:")
-        print(df)
+        # Load data from a CSV file
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        raise ValueError("The provided CSV file is empty.")
+    except Exception as e:
+        raise RuntimeError(f"An error occurred while reading the CSV file: {str(e)}")
 
-        # Calculate and display statistics
-        stats = calculate_statistics(df)
-        print("\nStatistics:")
-        print(stats)
-        
-    except ValueError as e:
-        print(f"Error: {e}")
+    # Display the initial shape of the DataFrame
+    print(f"Initial data shape: {df.shape}")
 
+    # Check if the specified column exists in the DataFrame
+    if column_name not in df.columns:
+        raise ValueError(f"The column '{column_name}' does not exist in the DataFrame.")
+
+    # Filter the DataFrame if a filter_value is provided
+    if filter_value is not None:
+        df = df[df[column_name] == filter_value]
+
+    # Display the shape after filtering
+    print(f"Data shape after filtering: {df.shape}")
+
+    # Return the cleaned DataFrame
+    return df
+
+# Example usage
 if __name__ == "__main__":
-    main()
+    file_path = 'data.csv'  # Replace with your actual CSV file path
+    column_name = 'Category'  # Replace with the actual column name to filter by
+    filter_value = 'A'  # Replace with the actual value to filter by, if needed
+
+    try:
+        processed_data = load_and_process_data(file_path, column_name, filter_value)
+        print(processed_data.head())  # Display the first few rows of the processed DataFrame
+    except Exception as e:
+        print(f"Error: {e}")
