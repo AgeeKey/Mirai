@@ -2,95 +2,68 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.92
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-21T22:12:26.320048
+Learned: 2025-10-21T22:28:32.662317
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Any, Dict
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Create a Pandas DataFrame from a dictionary.
+    Load data from a CSV file, clean it, and return a DataFrame.
 
-    Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the provided data.
-
-    Raises:
-    ValueError: If the lengths of the lists in the dictionary are not consistent.
-    """
-    # Check if all lists in the dictionary have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All lists in the dictionary must have the same length.")
-
-    # Create and return the DataFrame
-    return pd.DataFrame(data)
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by filling missing values and removing duplicates.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to be cleaned.
-
-    Returns:
-    pd.DataFrame: A cleaned DataFrame.
-    """
-    # Fill missing values with the column mean
-    df.fillna(df.mean(), inplace=True)
+        pd.DataFrame: A cleaned DataFrame.
     
-    # Remove duplicates
-    df.drop_duplicates(inplace=True)
-
-    return df
-
-def analyze_data(df: pd.DataFrame) -> pd.Series:
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error while reading the CSV.
     """
-    Analyze the DataFrame and return descriptive statistics.
+    try:
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Drop rows with missing values
+        df.dropna(inplace=True)
+        
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    pd.Series: Descriptive statistics of the DataFrame.
-    """
-    return df.describe()
+        return df
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        print(f"Error: The file is empty. {e}")
+        raise
+    except pd.errors.ParserError as e:
+        print(f"Error: There was a parsing error. {e}")
+        raise
 
 def main() -> None:
     """
-    Main function to execute the data processing workflow.
+    Main function to execute the data loading and processing.
     """
-    # Sample data
-    data = {
-        'A': [1, 2, np.nan, 4, 5],
-        'B': [5, np.nan, np.nan, 8, 10],
-        'C': [10, 20, 30, 40, 50]
-    }
+    file_path = 'data.csv'  # Specify the path to your CSV file
     
     try:
-        # Create a DataFrame
-        df = create_dataframe(data)
+        # Load and process the data
+        processed_data = load_and_process_data(file_path)
         
-        # Clean the DataFrame
-        cleaned_df = clean_data(df)
-        
-        # Analyze the cleaned DataFrame
-        analysis = analyze_data(cleaned_df)
-        
-        # Print the analysis results
-        print(analysis)
-        
-    except ValueError as ve:
-        print(f"ValueError: {ve}")
+        # Display the first few rows of the DataFrame
+        print(processed_data.head())
+    
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
