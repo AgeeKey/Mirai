@@ -1,91 +1,63 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-21T19:29:50.463740
+Learned: 2025-10-21T20:02:22.879575
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_filter: Optional[list] = None) -> pd.DataFrame:
     """
-    Load data from a CSV file and process it.
+    Load data from a CSV file, process it by filtering columns, and handle potential errors.
 
     Args:
         file_path (str): The path to the CSV file.
+        column_filter (Optional[list]): A list of columns to keep in the DataFrame. If None, all columns are kept.
 
     Returns:
-        pd.DataFrame: Processed DataFrame with cleaned data.
+        pd.DataFrame: A DataFrame containing the processed data.
 
     Raises:
         FileNotFoundError: If the specified file does not exist.
         pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        # Load the data into a DataFrame
+        # Load the data from the CSV file
         df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: {e.filename}")
-    except pd.errors.EmptyDataError as e:
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
         raise pd.errors.EmptyDataError("The file is empty.")
+    except pd.errors.ParserError:
+        raise pd.errors.ParserError("Error parsing the file.")
 
-    # Drop rows with any missing values
-    df.dropna(inplace=True)
-
-    # Reset index after dropping rows
-    df.reset_index(drop=True, inplace=True)
-
+    # Filter columns if a column filter is provided
+    if column_filter is not None:
+        df = df[column_filter]
+    
+    # Return the processed DataFrame
     return df
 
-def filter_data(df: pd.DataFrame, column: str, threshold: float) -> pd.DataFrame:
+def main() -> None:
     """
-    Filter the DataFrame based on a threshold for a specific column.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column (str): The column name to apply the filter on.
-        threshold (float): The threshold value for filtering.
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame.
+    Main function to execute the data loading and processing.
     """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+    file_path = 'data.csv'  # Specify the path to your CSV file
+    columns_to_keep = ['Column1', 'Column2']  # Specify columns to keep
 
-    # Filter the DataFrame based on the threshold
-    filtered_df = df[df[column] > threshold]
-
-    return filtered_df
-
-def main(file_path: str, column: str, threshold: float) -> None:
-    """
-    Main function to load, process, and filter data.
-
-    Args:
-        file_path (str): The path to the CSV file.
-        column (str): The column name to filter on.
-        threshold (float): The threshold for filtering.
-
-    Returns:
-        None
-    """
     try:
         # Load and process the data
-        df = load_and_process_data(file_path)
-        
-        # Filter the data based on the specified column and threshold
-        filtered_df = filter_data(df, column, threshold)
-        
-        # Print the filtered DataFrame
-        print(filtered_df)
+        processed_data = load_and_process_data(file_path, columns_to_keep)
+        print(processed_data)
     except Exception as e:
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv", "value_column", 10.0)
+    main()
