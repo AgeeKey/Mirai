@@ -1,70 +1,95 @@
 """
-TensorFlow - Verified Learning Artifact
+tensorflow - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.82
 Tests Passed: 0/1
-Learned: 2025-10-21T04:58:44.464499
+Learned: 2025-10-21T07:53:42.760414
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import tensorflow as tf
 from tensorflow import keras
-from sklearn.model_selection import train_test_split
+from tensorflow.keras import layers
 import numpy as np
 
-def create_model(input_shape: tuple) -> keras.Model:
-    """Creates and compiles a simple neural network model.
-
+def create_model(input_shape: tuple, num_classes: int) -> keras.Model:
+    """
+    Create a simple feedforward neural network model.
+    
     Args:
-        input_shape (tuple): Shape of the input data.
-
+        input_shape (tuple): The shape of the input data.
+        num_classes (int): The number of classes for classification.
+    
     Returns:
-        keras.Model: Compiled Keras model.
+        keras.Model: A compiled Keras model.
     """
     model = keras.Sequential([
-        keras.layers.Flatten(input_shape=input_shape),
-        keras.layers.Dense(128, activation='relu'),
-        keras.layers.Dropout(0.2),
-        keras.layers.Dense(10, activation='softmax')
+        layers.Flatten(input_shape=input_shape),  # Flatten the input
+        layers.Dense(128, activation='relu'),      # Hidden layer with ReLU activation
+        layers.Dense(num_classes, activation='softmax')  # Output layer with softmax
     ])
     
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+    model.compile(optimizer='adam',              # Adam optimizer
+                  loss='sparse_categorical_crossentropy',  # Loss function
+                  metrics=['accuracy'])           # Metrics to track
     
     return model
 
-def load_and_preprocess_data() -> tuple:
-    """Loads and preprocesses the MNIST dataset.
-
+def load_data() -> tuple:
+    """
+    Load the MNIST dataset and preprocess it.
+    
     Returns:
-        tuple: Tuple of training and testing data (X_train, X_test, y_train, y_test).
+        tuple: Tuple containing training and testing data and labels.
     """
     try:
-        (X_train, y_train), (X_test, y_test) = keras.datasets.mnist.load_data()
-        X_train, X_test = X_train / 255.0, X_test / 255.0  # Normalize the data
-        return X_train, X_test, y_train, y_test
+        # Load the MNIST dataset
+        (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+        
+        # Normalize the images to [0, 1]
+        x_train, x_test = x_train / 255.0, x_test / 255.0
+        
+        return (x_train, y_train), (x_test, y_test)
     except Exception as e:
-        print(f"Error loading dataset: {e}")
+        print(f"Error loading data: {e}")
         raise
 
-def main() -> None:
-    """Main function to execute the model training and evaluation."""
-    X_train, X_test, y_train, y_test = load_and_preprocess_data()
+def train_model(model: keras.Model, x_train: np.ndarray, y_train: np.ndarray, epochs: int = 5) -> None:
+    """
+    Train the model on the training data.
     
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
-
-    model = create_model(input_shape=(28, 28))  # MNIST images are 28x28 pixels
-
+    Args:
+        model (keras.Model): The model to train.
+        x_train (np.ndarray): Training data.
+        y_train (np.ndarray): Training labels.
+        epochs (int): Number of epochs to train for.
+    """
     try:
-        model.fit(X_train, y_train, epochs=5, validation_data=(X_val, y_val))
-        test_loss, test_acc = model.evaluate(X_test, y_test, verbose=2)
-        print(f'\nTest accuracy: {test_acc}')
+        model.fit(x_train, y_train, epochs=epochs)  # Train the model
     except Exception as e:
-        print(f"Error during training or evaluation: {e}")
+        print(f"Error during training: {e}")
+        raise
+
+def evaluate_model(model: keras.Model, x_test: np.ndarray, y_test: np.ndarray) -> None:
+    """
+    Evaluate the model on the test data.
+    
+    Args:
+        model (keras.Model): The model to evaluate.
+        x_test (np.ndarray): Test data.
+        y_test (np.ndarray): Test labels.
+    """
+    try:
+        test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)  # Evaluate the model
+        print(f'\nTest accuracy: {test_acc}')  # Print test accuracy
+    except Exception as e:
+        print(f"Error during evaluation: {e}")
         raise
 
 if __name__ == "__main__":
-    main()
+    (x_train, y_train), (x_test, y_test) = load_data()  # Load the data
+    model = create_model(input_shape=(28, 28), num_classes=10)  # Create the model
+    train_model(model, x_train, y_train, epochs=5)  # Train the model
+    evaluate_model(model, x_test, y_test)  # Evaluate the model
