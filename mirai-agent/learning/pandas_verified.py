@@ -2,77 +2,71 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.89
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-21T05:30:13.986285
+Learned: 2025-10-21T06:01:47.548474
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
+from typing import Optional, Tuple
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(rows: int, cols: int) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Create a DataFrame with random numbers.
 
     Args:
-        file_path (str): The path to the CSV file.
+        rows (int): Number of rows in the DataFrame.
+        cols (int): Number of columns in the DataFrame.
 
     Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data or None if an error occurs.
+        pd.DataFrame: DataFrame containing random numbers.
+    """
+    if rows <= 0 or cols <= 0:
+        raise ValueError("Number of rows and columns must be positive integers.")
+    
+    data = np.random.rand(rows, cols)
+    df = pd.DataFrame(data, columns=[f'Column_{i+1}' for i in range(cols)])
+    return df
+
+def calculate_statistics(df: pd.DataFrame) -> Tuple[pd.Series, pd.Series]:
+    """
+    Calculate mean and standard deviation of each column in the DataFrame.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+
+    Returns:
+        Tuple[pd.Series, pd.Series]: Mean and standard deviation of each column.
+    """
+    if df.empty:
+        raise ValueError("The DataFrame is empty.")
+    
+    mean_values = df.mean()
+    std_values = df.std()
+    return mean_values, std_values
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and statistics calculation.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None
+        # Create a DataFrame with 5 rows and 3 columns
+        df = create_dataframe(5, 3)
+        print("Created DataFrame:")
+        print(df)
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the DataFrame by dropping rows with missing values and resetting the index.
+        # Calculate and print statistics
+        mean, std = calculate_statistics(df)
+        print("\nMean of each column:")
+        print(mean)
+        print("\nStandard Deviation of each column:")
+        print(std)
 
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: Cleaned DataFrame.
-    """
-    # Drop rows with any missing values
-    cleaned_df = df.dropna()
-    # Reset the index of the cleaned DataFrame
-    cleaned_df.reset_index(drop=True, inplace=True)
-    return cleaned_df
-
-def analyze_data(df: pd.DataFrame) -> pd.Series:
-    """
-    Perform a basic analysis of the DataFrame by returning descriptive statistics.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-        pd.Series: Descriptive statistics for the DataFrame.
-    """
-    return df.describe()
-
-def main(file_path: str) -> None:
-    """
-    Main function to load, clean, and analyze data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    # Load data
-    df = load_data(file_path)
-    if df is not None:
-        # Clean data
-        cleaned_df = clean_data(df)
-        # Analyze data
-        stats = analyze_data(cleaned_df)
-        print(stats)
+    except ValueError as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main("data.csv")
+    main()
