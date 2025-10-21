@@ -5799,6 +5799,16 @@
       "name": "transformers",
       "proficiency": 0.806930258465388,
       "learned_at": "2025-10-21T02:04:39.083258"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.9338361109646328,
+      "learned_at": "2025-10-21T02:20:10.818129"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8699973242342315,
+      "learned_at": "2025-10-21T02:20:40.251400"
     }
   ],
   "skills": [],
