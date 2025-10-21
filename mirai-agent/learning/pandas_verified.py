@@ -2,72 +2,66 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-21T16:47:01.594407
+Learned: 2025-10-21T17:19:28.691231
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import List, Dict
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load data from a CSV file and process it.
+    Load a CSV file into a DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A processed DataFrame with cleaned data.
-
-    Raises:
-    FileNotFoundError: If the specified file does not exist.
-    pd.errors.EmptyDataError: If the file is empty.
-    pd.errors.ParserError: If the file cannot be parsed.
+        Optional[pd.DataFrame]: DataFrame containing the data from the CSV file,
+                                or None if an error occurs.
     """
     try:
-        # Load the data from a CSV file
         df = pd.read_csv(file_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: {e}")
-    except pd.errors.EmptyDataError as e:
-        raise pd.errors.EmptyDataError(f"Error: {e}")
-    except pd.errors.ParserError as e:
-        raise pd.errors.ParserError(f"Error: {e}")
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file {file_path} is empty.")
+    except pd.errors.ParserError:
+        print(f"Error: The file {file_path} could not be parsed.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    
+    return None
 
-    # Process the data: drop rows with any missing values
-    df.dropna(inplace=True)
-
-    # Convert a specific column to a numeric type, if applicable
-    if 'column_name' in df.columns:
-        df['column_name'] = pd.to_numeric(df['column_name'], errors='coerce')
-
-    return df
-
-def summarize_data(df: pd.DataFrame) -> Dict[str, float]:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Summarize the DataFrame by calculating mean and median.
+    Print a summary of the DataFrame.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to summarize.
-
-    Returns:
-    Dict[str, float]: A dictionary containing the mean and median of the DataFrame.
+    Args:
+        df (pd.DataFrame): The DataFrame to summarize.
     """
-    summary = {
-        'mean': df.mean().to_dict(),
-        'median': df.median().to_dict()
-    }
-    return summary
+    if df is not None:
+        print("DataFrame Summary:")
+        print(df.info())  # Display DataFrame info
+        print("First 5 rows of the DataFrame:")
+        print(df.head())  # Display first 5 rows
+    else:
+        print("No data to summarize.")
+
+def main(file_path: str) -> None:
+    """
+    Main function to load data and summarize it.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)  # Load the data
+    summarize_data(df)         # Summarize the loaded data
 
 if __name__ == "__main__":
-    # Example usage
-    try:
-        data_file = 'data.csv'  # Replace with your CSV file path
-        data_frame = load_and_process_data(data_file)
-        summary_stats = summarize_data(data_frame)
-        print(summary_stats)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    # Example usage:
+    main("data.csv")  # Replace 'data.csv' with your actual CSV file path
