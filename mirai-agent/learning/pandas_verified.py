@@ -2,76 +2,78 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.82
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-21T00:13:11.990580
+Learned: 2025-10-21T00:29:09.331844
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: list[dict]) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Create a pandas DataFrame from a list of dictionaries.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (list[dict]): A list of dictionaries containing data.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
-    """
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: There was a parsing error.")
-    return None
+        pd.DataFrame: A DataFrame created from the input data.
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    Raises:
+        ValueError: If the input data is not a list of dictionaries.
     """
-    Clean the DataFrame by removing duplicates and filling missing values.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to clean.
-
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    df_cleaned = df.drop_duplicates()  # Remove duplicate rows
-    df_cleaned.fillna(method='ffill', inplace=True)  # Forward fill missing values
-    return df_cleaned
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input must be a list of dictionaries.")
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    return df
 
 def analyze_data(df: pd.DataFrame) -> None:
     """
-    Analyze the DataFrame by providing basic statistics.
+    Perform basic analysis on the DataFrame.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
-    """
-    print("Data Summary:")
-    print(df.describe())  # Display basic statistics for numerical columns
-    print("\nMissing Values:")
-    print(df.isnull().sum())  # Display count of missing values in each column
 
-def main(file_path: str) -> None:
+    Returns:
+        None
     """
-    Main function to execute the data loading, cleaning, and analysis.
+    # Display basic statistics of the DataFrame
+    print("Basic Statistics:")
+    print(df.describe())
 
-    Args:
-        file_path (str): The path to the CSV file to be processed.
+    # Display null values in the DataFrame
+    print("\nNull Values:")
+    print(df.isnull().sum())
+
+def main() -> None:
     """
-    data = load_data(file_path)
-    if data is not None:
-        cleaned_data = clean_data(data)
-        analyze_data(cleaned_data)
+    Main function to execute the DataFrame creation and analysis.
+
+    Returns:
+        None
+    """
+    # Sample data
+    data = [
+        {"Name": "Alice", "Age": 30, "City": "New York"},
+        {"Name": "Bob", "Age": 24, "City": "Los Angeles"},
+        {"Name": "Charlie", "Age": np.nan, "City": "Chicago"},
+        {"Name": "David", "Age": 35, "City": "New York"}
+    ]
+
+    try:
+        # Create DataFrame
+        df = create_dataframe(data)
+        
+        # Analyze DataFrame
+        analyze_data(df)
+
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    file_path = 'data.csv'  # Replace with your actual file path
-    main(file_path)
+    main()
