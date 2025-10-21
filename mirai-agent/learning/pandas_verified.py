@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.90
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-21T04:58:23.598416
+Learned: 2025-10-21T05:14:21.195960
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,60 +12,63 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list[str]] = None) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a Pandas DataFrame and process it.
-    
-    Args:
-        file_path (str): Path to the CSV file.
-        column_names (Optional[list[str]]): List of column names to use. If None, uses the first row as header.
-        
-    Returns:
-        pd.DataFrame: Processed DataFrame.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the DataFrame is empty after loading.
-    """
-    try:
-        # Load the dataset
-        df = pd.read_csv(file_path, header=0 if column_names is None else None)
-        
-        # Use provided column names if specified
-        if column_names is not None:
-            df.columns = column_names
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        if df.empty:
-            raise ValueError("The DataFrame is empty after loading and processing.")
-        
-        return df
-        
-    except FileNotFoundError as fnf_error:
-        print(f"Error: {fnf_error}")
-        raise
-    except ValueError as value_error:
-        print(f"Error: {value_error}")
-        raise
+    Load a CSV file into a DataFrame.
 
-def main() -> None:
+    Parameters:
+    file_path (str): The path to the CSV file.
+
+    Returns:
+    Optional[pd.DataFrame]: A DataFrame containing the loaded data, or None if an error occurs.
     """
-    Main function to execute the data loading and processing.
-    """
-    file_path = 'data.csv'  # Specify your CSV file path here
-    column_names = ['Column1', 'Column2', 'Column3']  # Specify your desired column names here
-    
     try:
-        # Load and process the data
-        processed_data = load_and_process_data(file_path, column_names)
-        
-        # Display the first few rows of the processed DataFrame
-        print(processed_data.head())
-        
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+    
+    return None
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by dropping null values and duplicates.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to clean.
+
+    Returns:
+    pd.DataFrame: A cleaned DataFrame.
+    """
+    # Drop rows with any null values
+    df_cleaned = df.dropna()
+    # Drop duplicate rows
+    df_cleaned = df_cleaned.drop_duplicates()
+    return df_cleaned
+
+def analyze_data(df: pd.DataFrame) -> None:
+    """
+    Perform basic analysis on the DataFrame and print summary statistics.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    """
+    print("Summary Statistics:")
+    print(df.describe())  # Print summary statistics
+    print("Data Types:")
+    print(df.dtypes)      # Print the data types of columns
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    file_path = 'data.csv'  # Replace with your CSV file path
+    data = load_data(file_path)  # Load the data
+
+    if data is not None:
+        cleaned_data = clean_data(data)  # Clean the data
+        analyze_data(cleaned_data)       # Analyze the cleaned data
