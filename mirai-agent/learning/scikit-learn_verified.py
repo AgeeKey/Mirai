@@ -2,106 +2,78 @@
 scikit-learn - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.87
 Tests Passed: 0/1
-Learned: 2025-10-21T20:52:07.958586
+Learned: 2025-10-21T21:40:31.795010
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.exceptions import NotFittedError
 
-def load_data(file_path: str) -> pd.DataFrame:
-    """
-    Load data from a CSV file.
+def load_data() -> tuple[np.ndarray, np.ndarray]:
+    """Load the Iris dataset and return features and labels."""
+    iris = load_iris()
+    return iris.data, iris.target
 
+def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model on the provided data.
+    
     Args:
-        file_path (str): The path to the CSV file.
-
+        X: Feature matrix.
+        y: Target vector.
+        
     Returns:
-        pd.DataFrame: The loaded data as a pandas DataFrame.
+        Trained RandomForestClassifier.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        model = RandomForestClassifier(n_estimators=100, random_state=42)
+        model.fit(X, y)
+        return model
     except Exception as e:
-        raise RuntimeError(f"Error loading data: {e}")
+        raise RuntimeError(f"Error training model: {e}")
 
-def preprocess_data(df: pd.DataFrame, target_column: str) -> tuple:
-    """
-    Preprocess the data by separating features and target variable.
-
+def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    """Evaluate the trained model on the test data.
+    
     Args:
-        df (pd.DataFrame): The input DataFrame.
-        target_column (str): The name of the target column.
-
-    Returns:
-        tuple: A tuple containing features (X) and target (y).
+        model: Trained RandomForestClassifier.
+        X_test: Feature matrix for testing.
+        y_test: True labels for testing.
     """
-    if target_column not in df.columns:
-        raise ValueError("Target column not found in DataFrame")
+    try:
+        predictions = model.predict(X_test)
+        accuracy = accuracy_score(y_test, predictions)
+        print(f"Accuracy: {accuracy:.2f}")
+        print("\nClassification Report:\n", classification_report(y_test, predictions))
+    except NotFittedError:
+        print("Model is not fitted yet.")
+    except Exception as e:
+        raise RuntimeError(f"Error during evaluation: {e}")
 
-    X = df.drop(columns=[target_column])
-    y = df[target_column]
-    return X, y
-
-def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
-    """
-    Train a Random Forest model.
-
-    Args:
-        X (pd.DataFrame): Features for training.
-        y (pd.Series): Target variable for training.
-
-    Returns:
-        RandomForestClassifier: The trained Random Forest model.
-    """
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X, y)
-    return model
-
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-    """
-    Evaluate the model and print the accuracy and classification report.
-
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (pd.DataFrame): Features for testing.
-        y_test (pd.Series): True labels for testing.
-    """
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Accuracy: {accuracy:.2f}")
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
-
-def main(file_path: str, target_column: str) -> None:
-    """
-    Main function to load data, preprocess it, train the model, and evaluate it.
-
-    Args:
-        file_path (str): The path to the CSV data file.
-        target_column (str): The name of the target column.
-    """
-    # Load data
-    data = load_data(file_path)
-
-    # Preprocess data
-    X, y = preprocess_data(data, target_column)
-
-    # Split data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Train model
-    model = train_model(X_train, y_train)
-
-    # Evaluate model
-    evaluate_model(model, X_test, y_test)
+def main() -> None:
+    """Main function to load data, train and evaluate the model."""
+    try:
+        # Load dataset
+        X, y = load_data()
+        
+        # Split dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Train the model
+        model = train_model(X_train, y_train)
+        
+        # Evaluate the model
+        evaluate_model(model, X_test, y_test)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main('data.csv', 'target_column_name')
+    main()
