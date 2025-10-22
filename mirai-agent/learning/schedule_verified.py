@@ -1,42 +1,39 @@
 """
 schedule - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.92
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-21T23:01:06.933701
+Learned: 2025-10-22T08:21:53.453403
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import schedule
 import time
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from datetime import datetime
 
 def job() -> None:
-    """Function to be scheduled, logs a message every time it's called."""
-    logging.info("Job is running...")
-
-def run_scheduler() -> None:
-    """Runs the scheduler to execute tasks at specified intervals."""
+    """Function to be scheduled that prints the current time."""
     try:
-        # Schedule the job every 10 seconds
-        schedule.every(10).seconds.do(job)
-
-        logging.info("Scheduler started. Press Ctrl+C to stop.")
-        
-        while True:
-            # Check for pending jobs and run them
-            schedule.run_pending()
-            time.sleep(1)  # Sleep for a short duration to prevent busy-waiting
-
-    except KeyboardInterrupt:
-        logging.info("Scheduler stopped by user.")
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"Job executed at: {current_time}")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
+
+def schedule_jobs() -> None:
+    """Schedule jobs to run at specific intervals."""
+    try:
+        schedule.every(10).seconds.do(job)  # Schedule job every 10 seconds
+        schedule.every().hour.do(job)       # Schedule job every hour
+
+        while True:
+            schedule.run_pending()            # Run pending jobs
+            time.sleep(1)                    # Wait for 1 second
+    except KeyboardInterrupt:
+        print("Scheduler stopped by user.")
+    except Exception as e:
+        print(f"An error occurred while scheduling jobs: {e}")
 
 if __name__ == "__main__":
-    run_scheduler()
+    schedule_jobs()
