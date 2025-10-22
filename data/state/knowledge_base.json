@@ -7009,6 +7009,16 @@
       "name": "matplotlib",
       "proficiency": 0.8062203733795407,
       "learned_at": "2025-10-22T10:30:03.430912"
+    },
+    {
+      "name": "pandas",
+      "proficiency": 0.829559611503341,
+      "learned_at": "2025-10-22T10:45:40.784209"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.8694786271934992,
+      "learned_at": "2025-10-22T10:46:13.442372"
     }
   ],
   "skills": [],
