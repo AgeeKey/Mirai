@@ -1,33 +1,33 @@
 {
-  "total_lines": 14872,
-  "error_count": 85,
-  "warning_count": 376,
-  "info_count": 8380,
+  "total_lines": 14865,
+  "error_count": 83,
+  "warning_count": 374,
+  "info_count": 8383,
   "autonomous_cycles": 268,
   "todo_count": 0,
   "errors": [
-    "2025-10-21 15:26:00,077 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
-    "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
-    "2025-10-21 15:58:51,251 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-21 16:31:16,451 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-21 16:31:16,451 [ERROR] ❌ Ошибка в цикле: 'NoneType' object is not subscriptable",
     "TypeError: 'NoneType' object is not subscriptable",
     "Это действие эффективно, потому что прямое исправление тестов решит проблему на корню и повысит стабильность CI/CD процесса. Устранение причин провалов тестов обеспечит более высокую оценку и успех вы",
     "2025-10-21 17:03:50,720 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-21 17:36:22,443 [WARNING]    ⚠️ Не удалось: 'top_errors'"
+    "2025-10-21 17:36:22,443 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "Это действие сейчас эффективно, потому что необходимо устранить основную причину проблем с CI/CD. С учетом того, что тесты уже несколько раз падали и предыдущие попытки анализа логов не привели к реше",
+    "2025-10-21 18:08:34,681 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
+    "2025-10-21 18:41:20,223 [WARNING]    ⚠️ Не удалось: 'top_errors'"
   ],
   "warnings": [
-    "2025-10-21 15:07:58,180 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:14:24,471 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:19:28,052 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:24:33,060 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:26:00,077 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-21 15:31:00,445 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:36:06,875 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:41:10,486 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:47:10,125 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 15:47:17,322 [WARNING]    ❌ MIRAI CI/CD Pipeline #2"
+    "2025-10-21 16:14:01,421 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:20:03,017 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:25:06,320 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:30:11,691 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:30:41,827 [WARNING] Security violation: requests\\.",
+    "2025-10-21 16:30:42,076 [WARNING] Security violation: requests\\.",
+    "2025-10-21 16:31:16,451 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-21 16:36:16,808 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:41:19,917 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 16:46:24,753 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
@@ -44,7 +44,7 @@
     },
     {
       "message": "✅ LEARNING COMPLETE: pandas",
-      "count": 71
+      "count": 70
     },
     {
       "message": "✅ LEARNING COMPLETE: scikit-learn",
@@ -56,34 +56,22 @@
     },
     {
       "message": "✅ FAQ сгенерирован: /root/mirai/knowledge_base/FAQ.md",
-      "count": 24
+      "count": 22
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-22.md",
-      "count": 14
+      "count": 15
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-22.json",
-      "count": 14
+      "count": 15
     },
     {
-      "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-21.md",
-      "count": 8
+      "message": "✅ LEARNING COMPLETE: requests",
+      "count": 9
     }
   ],
   "cycle_numbers": [
-    801,
-    802,
-    803,
-    804,
-    805,
-    806,
-    807,
-    808,
-    809,
-    810,
-    811,
-    812,
     813,
     814,
     815,
@@ -339,16 +327,28 @@
     1065,
     1066,
     1067,
-    1068
+    1068,
+    1069,
+    1070,
+    1071,
+    1072,
+    1073,
+    1074,
+    1075,
+    1076,
+    1077,
+    1078,
+    1079,
+    1080
   ],
   "timestamp_first": [
     "Oct",
     "21",
-    "15:07:57"
+    "16:14:01"
   ],
   "timestamp_last": [
     "Oct",
     "22",
-    "15:06:05"
+    "16:12:10"
   ]
 }
