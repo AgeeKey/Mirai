@@ -1,76 +1,61 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-22T07:00:56.359779
+Learned: 2025-10-22T07:17:37.764427
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a given dictionary.
+    Load data from a CSV file into a pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input dictionary.
-    
-    Raises:
-        ValueError: If the input dictionary is empty or the lists have different lengths.
+        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
     """
-    if not data:
-        raise ValueError("Input dictionary is empty.")
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-    # Check if all lists in the dictionary have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All lists in the dictionary must have the same length.")
-
-    # Create and return DataFrame
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Calculate basic statistics for each numeric column in a DataFrame.
+    Print summary statistics and the first few rows of the DataFrame.
 
     Args:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each numeric column.
+        df (pd.DataFrame): The DataFrame to summarize.
     """
-    # Calculate statistics and return
-    return df.describe().loc[["mean", "50%", "std"]].rename(index={"50%": "median"})
+    print("Summary Statistics:")
+    print(df.describe())  # Display summary statistics of the DataFrame
+    print("\nFirst 5 Rows:")
+    print(df.head())      # Display the first 5 rows of the DataFrame
 
 def main() -> None:
     """
-    Main function to execute the DataFrame creation and statistics calculation.
+    Main function to load and summarize data from a CSV file.
     """
-    # Sample data to create DataFrame
-    sample_data = {
-        "A": np.random.rand(10),
-        "B": np.random.rand(10),
-        "C": np.random.rand(10)
-    }
-
-    try:
-        # Create DataFrame
-        df = create_dataframe(sample_data)
-        print("DataFrame created successfully:\n", df)
-
-        # Calculate and display statistics
-        stats = calculate_statistics(df)
-        print("\nStatistics:\n", stats)
-
-    except ValueError as e:
-        print("Error:", e)
+    file_path = 'data.csv'  # Specify the path to your CSV file
+    df = load_data(file_path)
+    
+    if df is not None:  # Check if the DataFrame is successfully loaded
+        summarize_data(df)
 
 if __name__ == "__main__":
     main()
