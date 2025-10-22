@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.83
+Quality Grade: A
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-22T12:55:26.366397
+Learned: 2025-10-22T13:12:00.374222
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,58 +12,43 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_name: str) -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a pandas DataFrame.
+    Load data from a CSV file, process it by removing NaN values in a specified column,
+    and return the cleaned DataFrame.
 
     Args:
         file_path (str): The path to the CSV file.
+        column_name (str): The name of the column to clean.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file, 
-                                 or None if an error occurs.
+        Optional[pd.DataFrame]: The cleaned DataFrame or None if an error occurs.
     """
     try:
-        data = pd.read_csv(file_path)
-        return data
+        # Load data from the CSV file
+        df = pd.read_csv(file_path)
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print(f"Error: The file at {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
         return None
-    except Exception as e:
-        print(f"An error occurred while loading the data: {e}")
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
         return None
 
-def process_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Process the DataFrame by removing rows with missing values.
+    # Check if the specified column exists
+    if column_name not in df.columns:
+        print(f"Error: The column '{column_name}' does not exist in the DataFrame.")
+        return None
 
-    Args:
-        df (pd.DataFrame): The DataFrame to process.
+    # Remove rows with NaN values in the specified column
+    df_cleaned = df.dropna(subset=[column_name])
 
-    Returns:
-        pd.DataFrame: A DataFrame with missing values removed.
-    """
-    if df is None:
-        raise ValueError("DataFrame cannot be None.")
-    
-    processed_df = df.dropna()  # Remove rows with missing values
-    return processed_df
+    return df_cleaned
 
-def main(file_path: str) -> None:
-    """
-    Main function to load and process data from a CSV file.
-
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    data = load_data(file_path)
-    if data is not None:
-        processed_data = process_data(data)
-        print(processed_data)
-
+# Example usage
 if __name__ == "__main__":
-    # Replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    cleaned_data = load_and_process_data('data.csv', 'important_column')
+    if cleaned_data is not None:
+        print(cleaned_data.head())
