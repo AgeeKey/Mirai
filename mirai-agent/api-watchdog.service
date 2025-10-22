@@ -1,0 +1,17 @@
+[Unit]
+Description=MIRAI API Key Watchdog
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mirai/mirai-agent
+Environment="PATH=/root/mirai/mirai-agent/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/root/mirai/mirai-agent/venv/bin/python3 /root/mirai/mirai-agent/api_key_watchdog.py
+Restart=always
+RestartSec=30
+StandardOutput=append:/tmp/api_watchdog.log
+StandardError=append:/tmp/api_watchdog.log
+
+[Install]
+WantedBy=multi-user.target
