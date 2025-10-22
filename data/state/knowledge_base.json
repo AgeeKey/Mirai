@@ -7004,6 +7004,11 @@
       "name": "pandas",
       "proficiency": 0.8973564992097356,
       "learned_at": "2025-10-22T10:29:42.065874"
+    },
+    {
+      "name": "matplotlib",
+      "proficiency": 0.8062203733795407,
+      "learned_at": "2025-10-22T10:30:03.430912"
     }
   ],
   "skills": [],
