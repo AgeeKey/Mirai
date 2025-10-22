@@ -1,59 +1,84 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.98
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-22T00:53:57.436296
+Learned: 2025-10-22T01:10:11.665937
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Union
+import numpy as np
+from typing import Optional
 
-def load_and_process_data(file_path: str) -> Union[pd.DataFrame, str]:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file and perform basic processing.
+    Create a DataFrame from a dictionary of data.
 
     Parameters:
-        file_path (str): The path to the CSV file.
+    data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        Union[pd.DataFrame, str]: Processed DataFrame or an error message.
+    pd.DataFrame: A DataFrame containing the provided data.
+
+    Raises:
+    ValueError: If the input data is invalid.
     """
+    if not isinstance(data, dict):
+        raise ValueError("Input data must be a dictionary.")
+
+    # Attempt to create a DataFrame
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path)
-
-        # Basic data processing: drop rows with any missing values
-        df.dropna(inplace=True)
-
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
-
-        return df
-    except FileNotFoundError:
-        return "Error: The specified file was not found."
-    except pd.errors.EmptyDataError:
-        return "Error: No data found in the specified file."
+        df = pd.DataFrame(data)
     except Exception as e:
-        return f"An error occurred: {e}"
+        raise ValueError(f"Failed to create DataFrame: {e}")
+    
+    return df
 
-def main():
-    # Define the file path for the CSV file
-    file_path = 'data.csv'  # Replace with your actual file path
+def calculate_mean(df: pd.DataFrame, column: str) -> Optional[float]:
+    """
+    Calculate the mean of a specified column in the DataFrame.
 
-    # Load and process the data
-    result = load_and_process_data(file_path)
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+    column (str): The column name for which to calculate the mean.
 
-    # Check if the result is a DataFrame and print it
-    if isinstance(result, pd.DataFrame):
-        print("Processed DataFrame:")
-        print(result)
-    else:
-        # Print the error message
-        print(result)
+    Returns:
+    Optional[float]: The mean of the specified column, or None if the column does not exist.
+
+    Raises:
+    ValueError: If the column name is not in the DataFrame.
+    """
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
+
+    # Calculate and return the mean
+    return df[column].mean()
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and mean calculation.
+    """
+    # Sample data
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [5, 6, 7, 8, 9],
+        'C': [10, 11, 12, 13, 14]
+    }
+
+    # Create DataFrame
+    df = create_dataframe(data)
+    print("DataFrame created:")
+    print(df)
+
+    # Calculate mean of column 'B'
+    try:
+        mean_b = calculate_mean(df, 'B')
+        print(f"Mean of column 'B': {mean_b}")
+    except ValueError as e:
+        print(e)
 
 if __name__ == "__main__":
     main()
