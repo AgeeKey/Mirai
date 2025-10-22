@@ -312,7 +312,12 @@ class AutonomousAgent:
                 # Fallback на DuckDuckGo API
                 logger.info(f"🔍 Using DuckDuckGo fallback: {query}")
                 url = "https://api.duckduckgo.com/"
-                params = {"q": query, "format": "json", "no_html": 1, "skip_disambig": 1}
+                params = {
+                    "q": query,
+                    "format": "json",
+                    "no_html": 1,
+                    "skip_disambig": 1,
+                }
 
                 response = requests.get(url, params=params, timeout=10)
                 data = response.json()
