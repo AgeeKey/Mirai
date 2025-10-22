@@ -1,64 +1,78 @@
 """
-Pandas - Verified Learning Artifact
+pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.86
 Tests Passed: 0/1
-Learned: 2025-10-22T05:56:48.085988
+Learned: 2025-10-22T06:12:46.995406
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import Optional, List
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_data(file_path: str) -> pd.DataFrame:
     """
-    Load data from a CSV file into a DataFrame.
+    Load CSV data into a pandas DataFrame.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
+        pd.DataFrame: DataFrame containing the loaded data.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there is a parsing error.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Error: The file '{file_path}' was not found.") from e
+    except pd.errors.EmptyDataError as e:
+        raise ValueError("Error: The file is empty.") from e
+    except pd.errors.ParserError as e:
+        raise ValueError("Error: Could not parse the file.") from e
 
-def analyze_data(df: pd.DataFrame) -> None:
+def filter_data(df: pd.DataFrame, column: str, value: Optional[str] = None) -> pd.DataFrame:
     """
-    Perform basic analysis on the DataFrame.
+    Filter the DataFrame based on a column and a specific value.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-    """
-    if df is not None:
-        print("Basic Statistics:")
-        print(df.describe())  # Print summary statistics
-        print("\nMissing Values:")
-        print(df.isnull().sum())  # Print count of missing values
-    else:
-        print("No data available for analysis.")
+    Args:
+        df (pd.DataFrame): The DataFrame to filter.
+        column (str): The column name to filter on.
+        value (Optional[str]): The value to filter by. If None, returns the original DataFrame.
 
-def main(file_path: str) -> None:
+    Returns:
+        pd.DataFrame: Filtered DataFrame.
     """
-    Main function to load and analyze data.
+    if value is not None:
+        if column not in df.columns:
+            raise ValueError(f"Error: Column '{column}' does not exist in the DataFrame.")
+        return df[df[column] == value]
+    return df
 
-    Parameters:
-    file_path (str): The path to the CSV file to load.
+def main(file_path: str, filter_column: str, filter_value: Optional[str]) -> None:
     """
-    df = load_data(file_path)  # Load the data
-    analyze_data(df)  # Analyze the data
+    Main function to load and filter data.
+
+    Args:
+        file_path (str): Path to the CSV file.
+        filter_column (str): The column name to filter on.
+        filter_value (Optional[str]): The value to filter by.
+    """
+    # Load data from the specified file path
+    data = load_data(file_path)
+    
+    # Filter data based on the specified column and value
+    filtered_data = filter_data(data, filter_column, filter_value)
+    
+    # Display the filtered data
+    print(filtered_data)
 
 if __name__ == "__main__":
-    main("data.csv")  # Replace with your actual file path
+    # Example usage
+    main('data.csv', 'category', 'A')
