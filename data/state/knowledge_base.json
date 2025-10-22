@@ -6989,6 +6989,16 @@
       "name": "scikit-learn",
       "proficiency": 0.765294398042986,
       "learned_at": "2025-10-22T09:58:21.953328"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.9478859484978338,
+      "learned_at": "2025-10-22T10:13:50.941823"
+    },
+    {
+      "name": "transformers",
+      "proficiency": 0.9222729577540182,
+      "learned_at": "2025-10-22T10:14:09.746083"
     }
   ],
   "skills": [],
