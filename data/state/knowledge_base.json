@@ -6969,6 +6969,16 @@
       "name": "TensorFlow",
       "proficiency": 0.9140236340344393,
       "learned_at": "2025-10-22T09:26:27.964993"
+    },
+    {
+      "name": "pyautogui",
+      "proficiency": 0.9465901839125167,
+      "learned_at": "2025-10-22T09:41:56.774892"
+    },
+    {
+      "name": "scikit-learn",
+      "proficiency": 0.7813299460794633,
+      "learned_at": "2025-10-22T09:42:24.074959"
     }
   ],
   "skills": [],
