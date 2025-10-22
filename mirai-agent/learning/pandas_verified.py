@@ -1,82 +1,62 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 1/1
-Learned: 2025-10-22T18:28:49.380075
+Learned: 2025-10-22T18:45:31.017585
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary of data.
+    Load a CSV file into a pandas DataFrame.
 
-    Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the provided data.
-
-    Raises:
-    ValueError: If the lengths of the lists in the dictionary do not match.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if loading fails.
     """
-    # Check if all columns have the same length
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same number of rows.")
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file at {file_path} is empty.")
+        return None
+    except pd.errors.ParserError:
+        print(f"Error: The file at {file_path} could not be parsed.")
+        return None
 
-    # Create and return the DataFrame
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.Series:
+def analyze_data(df: pd.DataFrame) -> None:
     """
-    Calculate basic statistics for each numeric column in the DataFrame.
+    Perform basic analysis on the DataFrame and print summary statistics.
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-
-    Returns:
-    pd.Series: A Series containing the mean, median, and standard deviation for each numeric column.
+    Args:
+        df (pd.DataFrame): DataFrame containing the data to analyze.
     """
-    # Check if the DataFrame is empty
-    if df.empty:
-        raise ValueError("The DataFrame is empty.")
-
-    # Calculate statistics
-    stats = pd.Series({
-        'mean': df.mean(),
-        'median': df.median(),
-        'std_dev': df.std()
-    })
-    return stats
+    if df is not None and not df.empty:
+        print("Data Summary:")
+        print(df.describe())  # Display summary statistics
+        print("\nData Types:")
+        print(df.dtypes)      # Display data types
+    else:
+        print("No data to analyze.")
 
 def main() -> None:
     """
-    Main function to execute the data processing workflow.
+    Main function to execute the data loading and analysis.
     """
-    # Sample data
-    data = {
-        'A': np.random.rand(10),
-        'B': np.random.rand(10),
-        'C': np.random.rand(10)
-    }
-
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame Created:\n", df)
-
-        # Calculate statistics
-        stats = calculate_statistics(df)
-        print("Statistics:\n", stats)
-
-    except ValueError as e:
-        print(f"Error: {e}")
+    file_path = 'data.csv'  # Path to the CSV file
+    df = load_data(file_path)  # Load the data
+    analyze_data(df)           # Analyze the data
 
 if __name__ == "__main__":
     main()
