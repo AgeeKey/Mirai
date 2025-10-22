@@ -1,65 +1,62 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-22T05:25:10.062658
+Learned: 2025-10-22T05:40:56.458843
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
-    """
-    Create a pandas DataFrame from a dictionary.
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
+    """Load data from a CSV file into a pandas DataFrame.
 
-    Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    Args:
+        file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame constructed from the provided data.
-
-    Raises:
-    ValueError: If the lists in the dictionary are not of the same length.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
-    if not all(len(v) == len(next(iter(data.values()))) for v in data.values()):
-        raise ValueError("All columns must be of the same length.")
-    
-    return pd.DataFrame(data)
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and manipulation.
-    """
-    # Sample data for the DataFrame
-    data = {
-        'Name': ['Alice', 'Bob', 'Charlie', 'David'],
-        'Age': [24, 27, 22, 32],
-        'City': ['New York', 'Los Angeles', 'Chicago', 'Houston']
-    }
-    
     try:
-        # Create the DataFrame
-        df = create_dataframe(data)
-        
-        # Display the DataFrame
-        print("Initial DataFrame:")
-        print(df)
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-        # Add a new column based on existing data
-        df['Salary'] = np.random.randint(50000, 100000, size=len(df))
-        print("\nDataFrame after adding Salary column:")
-        print(df)
+def analyze_data(df: pd.DataFrame) -> None:
+    """Perform basic analysis on the DataFrame.
 
-        # Calculate and print average age
-        average_age = df['Age'].mean()
-        print(f"\nAverage Age: {average_age}")
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+    """
+    if df is not None:
+        print("DataFrame Summary:")
+        print(df.describe())  # Display summary statistics
+        print("\nMissing Values:")
+        print(df.isnull().sum())  # Show missing values in each column
+    else:
+        print("No data to analyze.")
 
-    except ValueError as e:
-        print(f"Error: {e}")
+def main(file_path: str) -> None:
+    """Main function to load and analyze data.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    df = load_data(file_path)  # Load data from CSV
+    analyze_data(df)           # Analyze the loaded DataFrame
 
 if __name__ == "__main__":
-    main()
+    # Replace 'data.csv' with your actual CSV file path
+    main('data.csv')
