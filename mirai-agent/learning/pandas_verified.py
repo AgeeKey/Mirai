@@ -2,83 +2,64 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.88
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-22T01:10:11.665937
+Learned: 2025-10-22T01:42:20.567850
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a DataFrame from a dictionary of data.
+    Load a CSV file into a pandas DataFrame.
 
     Parameters:
-    data (dict): A dictionary where keys are column names and values are lists of column data.
+    file_path (str): The path to the CSV file.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the provided data.
-
-    Raises:
-    ValueError: If the input data is invalid.
+    Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
     """
-    if not isinstance(data, dict):
-        raise ValueError("Input data must be a dictionary.")
-
-    # Attempt to create a DataFrame
     try:
-        df = pd.DataFrame(data)
-    except Exception as e:
-        raise ValueError(f"Failed to create DataFrame: {e}")
-    
-    return df
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        print(f"Error: The file at {file_path} was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
+    except pd.errors.ParserError:
+        print("Error: The file could not be parsed.")
+        return None
 
-def calculate_mean(df: pd.DataFrame, column: str) -> Optional[float]:
+def summarize_data(df: pd.DataFrame) -> None:
     """
-    Calculate the mean of a specified column in the DataFrame.
+    Print summary statistics of the DataFrame.
 
     Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
-    column (str): The column name for which to calculate the mean.
+    df (pd.DataFrame): The DataFrame to summarize.
 
     Returns:
-    Optional[float]: The mean of the specified column, or None if the column does not exist.
-
-    Raises:
-    ValueError: If the column name is not in the DataFrame.
+    None
     """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' does not exist in the DataFrame.")
-
-    # Calculate and return the mean
-    return df[column].mean()
+    print("Summary Statistics:")
+    print(df.describe())
 
 def main() -> None:
     """
-    Main function to demonstrate DataFrame creation and mean calculation.
+    Main function to execute the data loading and summarization process.
+
+    Returns:
+    None
     """
-    # Sample data
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 6, 7, 8, 9],
-        'C': [10, 11, 12, 13, 14]
-    }
+    file_path = 'data.csv'  # Update with your actual file path
+    data_frame = load_data(file_path)  # Load the data
 
-    # Create DataFrame
-    df = create_dataframe(data)
-    print("DataFrame created:")
-    print(df)
-
-    # Calculate mean of column 'B'
-    try:
-        mean_b = calculate_mean(df, 'B')
-        print(f"Mean of column 'B': {mean_b}")
-    except ValueError as e:
-        print(e)
+    if data_frame is not None:  # Check if DataFrame was loaded successfully
+        summarize_data(data_frame)  # Summarize the data
 
 if __name__ == "__main__":
     main()
