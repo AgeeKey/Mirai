@@ -2,52 +2,49 @@
 pyautogui - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.99
+Overall Score: 0.94
 Tests Passed: 0/1
-Learned: 2025-10-19T15:21:58.882028
+Learned: 2025-10-22T02:14:09.665420
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pyautogui
 import time
-import logging
+from typing import Optional
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-def automate_mouse_and_keyboard() -> None:
+def automated_clicker(x: Optional[int] = None, y: Optional[int] = None, duration: float = 1.0) -> None:
     """
-    Automates mouse and keyboard actions to perform a series of tasks.
+    Moves the mouse to the specified coordinates and performs a click.
     
-    This function moves the mouse to specified coordinates, clicks, types
-    a message, and takes a screenshot of the screen.
+    Args:
+        x (Optional[int]): The x-coordinate to move the mouse to. If None, uses current mouse position.
+        y (Optional[int]): The y-coordinate to move the mouse to. If None, uses current mouse position.
+        duration (float): The duration to move the mouse to the coordinates.
+        
+    Raises:
+        ValueError: If the coordinates are invalid.
+        pyautogui.FailSafeException: If the mouse is moved to a corner of the screen.
     """
     try:
-        # Move the mouse to (100, 100) and click
-        logging.info("Moving the mouse to (100, 100) and clicking.")
-        pyautogui.moveTo(100, 100, duration=1)
+        # Get current mouse position if coordinates are not provided
+        if x is None or y is None:
+            x, y = pyautogui.position()
+
+        # Move the mouse to the specified coordinates over the given duration
+        pyautogui.moveTo(x, y, duration)
+        # Perform a mouse click
         pyautogui.click()
 
-        # Wait for 1 second
-        time.sleep(1)
-
-        # Type a message
-        message = "Hello, PyAutoGUI!"
-        logging.info(f"Typing the message: {message}")
-        pyautogui.typewrite(message, interval=0.1)
-
-        # Wait for 1 second before taking a screenshot
-        time.sleep(1)
-
-        # Take a screenshot and save it
-        screenshot = pyautogui.screenshot()
-        screenshot.save("screenshot.png")
-        logging.info("Screenshot taken and saved as 'screenshot.png'.")
-
+    except ValueError as e:
+        print(f"Error: {e}")
+    except pyautogui.FailSafeException:
+        print("Mouse moved to a corner of the screen. Exiting.")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    # Start the automation process
-    automate_mouse_and_keyboard()
+    # Delay to switch to the target application
+    time.sleep(5)
+    # Example usage: Click at coordinates (100, 200)
+    automated_clicker(100, 200)
