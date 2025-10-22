@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.94
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-21T23:49:42.072343
+Learned: 2025-10-22T00:06:12.060930
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,52 +12,49 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_and_process_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame and perform basic processing.
+    Load data from a CSV file, clean, and return a DataFrame.
     
     Parameters:
-    - file_path: str - The path to the CSV file.
-    
+    - file_path (str): The path to the CSV file.
+    - column_names (Optional[list]): List of column names to rename in the DataFrame.
+
     Returns:
-    - Optional[pd.DataFrame] - A processed DataFrame or None if an error occurs.
+    - pd.DataFrame: A cleaned DataFrame.
+    
+    Raises:
+    - FileNotFoundError: If the specified file does not exist.
+    - pd.errors.EmptyDataError: If the file is empty.
+    - pd.errors.ParserError: If there is an error parsing the file.
     """
     try:
-        # Load the data from the CSV file
+        # Load the data from CSV
         df = pd.read_csv(file_path)
         
-        # Display the first few rows of the DataFrame
-        print("Initial Data:")
-        print(df.head())
+        # Rename columns if column_names are provided
+        if column_names:
+            df.columns = column_names
         
         # Drop rows with any missing values
-        df_cleaned = df.dropna()
+        df.dropna(inplace=True)
         
-        # Reset index after dropping rows
-        df_cleaned.reset_index(drop=True, inplace=True)
-
-        # Display the cleaned DataFrame
-        print("Cleaned Data:")
-        print(df_cleaned.head())
+        return df
         
-        return df_cleaned
-        
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-    except pd.errors.EmptyDataError:
+    except FileNotFoundError as e:
+        print(f"Error: The file {file_path} was not found.")
+        raise e
+    except pd.errors.EmptyDataError as e:
         print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        raise e
+    except pd.errors.ParserError as e:
+        print("Error: There was a problem parsing the file.")
+        raise e
 
-    return None
-
+# Example usage
 if __name__ == "__main__":
-    # Example usage of the function
-    processed_data = load_and_process_data('data.csv')
-
-    if processed_data is not None:
-        print("Data processing completed successfully.")
-    else:
-        print("Data processing failed.")
+    try:
+        data = load_and_process_data('data.csv', column_names=['A', 'B', 'C'])
+        print(data.head())  # Display the first few rows of the DataFrame
+    except Exception as e:
+        print("An error occurred while processing the data.")
