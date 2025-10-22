@@ -1,10 +1,10 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.91
+Quality Grade: B
+Overall Score: 0.88
 Tests Passed: 0/1
-Learned: 2025-10-22T06:28:49.373307
+Learned: 2025-10-22T06:44:51.527892
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,45 +12,75 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Any, Dict
 
-def create_dataframe(data: Dict[str, Any]) -> pd.DataFrame:
+def load_and_process_data(file_path: str) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from the provided dictionary.
+    Load data from a CSV file and process it.
 
-    Args:
-        data (Dict[str, Any]): A dictionary where keys are column names and values are lists of column data.
+    Parameters:
+    file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input data.
-
-    Raises:
-        ValueError: If the lengths of the lists in the data dictionary are not consistent.
+    pd.DataFrame: A processed DataFrame.
     """
-    # Check if all columns have the same length
-    column_lengths = [len(v) for v in data.values()]
-    if len(set(column_lengths)) != 1:
-        raise ValueError("All columns must have the same number of rows")
-
-    # Create the DataFrame
-    df = pd.DataFrame(data)
-    return df
-
-def main() -> None:
-    """
-    Main function to execute the DataFrame creation and display.
-    """
-    # Sample data to create a DataFrame
-    data = {
-        'Name': ['Alice', 'Bob', 'Charlie'],
-        'Age': [25, 30, 35],
-        'City': ['New York', 'Los Angeles', 'Chicago']
-    }
-
     try:
-        # Create DataFrame using the sample data
-        df = create_dataframe(data)
-        print(df)
-    except ValueError as e:
-        print(f"Error: {e}")
+        # Load the dataset
+        df = pd.read_csv(file_path)
+        
+        # Check if DataFrame is empty
+        if df.empty:
+            raise ValueError("The loaded DataFrame is empty.")
+        
+        # Drop rows with missing values
+        df.dropna(inplace=True)
+
+        # Reset index after dropping rows
+        df.reset_index(drop=True, inplace=True)
+
+        return df
+    
+    except FileNotFoundError:
+        print(f"Error: The file at path {file_path} was not found.")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+def analyze_data(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Analyze the DataFrame and return key statistics.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to analyze.
+
+    Returns:
+    Dict[str, Any]: A dictionary containing key statistics.
+    """
+    try:
+        stats = {
+            'mean': df.mean(numeric_only=True).to_dict(),
+            'median': df.median(numeric_only=True).to_dict(),
+            'std_dev': df.std(numeric_only=True).to_dict(),
+            'shape': df.shape
+        }
+        return stats
+    
+    except Exception as e:
+        print(f"An error occurred during analysis: {e}")
+        return {}
 
 if __name__ == "__main__":
-    main()
+    # Example usage
+    file_path = 'data.csv'  # Replace with your actual CSV file path
+    data = load_and_process_data(file_path)
+    
+    if not data.empty:
+        statistics = analyze_data(data)
+        print("Data Analysis Results:")
+        print(statistics)
+    else:
+        print("No data to analyze.")
