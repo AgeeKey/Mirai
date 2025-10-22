@@ -74,15 +74,20 @@ class AutonomousAgent:
             from core.database_manager import DatabaseManager
             from core.github_integration import GitHubIntegration
             from core.multi_language_executor import MultiLanguageExecutor
+            from core.web_search_integration import get_web_search
 
             self.multi_lang = MultiLanguageExecutor()
             self.db_manager = DatabaseManager()
             self.github = GitHubIntegration()
+            self.web_search = get_web_search()
             self.has_advanced_features = True
-        except ImportError:
+            logger.info("✅ Advanced features loaded (including Web Search)")
+        except ImportError as e:
+            logger.warning(f"Some advanced features not available: {e}")
             self.multi_lang = None
             self.db_manager = None
             self.github = None
+            self.web_search = None
             self.has_advanced_features = False
         self.tasks = []  # Список задач
         self.working_dir = "/root/mirai/mirai-agent"
@@ -297,29 +302,37 @@ class AutonomousAgent:
             return f"❌ Ошибка выполнения: {str(e)}"
 
     def search_web(self, query: str) -> str:
-        """Поиск в интернете через DuckDuckGo API"""
+        """Поиск в интернете через OpenAI Web Search (реальный интернет!)"""
         try:
-            url = "https://api.duckduckgo.com/"
-            params = {"q": query, "format": "json", "no_html": 1, "skip_disambig": 1}
+            if self.web_search:
+                logger.info(f"🔍 Using OpenAI Web Search: {query}")
+                result = self.web_search.quick_search(query)
+                return f"🌐 Результаты поиска в интернете:\n\n{result}"
+            else:
+                # Fallback на DuckDuckGo API
+                logger.info(f"🔍 Using DuckDuckGo fallback: {query}")
+                url = "https://api.duckduckgo.com/"
+                params = {"q": query, "format": "json", "no_html": 1, "skip_disambig": 1}
 
-            response = requests.get(url, params=params, timeout=10)
-            data = response.json()
+                response = requests.get(url, params=params, timeout=10)
+                data = response.json()
 
-            # Формируем результат
-            result = []
+                # Формируем результат
+                result = []
 
-            if data.get("AbstractText"):
-                result.append(f"📖 {data['AbstractText']}")
+                if data.get("AbstractText"):
+                    result.append(f"📖 {data['AbstractText']}")
 
-            if data.get("RelatedTopics"):
-                result.append("\n🔗 Связанные темы:")
-                for topic in data["RelatedTopics"][:3]:
-                    if isinstance(topic, dict) and "Text" in topic:
-                        result.append(f"  • {topic['Text'][:200]}")
+                if data.get("RelatedTopics"):
+                    result.append("\n🔗 Связанные темы:")
+                    for topic in data["RelatedTopics"][:3]:
+                        if isinstance(topic, dict) and "Text" in topic:
+                            result.append(f"  • {topic['Text'][:200]}")
 
-            return "\n".join(result) if result else "Результатов не найдено"
+                return "\n".join(result) if result else "Результатов не найдено"
 
         except Exception as e:
+            logger.error(f"❌ Search error: {e}")
             return f"❌ Ошибка поиска: {str(e)}"
 
     def read_file(self, filepath: str) -> str:
