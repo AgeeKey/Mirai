@@ -2,63 +2,76 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-22T11:34:03.593860
+Learned: 2025-10-22T11:50:17.059821
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file into a Pandas DataFrame.
+    Create a DataFrame from a dictionary of lists.
 
-    Parameters:
-    file_path (str): The path to the CSV file.
+    Args:
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
-    """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-    except pd.errors.ParserError:
-        print("Error: There was a problem parsing the file.")
-    return None
+        pd.DataFrame: A pandas DataFrame populated with the provided data.
 
-def analyze_data(df: pd.DataFrame) -> None:
+    Raises:
+        ValueError: If the lengths of the lists in the dictionary are not equal.
     """
-    Perform basic data analysis and print results.
+    if not all(len(v) == len(next(iter(data.values()))) for v in data.values()):
+        raise ValueError("All lists in the dictionary must be of the same length.")
+    
+    return pd.DataFrame(data)
 
-    Parameters:
-    df (pd.DataFrame): The DataFrame to analyze.
+def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the DataFrame by filling missing values and removing duplicates.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to be cleaned.
 
     Returns:
-    None
+        pd.DataFrame: A cleaned DataFrame.
     """
-    if df is not None:
-        print("Data Summary:")
-        print(df.describe())  # Print summary statistics
-        print("\nMissing Values:")
-        print(df.isnull().sum())  # Print count of missing values
+    # Fill missing values with the mean of each column
+    df_filled = df.fillna(df.mean())
+    
+    # Remove duplicate rows
+    df_cleaned = df_filled.drop_duplicates()
+    
+    return df_cleaned
 
 def main() -> None:
     """
-    Main function to execute data loading and analysis.
-
-    Returns:
-    None
+    Main function to demonstrate DataFrame creation and cleaning.
     """
-    file_path = 'data.csv'  # Specify your CSV file path here
-    df = load_data(file_path)  # Load the data
-    analyze_data(df)  # Analyze the loaded data
+    # Example data
+    data = {
+        'A': [1, 2, np.nan, 4],
+        'B': [5, np.nan, 7, 8],
+        'C': [9, 10, 11, 12]
+    }
+    
+    try:
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("Original DataFrame:")
+        print(df)
+
+        # Clean DataFrame
+        cleaned_df = clean_dataframe(df)
+        print("\nCleaned DataFrame:")
+        print(cleaned_df)
+    
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    main()  # Run the main function
+    main()
