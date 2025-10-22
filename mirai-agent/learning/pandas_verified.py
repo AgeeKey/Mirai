@@ -1,78 +1,68 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.81
 Tests Passed: 0/1
-Learned: 2025-10-22T01:58:18.718967
+Learned: 2025-10-22T02:30:21.366903
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional, Tuple
 
-def create_dataframe(data: dict) -> pd.DataFrame:
-    """
-    Creates a Pandas DataFrame from a dictionary.
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
+    """Load data from a CSV file into a pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the provided data.
-    
-    Raises:
-        ValueError: If the lengths of the lists in the dictionary are not equal.
+        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if an error occurs.
     """
-    # Check that all columns have the same number of rows
-    lengths = [len(v) for v in data.values()]
-    if len(set(lengths)) != 1:
-        raise ValueError("All columns must have the same number of rows.")
+    try:
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+    except pd.errors.EmptyDataError:
+        print("Error: No data found in the file.")
+    except pd.errors.ParserError:
+        print("Error: Failed to parse the file.")
+    return None
 
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculates basic statistics (mean, median, std) for numeric columns in a DataFrame.
+def analyze_data(df: pd.DataFrame) -> Tuple[int, pd.Series]:
+    """Analyze the DataFrame to compute the number of rows and a summary of a specific column.
 
     Args:
         df (pd.DataFrame): The DataFrame to analyze.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the mean, median, and standard deviation for each numeric column.
+        Tuple[int, pd.Series]: A tuple containing the number of rows and a summary of the 'value' column.
     """
-    # Validate input is a DataFrame
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("Input must be a pandas DataFrame.")
+    if df is None or df.empty:
+        raise ValueError("The DataFrame is empty or None.")
 
-    # Calculate statistics
-    stats = df.describe().T[['mean', '50%', 'std']]
-    stats.columns = ['mean', 'median', 'std']
-    return stats
+    num_rows = len(df)
+    value_summary = df['value'].describe()  # Replace 'value' with the actual column name you want to summarize
+    return num_rows, value_summary
 
-def main() -> None:
+def main(file_path: str) -> None:
+    """Main function to load and analyze data from a CSV file.
+
+    Args:
+        file_path (str): The path to the CSV file.
     """
-    Main function to demonstrate DataFrame creation and statistics calculation.
-    """
-    # Sample data
-    data = {
-        'A': [1, 2, 3, 4, 5],
-        'B': [5, 4, 3, 2, 1],
-        'C': [2, 3, 5, 7, 11]
-    }
-    
-    try:
-        # Create DataFrame
-        df = create_dataframe(data)
-        print("DataFrame created successfully:\n", df)
-        
-        # Calculate statistics
-        stats = calculate_statistics(df)
-        print("Statistics:\n", stats)
-
-    except (ValueError, TypeError) as e:
-        print(f"Error: {e}")
+    data = load_data(file_path)
+    if data is not None:
+        try:
+            num_rows, summary = analyze_data(data)
+            print(f"Number of rows: {num_rows}")
+            print("Summary of 'value' column:")
+            print(summary)
+        except ValueError as e:
+            print(e)
 
 if __name__ == "__main__":
-    main()
+    main("data.csv")  # Specify your CSV file path here
