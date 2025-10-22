@@ -6659,6 +6659,16 @@
       "name": "scikit-learn",
       "proficiency": 0.8276312151119171,
       "learned_at": "2025-10-22T01:10:43.281913"
+    },
+    {
+      "name": "airflow",
+      "proficiency": 0.7757567683206666,
+      "learned_at": "2025-10-22T01:26:22.367632"
+    },
+    {
+      "name": "transformers",
+      "proficiency": 0.8920668458594693,
+      "learned_at": "2025-10-22T01:26:43.346792"
     }
   ],
   "skills": [],

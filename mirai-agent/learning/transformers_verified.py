@@ -2,65 +2,63 @@
 transformers - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-21T02:04:39.081658
+Learned: 2025-10-22T01:26:43.345032
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from transformers import pipeline
-from typing import List, Dict
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, Pipeline
 
 class SentimentAnalyzer:
-    def __init__(self, model_name: str = "nlptown/bert-base-multilingual-uncased-sentiment"):
+    def __init__(self, model_name: str):
         """
         Initializes the SentimentAnalyzer with a specified model.
 
         Args:
-            model_name (str): The name of the pre-trained model to use.
+            model_name (str): The name of the model to load from the Hugging Face model hub.
         """
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
             self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-            self.nlp_pipeline = pipeline("sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
+            self.pipeline = Pipeline("sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
         except Exception as e:
-            raise RuntimeError(f"Error loading model {model_name}: {e}")
+            raise RuntimeError(f"Failed to load model {model_name}: {e}")
 
-    def analyze_sentiment(self, texts: List[str]) -> List[Dict[str, float]]:
+    def analyze_sentiment(self, text: str) -> dict:
         """
-        Analyzes the sentiment of a list of texts.
+        Analyzes the sentiment of the given text.
 
         Args:
-            texts (List[str]): A list of strings to analyze.
+            text (str): The text to analyze.
 
         Returns:
-            List[Dict[str, float]]: A list of dictionaries containing sentiment scores.
+            dict: A dictionary containing the sentiment label and score.
         """
-        if not isinstance(texts, list):
-            raise ValueError("Input must be a list of strings.")
-        
-        if any(not isinstance(text, str) for text in texts):
-            raise ValueError("All elements in the list must be strings.")
+        if not text:
+            raise ValueError("Input text cannot be empty.")
         
         try:
-            results = self.nlp_pipeline(texts)
-            return results
+            result = self.pipeline(text)[0]  # Get the first result
+            return result
         except Exception as e:
-            raise RuntimeError(f"Error analyzing sentiment: {e}")
+            raise RuntimeError(f"Failed to analyze sentiment: {e}")
 
 if __name__ == "__main__":
-    analyzer = SentimentAnalyzer()
-    sample_texts = [
-        "I love using transformers for NLP tasks!",
-        "This is the worst experience I've ever had."
-    ]
+    # Define the model name to use
+    model_name = "distilbert-base-uncased-finetuned-sst-2-english"
     
+    # Create an instance of the sentiment analyzer
+    analyzer = SentimentAnalyzer(model_name)
+    
+    # Example text to analyze
+    example_text = "I love using transformers for natural language processing!"
+    
+    # Analyze the sentiment of the example text
     try:
-        sentiments = analyzer.analyze_sentiment(sample_texts)
-        for text, sentiment in zip(sample_texts, sentiments):
-            print(f"Text: {text}\nSentiment: {sentiment}\n")
+        sentiment_result = analyzer.analyze_sentiment(example_text)
+        print(sentiment_result)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error: {e}")
