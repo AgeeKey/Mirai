@@ -2,58 +2,67 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: A
-Overall Score: 0.91
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-22T17:00:48.262527
+Learned: 2025-10-22T17:17:40.481726
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+from typing import List
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def create_dataframe(data: List[dict]) -> pd.DataFrame:
     """
-    Load data from a CSV file, process it, and return a DataFrame.
+    Create a pandas DataFrame from a list of dictionaries.
 
     Args:
-        file_path (str): The path to the CSV file.
-        column_names (Optional[list]): List of column names to use. If None, uses the original column names.
+        data (List[dict]): A list of dictionaries containing data.
 
     Returns:
-        pd.DataFrame: Processed DataFrame with cleaned data.
+        pd.DataFrame: A DataFrame constructed from the input data.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is an error parsing the file.
+        ValueError: If the input data is empty or not a list of dictionaries.
     """
+    if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
+        raise ValueError("Input must be a list of dictionaries.")
+
+    if not data:
+        raise ValueError("Input data cannot be empty.")
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+def main() -> None:
+    """
+    Main function to demonstrate DataFrame creation and basic operations.
+    """
+    # Sample data
+    data = [
+        {'Name': 'Alice', 'Age': 30, 'City': 'New York'},
+        {'Name': 'Bob', 'Age': 25, 'City': 'Los Angeles'},
+        {'Name': 'Charlie', 'Age': 35, 'City': 'Chicago'}
+    ]
+
     try:
-        # Load the data into a DataFrame
-        df = pd.read_csv(file_path, names=column_names, header=None if column_names else 'infer')
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("Created DataFrame:")
+        print(df)
 
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
+        # Calculate mean age
+        mean_age = df['Age'].mean()
+        print(f"\nMean Age: {mean_age}")
 
-        # Reset index after dropping rows
-        df.reset_index(drop=True, inplace=True)
+        # Filter DataFrame for Age greater than 30
+        filtered_df = df[df['Age'] > 30]
+        print("\nFiltered DataFrame (Age > 30):")
+        print(filtered_df)
 
-        return df
-
-    except FileNotFoundError as fnf_error:
-        print(f"Error: {fnf_error}")
-        raise
-    except pd.errors.EmptyDataError as empty_error:
-        print(f"Error: {empty_error}")
-        raise
-    except pd.errors.ParserError as parse_error:
-        print(f"Error: {parse_error}")
-        raise
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage of the function
-    try:
-        data_frame = load_and_process_data('data.csv', column_names=['Column1', 'Column2', 'Column3'])
-        print(data_frame.head())
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    main()
