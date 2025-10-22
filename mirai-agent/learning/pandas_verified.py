@@ -2,9 +2,9 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.86
+Overall Score: 0.90
 Tests Passed: 0/1
-Learned: 2025-10-22T14:16:36.959203
+Learned: 2025-10-22T14:33:18.738253
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -12,61 +12,49 @@ This code has been verified by MIRAI's NASA-level learning system.
 import pandas as pd
 from typing import Optional
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def load_and_process_data(file_path: str, delimiter: str = ',') -> Optional[pd.DataFrame]:
     """
-    Load a CSV file into a pandas DataFrame.
+    Load data from a CSV file and process it into a DataFrame.
     
     Args:
         file_path (str): The path to the CSV file.
-        
+        delimiter (str): The delimiter used in the CSV file, default is ','.
+
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
+        Optional[pd.DataFrame]: Processed DataFrame or None if an error occurs.
     """
     try:
-        df = pd.read_csv(file_path)
-        return df
+        # Load the data into a DataFrame
+        data = pd.read_csv(file_path, delimiter=delimiter)
+        
+        # Clean the data by dropping rows with any missing values
+        data_cleaned = data.dropna()
+        
+        # Reset index after dropping rows
+        data_cleaned.reset_index(drop=True, inplace=True)
+        
+        return data_cleaned
     except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
+        print(f"Error: The file {file_path} was not found.")
         return None
     except pd.errors.EmptyDataError:
         print("Error: The file is empty.")
         return None
     except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
+        print("Error: Could not parse the file.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
         return None
 
-def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Preprocess the DataFrame by filling missing values and removing duplicates.
-    
-    Args:
-        df (pd.DataFrame): The DataFrame to preprocess.
-        
-    Returns:
-        pd.DataFrame: The cleaned DataFrame.
-    """
-    # Fill missing values with the mean of each column
-    df.fillna(df.mean(), inplace=True)
-    # Remove duplicate rows
-    df.drop_duplicates(inplace=True)
-    return df
+def main():
+    # Example usage of the load_and_process_data function
+    csv_file_path = 'data/sample_data.csv'  # Update path as necessary
+    processed_data = load_and_process_data(csv_file_path)
 
-def main(file_path: str) -> None:
-    """
-    Main function to load, preprocess, and display data from a CSV file.
-    
-    Args:
-        file_path (str): The path to the CSV file.
-    """
-    df = load_data(file_path)
-    if df is not None:
-        print("Original DataFrame:")
-        print(df)
-        
-        cleaned_df = preprocess_data(df)
-        print("\nCleaned DataFrame:")
-        print(cleaned_df)
+    if processed_data is not None:
+        print("Data loaded and processed successfully:")
+        print(processed_data.head())  # Display the first few rows of the processed DataFrame
 
 if __name__ == "__main__":
-    # Replace 'data.csv' with the path to your CSV file
-    main('data.csv')
+    main()

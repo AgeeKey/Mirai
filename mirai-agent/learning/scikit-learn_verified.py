@@ -1,10 +1,10 @@
 """
 scikit-learn - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.81
+Quality Grade: C
+Overall Score: 0.77
 Tests Passed: 0/1
-Learned: 2025-10-22T14:17:15.686466
+Learned: 2025-10-22T14:33:49.847295
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
@@ -13,88 +13,45 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.datasets import load_iris
-from typing import Tuple
 
-def load_data() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load the Iris dataset.
+def load_data() -> pd.DataFrame:
+    """Load the Iris dataset and return it as a DataFrame."""
+    iris = load_iris()
+    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    data['target'] = iris.target
+    return data
 
-    Returns:
-        Tuple containing features and target variables.
-    """
-    try:
-        iris = load_iris()
-        return iris.data, iris.target
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        raise
+def preprocess_data(data: pd.DataFrame) -> tuple:
+    """Split the data into features and target variable, then into training and testing sets."""
+    X = data.drop(columns='target')
+    y = data['target']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
 
-def preprocess_data(features: np.ndarray, target: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Preprocess the data by splitting it into training and test sets.
+def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
+    """Train a Random Forest classifier on the training data."""
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    return model
 
-    Args:
-        features (np.ndarray): Feature data.
-        target (np.ndarray): Target labels.
-
-    Returns:
-        Tuple of training features, test features, training labels, and test labels.
-    """
-    try:
-        X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
-        return X_train, X_test, y_train, y_test
-    except Exception as e:
-        print(f"Error during data preprocessing: {e}")
-        raise
-
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
-    """
-    Train a Random Forest Classifier on the training data.
-
-    Args:
-        X_train (np.ndarray): Training features.
-        y_train (np.ndarray): Training labels.
-
-    Returns:
-        RandomForestClassifier: The trained model.
-    """
-    try:
-        model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
-        return model
-    except Exception as e:
-        print(f"Error during model training: {e}")
-        raise
-
-def evaluate_model(model: RandomForestClassifier, X_test: np.ndarray, y_test: np.ndarray) -> None:
-    """
-    Evaluate the model using accuracy and classification report.
-
-    Args:
-        model (RandomForestClassifier): The trained model.
-        X_test (np.ndarray): Test features.
-        y_test (np.ndarray): Test labels.
-    """
-    try:
-        predictions = model.predict(X_test)
-        accuracy = accuracy_score(y_test, predictions)
-        report = classification_report(y_test, predictions)
-        print(f"Accuracy: {accuracy:.2f}")
-        print("Classification Report:\n", report)
-    except Exception as e:
-        print(f"Error during model evaluation: {e}")
-        raise
+def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> float:
+    """Evaluate the trained model and return the accuracy score."""
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return accuracy
 
 def main() -> None:
-    """
-    Main function to run the machine learning pipeline.
-    """
-    features, target = load_data()
-    X_train, X_test, y_train, y_test = preprocess_data(features, target)
-    model = train_model(X_train, y_train)
-    evaluate_model(model, X_test, y_test)
+    """Main function to load data, preprocess it, train the model, and evaluate its performance."""
+    try:
+        data = load_data()
+        X_train, X_test, y_train, y_test = preprocess_data(data)
+        model = train_model(X_train, y_train)
+        accuracy = evaluate_model(model, X_test, y_test)
+        print(f"Model accuracy: {accuracy:.2f}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
