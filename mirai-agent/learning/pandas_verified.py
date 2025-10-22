@@ -1,60 +1,85 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: A
-Overall Score: 0.90
+Quality Grade: B
+Overall Score: 0.89
 Tests Passed: 0/1
-Learned: 2025-10-22T00:06:12.060930
+Learned: 2025-10-22T00:21:57.565093
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
+import numpy as np
 from typing import Optional
 
-def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
+def create_dataframe(data: dict) -> pd.DataFrame:
     """
-    Load data from a CSV file, clean, and return a DataFrame.
-    
-    Parameters:
-    - file_path (str): The path to the CSV file.
-    - column_names (Optional[list]): List of column names to rename in the DataFrame.
+    Create a pandas DataFrame from a dictionary.
+
+    Args:
+        data (dict): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-    - pd.DataFrame: A cleaned DataFrame.
-    
-    Raises:
-    - FileNotFoundError: If the specified file does not exist.
-    - pd.errors.EmptyDataError: If the file is empty.
-    - pd.errors.ParserError: If there is an error parsing the file.
-    """
-    try:
-        # Load the data from CSV
-        df = pd.read_csv(file_path)
-        
-        # Rename columns if column_names are provided
-        if column_names:
-            df.columns = column_names
-        
-        # Drop rows with any missing values
-        df.dropna(inplace=True)
-        
-        return df
-        
-    except FileNotFoundError as e:
-        print(f"Error: The file {file_path} was not found.")
-        raise e
-    except pd.errors.EmptyDataError as e:
-        print("Error: The file is empty.")
-        raise e
-    except pd.errors.ParserError as e:
-        print("Error: There was a problem parsing the file.")
-        raise e
+        pd.DataFrame: A DataFrame constructed from the provided data.
 
-# Example usage
-if __name__ == "__main__":
+    Raises:
+        ValueError: If the lengths of the lists in the dictionary do not match.
+    """
+    # Check if all columns have the same length
+    lengths = [len(v) for v in data.values()]
+    if len(set(lengths)) != 1:
+        raise ValueError("All columns must have the same number of elements.")
+    
+    # Create DataFrame
+    return pd.DataFrame(data)
+
+def calculate_statistics(df: pd.DataFrame, column: str) -> Optional[dict]:
+    """
+    Calculate basic statistics for a given column in the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the data.
+        column (str): The column name for which to calculate statistics.
+
+    Returns:
+        Optional[dict]: A dictionary containing the mean, median, and standard deviation, or None if the column does not exist.
+    """
+    if column not in df.columns:
+        print(f"Column '{column}' does not exist in the DataFrame.")
+        return None
+
+    # Calculate statistics
+    stats = {
+        'mean': df[column].mean(),
+        'median': df[column].median(),
+        'std_dev': df[column].std()
+    }
+    return stats
+
+def main() -> None:
+    """
+    Main function to run the example.
+    """
+    # Sample data
+    data = {
+        'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+        'Age': [24, 30, 22, 35],
+        'Score': [85.5, 90.0, 78.5, 88.0]
+    }
+    
     try:
-        data = load_and_process_data('data.csv', column_names=['A', 'B', 'C'])
-        print(data.head())  # Display the first few rows of the DataFrame
-    except Exception as e:
-        print("An error occurred while processing the data.")
+        # Create DataFrame
+        df = create_dataframe(data)
+        print("DataFrame created successfully:\n", df)
+
+        # Calculate statistics for the 'Score' column
+        stats = calculate_statistics(df, 'Score')
+        if stats:
+            print("Statistics for 'Score':", stats)
+
+    except ValueError as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
