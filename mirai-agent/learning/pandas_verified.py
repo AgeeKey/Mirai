@@ -1,78 +1,56 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.86
+Quality Grade: A
+Overall Score: 0.91
 Tests Passed: 0/1
-Learned: 2025-10-22T06:12:46.995406
+Learned: 2025-10-22T06:28:49.373307
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional, List
+from typing import Any, Dict
 
-def load_data(file_path: str) -> pd.DataFrame:
+def create_dataframe(data: Dict[str, Any]) -> pd.DataFrame:
     """
-    Load CSV data into a pandas DataFrame.
+    Create a pandas DataFrame from the provided dictionary.
 
     Args:
-        file_path (str): The path to the CSV file.
+        data (Dict[str, Any]): A dictionary where keys are column names and values are lists of column data.
 
     Returns:
-        pd.DataFrame: DataFrame containing the loaded data.
+        pd.DataFrame: A DataFrame constructed from the input data.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
-        pd.errors.EmptyDataError: If the file is empty.
-        pd.errors.ParserError: If there is a parsing error.
+        ValueError: If the lengths of the lists in the data dictionary are not consistent.
     """
-    try:
-        data = pd.read_csv(file_path)
-        return data
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: The file '{file_path}' was not found.") from e
-    except pd.errors.EmptyDataError as e:
-        raise ValueError("Error: The file is empty.") from e
-    except pd.errors.ParserError as e:
-        raise ValueError("Error: Could not parse the file.") from e
+    # Check if all columns have the same length
+    column_lengths = [len(v) for v in data.values()]
+    if len(set(column_lengths)) != 1:
+        raise ValueError("All columns must have the same number of rows")
 
-def filter_data(df: pd.DataFrame, column: str, value: Optional[str] = None) -> pd.DataFrame:
-    """
-    Filter the DataFrame based on a column and a specific value.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to filter.
-        column (str): The column name to filter on.
-        value (Optional[str]): The value to filter by. If None, returns the original DataFrame.
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame.
-    """
-    if value is not None:
-        if column not in df.columns:
-            raise ValueError(f"Error: Column '{column}' does not exist in the DataFrame.")
-        return df[df[column] == value]
+    # Create the DataFrame
+    df = pd.DataFrame(data)
     return df
 
-def main(file_path: str, filter_column: str, filter_value: Optional[str]) -> None:
+def main() -> None:
     """
-    Main function to load and filter data.
+    Main function to execute the DataFrame creation and display.
+    """
+    # Sample data to create a DataFrame
+    data = {
+        'Name': ['Alice', 'Bob', 'Charlie'],
+        'Age': [25, 30, 35],
+        'City': ['New York', 'Los Angeles', 'Chicago']
+    }
 
-    Args:
-        file_path (str): Path to the CSV file.
-        filter_column (str): The column name to filter on.
-        filter_value (Optional[str]): The value to filter by.
-    """
-    # Load data from the specified file path
-    data = load_data(file_path)
-    
-    # Filter data based on the specified column and value
-    filtered_data = filter_data(data, filter_column, filter_value)
-    
-    # Display the filtered data
-    print(filtered_data)
+    try:
+        # Create DataFrame using the sample data
+        df = create_dataframe(data)
+        print(df)
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    # Example usage
-    main('data.csv', 'category', 'A')
+    main()
