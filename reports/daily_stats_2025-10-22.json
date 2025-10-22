@@ -1,13 +1,11 @@
 {
-  "total_lines": 14877,
-  "error_count": 86,
-  "warning_count": 382,
-  "info_count": 8388,
+  "total_lines": 14901,
+  "error_count": 87,
+  "warning_count": 384,
+  "info_count": 8389,
   "autonomous_cycles": 268,
   "todo_count": 0,
   "errors": [
-    "2025-10-21 06:49:56,837 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-21 07:21:51,065 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-21 07:53:45,045 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "2025-10-21 07:53:45,046 [ERROR] ❌ Ошибка в цикле: 'NoneType' object is not subscriptable",
     "TypeError: 'NoneType' object is not subscriptable",
@@ -15,19 +13,21 @@
     "2025-10-21 08:57:30,835 [WARNING]    ⚠️ Не удалось: 'top_errors'",
     "\"error\": \"HTTP 404: {\\r\\n  \\\"message\\\": \\\"Not Found\\\",\\r\\n  \\\"documentation_url\\\": \\\"https://docs.github.com/rest\\\",\\r\\n  \\\"status\\\": \\\"404\\\"\\r\\n}\"",
     "2025-10-21 09:29:42,791 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource..."
+    "\"error\": \"HTTP 422: {\\\"message\\\":\\\"New repository name must not be blank\\\",\\\"errors\\\":[{\\\"resource\\\":\\\"Repository\\\",\\\"code\\\":\\\"missing_field\\\",\\\"field\\\":\\\"name\\\"},{\\\"resource...",
+    "2025-10-21 10:01:49,361 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-21 10:01:49,362 [ERROR] ❌ Ошибка в цикле: 'NoneType' object is not subscriptable"
   ],
   "warnings": [
-    "2025-10-21 06:33:09,861 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 06:38:58,016 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 06:44:01,739 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 06:49:04,461 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 06:49:56,837 [WARNING]    ⚠️ Не удалось: 'top_errors'",
-    "2025-10-21 06:54:57,632 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 07:00:00,060 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 07:05:04,351 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 07:10:54,166 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
-    "2025-10-21 07:15:57,215 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
+    "2025-10-21 07:36:58,735 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 07:42:52,346 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 07:47:55,423 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 07:52:58,226 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 07:53:45,045 [WARNING]    ⚠️ Не удалось: 'top_errors'",
+    "2025-10-21 07:58:45,368 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 08:03:47,967 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 08:08:50,561 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 08:14:36,989 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ...",
+    "2025-10-21 08:19:40,746 [WARNING] ⚠️  CI/CD НЕ ЗДОРОВ! Консультируюсь с МИРАЙ..."
   ],
   "top_messages": [
     {
@@ -56,15 +56,15 @@
     },
     {
       "message": "✅ FAQ сгенерирован: /root/mirai/knowledge_base/FAQ.md",
-      "count": 24
+      "count": 25
     },
     {
       "message": "✅ Отчёт создан: /root/mirai/reports/daily_analysis_2025-10-21.md",
-      "count": 16
+      "count": 15
     },
     {
       "message": "✅ Статистика: /root/mirai/reports/daily_stats_2025-10-21.json",
-      "count": 16
+      "count": 15
     },
     {
       "message": "✅ LEARNING COMPLETE: requests",
@@ -72,18 +72,6 @@
     }
   ],
   "cycle_numbers": [
-    705,
-    706,
-    707,
-    708,
-    709,
-    710,
-    711,
-    712,
-    713,
-    714,
-    715,
-    716,
     717,
     718,
     719,
@@ -339,16 +327,28 @@
     969,
     970,
     971,
-    972
+    972,
+    973,
+    974,
+    975,
+    976,
+    977,
+    978,
+    979,
+    980,
+    981,
+    982,
+    983,
+    984
   ],
   "timestamp_first": [
     "Oct",
     "21",
-    "06:33:09"
+    "07:36:58"
   ],
   "timestamp_last": [
     "Oct",
     "22",
-    "06:29:14"
+    "07:33:57"
   ]
 }

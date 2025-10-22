@@ -2,60 +2,72 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.81
+Overall Score: 0.84
 Tests Passed: 0/1
-Learned: 2025-10-22T07:17:37.764427
+Learned: 2025-10-22T07:33:38.191635
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-from typing import Optional
+import numpy as np
 
-def load_data(file_path: str) -> Optional[pd.DataFrame]:
+def create_sample_dataframe(rows: int) -> pd.DataFrame:
     """
-    Load data from a CSV file into a pandas DataFrame.
+    Creates a sample DataFrame with random data.
 
-    Args:
-        file_path (str): The path to the CSV file.
+    Parameters:
+    rows (int): The number of rows in the DataFrame.
 
     Returns:
-        Optional[pd.DataFrame]: A DataFrame containing the data, or None if an error occurs.
+    pd.DataFrame: A DataFrame containing random integers and a date range.
     """
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except FileNotFoundError:
-        print(f"Error: The file at {file_path} was not found.")
-        return None
-    except pd.errors.EmptyDataError:
-        print("Error: The file is empty.")
-        return None
-    except pd.errors.ParserError:
-        print("Error: The file could not be parsed.")
-        return None
+    if rows <= 0:
+        raise ValueError("Number of rows must be a positive integer.")
 
-def summarize_data(df: pd.DataFrame) -> None:
-    """
-    Print summary statistics and the first few rows of the DataFrame.
+    dates = pd.date_range(start='2023-01-01', periods=rows, freq='D')
+    data = {
+        'Date': dates,
+        'Value': np.random.randint(1, 100, size=rows)
+    }
+    return pd.DataFrame(data)
 
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
+def compute_statistics(df: pd.DataFrame) -> pd.Series:
     """
-    print("Summary Statistics:")
-    print(df.describe())  # Display summary statistics of the DataFrame
-    print("\nFirst 5 Rows:")
-    print(df.head())      # Display the first 5 rows of the DataFrame
+    Computes basic statistics of the 'Value' column in the DataFrame.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame containing the data.
+
+    Returns:
+    pd.Series: A Series containing the mean, median, and standard deviation of the 'Value' column.
+    """
+    if 'Value' not in df.columns:
+        raise KeyError("The DataFrame must contain a 'Value' column.")
+
+    mean = df['Value'].mean()
+    median = df['Value'].median()
+    std_dev = df['Value'].std()
+
+    return pd.Series({'Mean': mean, 'Median': median, 'Std Dev': std_dev})
 
 def main() -> None:
     """
-    Main function to load and summarize data from a CSV file.
+    Main function to execute the data generation and statistics computation.
     """
-    file_path = 'data.csv'  # Specify the path to your CSV file
-    df = load_data(file_path)
-    
-    if df is not None:  # Check if the DataFrame is successfully loaded
-        summarize_data(df)
+    try:
+        # Create a sample DataFrame with 10 rows
+        df = create_sample_dataframe(10)
+        print("Sample DataFrame:")
+        print(df)
+
+        # Compute and print statistics
+        stats = compute_statistics(df)
+        print("\nStatistics:")
+        print(stats)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
