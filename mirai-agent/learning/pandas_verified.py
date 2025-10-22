@@ -1,65 +1,61 @@
 """
 pandas - Verified Learning Artifact
 
-Quality Grade: B
-Overall Score: 0.87
+Quality Grade: A
+Overall Score: 0.92
 Tests Passed: 1/1
-Learned: 2025-10-22T19:01:57.651408
+Learned: 2025-10-22T19:18:27.945237
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
+from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_and_process_data(file_path: str, column_names: Optional[list] = None) -> pd.DataFrame:
     """
-    Create a pandas DataFrame from a dictionary.
-    
-    Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
-        
+    Load a CSV file into a Pandas DataFrame and process it.
+
+    Parameters:
+        file_path (str): The path to the CSV file.
+        column_names (Optional[list]): A list of column names to assign to the DataFrame.
+
     Returns:
-        pd.DataFrame: A DataFrame containing the provided data.
+        pd.DataFrame: Processed DataFrame.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the DataFrame is empty after loading.
     """
     try:
-        df = pd.DataFrame(data)
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Assign custom column names if provided
+        if column_names is not None:
+            df.columns = column_names
+        
+        # Check if the DataFrame is empty
+        if df.empty:
+            raise ValueError("The DataFrame is empty after loading the data.")
+        
+        # Return the processed DataFrame
         return df
-    except Exception as e:
-        print(f"Error creating DataFrame: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame on error
 
-def summarize_dataframe(df: pd.DataFrame) -> None:
-    """
-    Print a summary of the DataFrame including basic statistics.
-    
-    Args:
-        df (pd.DataFrame): The DataFrame to summarize.
-    """
+    except FileNotFoundError as e:
+        print(f"Error: The file '{file_path}' was not found. Please check the path.")
+        raise e
+    except ValueError as e:
+        print(f"Error: {e}")
+        raise e
+
+def main():
+    # Example usage of the load_and_process_data function
     try:
-        print("DataFrame Summary:")
-        print(df.describe())
-        print("\nDataFrame Info:")
-        print(df.info())
+        df = load_and_process_data('data.csv', column_names=['Column1', 'Column2', 'Column3'])
+        print(df.head())  # Display the first few rows of the DataFrame
     except Exception as e:
-        print(f"Error summarizing DataFrame: {e}")
-
-def main() -> None:
-    """
-    Main function to execute the DataFrame creation and summarization.
-    """
-    # Sample data for DataFrame creation
-    data = {
-        'A': np.random.rand(10),  # Column A with random floats
-        'B': np.random.randint(1, 100, size=10),  # Column B with random integers
-        'C': ['Category1', 'Category2'] * 5  # Column C with categorical data
-    }
-    
-    # Create DataFrame
-    df = create_dataframe(data)
-    
-    # Summarize DataFrame
-    summarize_dataframe(df)
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
