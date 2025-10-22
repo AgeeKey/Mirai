@@ -7169,6 +7169,16 @@
       "name": "pandas",
       "proficiency": 0.8845227631319333,
       "learned_at": "2025-10-22T14:50:07.429529"
+    },
+    {
+      "name": "schedule",
+      "proficiency": 0.8750817888489902,
+      "learned_at": "2025-10-22T15:05:45.374265"
+    },
+    {
+      "name": "numpy",
+      "proficiency": 0.8567244493809172,
+      "learned_at": "2025-10-22T15:06:05.163729"
     }
   ],
   "skills": [],
