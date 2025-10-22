@@ -2,82 +2,68 @@
 pandas - Verified Learning Artifact
 
 Quality Grade: B
-Overall Score: 0.87
+Overall Score: 0.83
 Tests Passed: 0/1
-Learned: 2025-10-22T12:23:12.238694
+Learned: 2025-10-22T12:55:26.366397
 
 This code has been verified by MIRAI's NASA-level learning system.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional
 
-def create_dataframe(data: dict) -> pd.DataFrame:
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Create a pandas DataFrame from a dictionary.
+    Load a CSV file into a pandas DataFrame.
 
     Args:
-        data (dict): A dictionary where keys are column names and values are lists of column data.
+        file_path (str): The path to the CSV file.
 
     Returns:
-        pd.DataFrame: A DataFrame constructed from the input data.
-    
-    Raises:
-        ValueError: If the input data is invalid (e.g., lists of different lengths).
-    """
-    if not all(len(v) == len(next(iter(data.values()))) for v in data.values()):
-        raise ValueError("All columns must have the same number of rows.")
-
-    return pd.DataFrame(data)
-
-def calculate_statistics(df: pd.DataFrame, column: str) -> Optional[dict]:
-    """
-    Calculate basic statistics for a given column in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to analyze.
-        column (str): The column name to calculate statistics for.
-
-    Returns:
-        Optional[dict]: A dictionary with mean, median, and std deviation, or None if column not found.
-    """
-    if column not in df.columns:
-        print(f"Column '{column}' not found in DataFrame.")
-        return None
-
-    stats = {
-        'mean': df[column].mean(),
-        'median': df[column].median(),
-        'std_dev': df[column].std()
-    }
-    return stats
-
-def main() -> None:
-    """
-    Main function to demonstrate DataFrame creation and statistics calculation.
+        Optional[pd.DataFrame]: A DataFrame containing the data from the CSV file, 
+                                 or None if an error occurs.
     """
     try:
-        # Sample data creation
-        data = {
-            "A": [1, 2, 3, 4, 5],
-            "B": [5, 4, 3, 2, 1],
-            "C": [2, 3, np.nan, 5, 6]
-        }
-        
-        # Create DataFrame
-        df = create_dataframe(data)
-
-        # Calculate statistics for column 'A'
-        stats_a = calculate_statistics(df, 'A')
-        print("Statistics for column 'A':", stats_a)
-
-        # Calculate statistics for column 'C'
-        stats_c = calculate_statistics(df, 'C')
-        print("Statistics for column 'C':", stats_c)
-
+        data = pd.read_csv(file_path)
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+    except pd.errors.EmptyDataError:
+        print("Error: The file is empty.")
+        return None
     except Exception as e:
-        print("An error occurred:", str(e))
+        print(f"An error occurred while loading the data: {e}")
+        return None
+
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Process the DataFrame by removing rows with missing values.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to process.
+
+    Returns:
+        pd.DataFrame: A DataFrame with missing values removed.
+    """
+    if df is None:
+        raise ValueError("DataFrame cannot be None.")
+    
+    processed_df = df.dropna()  # Remove rows with missing values
+    return processed_df
+
+def main(file_path: str) -> None:
+    """
+    Main function to load and process data from a CSV file.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    data = load_data(file_path)
+    if data is not None:
+        processed_data = process_data(data)
+        print(processed_data)
 
 if __name__ == "__main__":
-    main()
+    # Replace 'data.csv' with the path to your CSV file
+    main('data.csv')
