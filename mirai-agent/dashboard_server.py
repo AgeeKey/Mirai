@@ -506,12 +506,25 @@ from core.self_reflection import SelfReflectionSystem
 from core.tool_validator import ToolValidator
 from queue import Queue
 import uuid
+import logging
 
 # Initialize components
 reflection_system = SelfReflectionSystem()
 task_queue = Queue()
 active_tasks = {}
 log_streams = {}  # task_id -> list of log entries
+
+# Security: Sanitize error messages
+def sanitize_error(error: Exception) -> str:
+    """Sanitize error message to avoid exposing stack traces"""
+    error_msg = str(error)
+    # Remove file paths
+    import re
+    error_msg = re.sub(r'/[^\s]+\.py', '[file]', error_msg)
+    # Limit length
+    if len(error_msg) > 200:
+        error_msg = error_msg[:200] + "..."
+    return error_msg
 
 
 @app.route("/api/tasks/run", methods=["POST"])
@@ -650,7 +663,8 @@ def run_task():
         })
         
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error running task")
+        return jsonify({"success": False, "error": "Failed to start task"}), 500
 
 
 @app.route("/api/tasks/list")
@@ -673,7 +687,8 @@ def list_tasks():
             "total": len(tasks_data)
         })
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error listing tasks")
+        return jsonify({"success": False, "error": "Failed to list tasks"}), 500
 
 
 @app.route("/api/tasks/<task_id>")
@@ -713,7 +728,8 @@ def get_task(task_id):
             }
         })
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error getting task")
+        return jsonify({"success": False, "error": "Failed to get task details"}), 500
 
 
 @app.route("/api/tasks/<task_id>/stop", methods=["POST"])
@@ -746,7 +762,8 @@ def stop_task(task_id):
             }), 400
             
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error stopping task")
+        return jsonify({"success": False, "error": "Failed to stop task"}), 500
 
 
 @app.route("/api/tasks/stream/<task_id>")
@@ -805,7 +822,8 @@ def get_reflections():
             "total": len(reflections)
         })
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error getting reflections")
+        return jsonify({"success": False, "error": "Failed to get reflections"}), 500
 
 
 @app.route("/api/reflections/metrics")
@@ -830,7 +848,8 @@ def get_reflection_metrics():
             "summary": summary
         })
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.exception("Error getting metrics")
+        return jsonify({"success": False, "error": "Failed to get metrics"}), 500
 
 
 if __name__ == "__main__":
