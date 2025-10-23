@@ -497,6 +497,342 @@ def get_insights():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# ============================================================================
+# 🎯 TASK RUNNER ENDPOINTS (LOCAL AI ENGINEER)
+# ============================================================================
+
+from core.react_controller import ReActController, Task as ReActTask
+from core.self_reflection import SelfReflectionSystem
+from core.tool_validator import ToolValidator
+from queue import Queue
+import uuid
+
+# Initialize components
+reflection_system = SelfReflectionSystem()
+task_queue = Queue()
+active_tasks = {}
+log_streams = {}  # task_id -> list of log entries
+
+
+@app.route("/api/tasks/run", methods=["POST"])
+def run_task():
+    """
+    Execute a task using ReAct controller
+    
+    Body: {
+        "description": str,
+        "goal": str,
+        "max_steps": int (optional, default 10)
+    }
+    
+    Returns: {
+        "success": bool,
+        "task_id": str,
+        "message": str
+    }
+    """
+    try:
+        data = request.json
+        if not data or "description" not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing 'description' in request body"
+            }), 400
+        
+        description = data["description"]
+        goal = data.get("goal", description)
+        max_steps = data.get("max_steps", 10)
+        
+        # Create task
+        task_id = f"task_{uuid.uuid4().hex[:8]}"
+        task = ReActTask(
+            id=task_id,
+            description=description,
+            goal=goal,
+            max_steps=max_steps,
+        )
+        
+        # Add to queue
+        active_tasks[task_id] = {
+            "task": task,
+            "status": "pending",
+            "steps": [],
+            "created_at": asyncio.get_event_loop().time() if asyncio.get_event_loop() else 0,
+        }
+        log_streams[task_id] = []
+        
+        # Start task in background thread
+        def execute_task_background():
+            import time
+            from core.autonomous_agent import AutonomousAgent
+            
+            active_tasks[task_id]["status"] = "running"
+            log_streams[task_id].append({
+                "timestamp": time.time(),
+                "level": "info",
+                "message": f"Starting task: {description}"
+            })
+            
+            try:
+                # Create agent and controller
+                agent = AutonomousAgent()
+                
+                # Get tools from agent
+                tools = agent.tools
+                validator = ToolValidator(tools)
+                
+                # Create ReAct controller
+                controller = ReActController(
+                    llm_client=agent.client,
+                    tools=tools,
+                    max_steps=max_steps,
+                    verbose=False,
+                )
+                
+                # Register tool handlers
+                controller.register_tool_handler("execute_python", agent.execute_python)
+                controller.register_tool_handler("search_web", agent.search_web)
+                controller.register_tool_handler("read_file", agent.read_file)
+                controller.register_tool_handler("write_file", agent.write_file)
+                
+                # Execute task
+                start_time = time.time()
+                success, steps, answer = controller.execute_task(task)
+                execution_time = time.time() - start_time
+                
+                # Update task status
+                active_tasks[task_id]["status"] = "completed" if success else "failed"
+                active_tasks[task_id]["steps"] = steps
+                active_tasks[task_id]["answer"] = answer
+                active_tasks[task_id]["execution_time"] = execution_time
+                
+                # Add reflection
+                reflection_system.add_reflection(
+                    task_id=task_id,
+                    task_description=description,
+                    status="success" if success else "failure",
+                    what_worked=f"Completed in {len(steps)} steps" if success else "",
+                    what_failed="" if success else "Task did not complete",
+                    lessons_learned=f"Task execution time: {execution_time:.2f}s",
+                    tool_calls=[{
+                        "step": s.step_num,
+                        "action": s.action,
+                        "input": s.action_input
+                    } for s in steps if s.action],
+                    execution_time=execution_time,
+                    tokens_used=0,  # Would need to track from LLM
+                    hallucination_detected=False,
+                )
+                
+                log_streams[task_id].append({
+                    "timestamp": time.time(),
+                    "level": "success" if success else "error",
+                    "message": f"Task {'completed' if success else 'failed'}: {answer or 'No answer'}"
+                })
+                
+            except Exception as e:
+                active_tasks[task_id]["status"] = "error"
+                active_tasks[task_id]["error"] = str(e)
+                log_streams[task_id].append({
+                    "timestamp": time.time(),
+                    "level": "error",
+                    "message": f"Task error: {str(e)}"
+                })
+        
+        # Start background thread
+        thread = threading.Thread(target=execute_task_background, daemon=True)
+        thread.start()
+        
+        return jsonify({
+            "success": True,
+            "task_id": task_id,
+            "message": f"Task '{task_id}' started successfully"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/tasks/list")
+def list_tasks():
+    """Get list of all tasks"""
+    try:
+        tasks_data = []
+        for task_id, task_info in active_tasks.items():
+            tasks_data.append({
+                "task_id": task_id,
+                "description": task_info["task"].description,
+                "status": task_info["status"],
+                "steps_count": len(task_info.get("steps", [])),
+                "created_at": task_info.get("created_at", 0),
+            })
+        
+        return jsonify({
+            "success": True,
+            "tasks": tasks_data,
+            "total": len(tasks_data)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/tasks/<task_id>")
+def get_task(task_id):
+    """Get task details"""
+    try:
+        if task_id not in active_tasks:
+            return jsonify({
+                "success": False,
+                "error": f"Task '{task_id}' not found"
+            }), 404
+        
+        task_info = active_tasks[task_id]
+        
+        # Get last 20 steps
+        steps = task_info.get("steps", [])
+        last_steps = steps[-20:] if len(steps) > 20 else steps
+        
+        return jsonify({
+            "success": True,
+            "task": {
+                "task_id": task_id,
+                "description": task_info["task"].description,
+                "goal": task_info["task"].goal,
+                "status": task_info["status"],
+                "steps": [{
+                    "step_num": s.step_num,
+                    "thought": s.thought,
+                    "action": s.action,
+                    "observation": s.observation[:200] if s.observation else None,
+                    "timestamp": s.timestamp,
+                } for s in last_steps],
+                "total_steps": len(steps),
+                "answer": task_info.get("answer"),
+                "execution_time": task_info.get("execution_time"),
+                "error": task_info.get("error"),
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/tasks/<task_id>/stop", methods=["POST"])
+def stop_task(task_id):
+    """Stop a running task"""
+    try:
+        if task_id not in active_tasks:
+            return jsonify({
+                "success": False,
+                "error": f"Task '{task_id}' not found"
+            }), 404
+        
+        task_info = active_tasks[task_id]
+        
+        if task_info["status"] == "running":
+            task_info["status"] = "stopped"
+            log_streams[task_id].append({
+                "timestamp": asyncio.get_event_loop().time() if asyncio.get_event_loop() else 0,
+                "level": "warning",
+                "message": "Task stopped by user"
+            })
+            return jsonify({
+                "success": True,
+                "message": f"Task '{task_id}' stopped"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"Task is not running (status: {task_info['status']})"
+            }), 400
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/tasks/stream/<task_id>")
+def stream_task_logs(task_id):
+    """SSE stream for task logs"""
+    from flask import Response, stream_with_context
+    import time
+    
+    def generate():
+        if task_id not in log_streams:
+            yield f"data: {json.dumps({'error': 'Task not found'})}\n\n"
+            return
+        
+        sent_count = 0
+        while True:
+            logs = log_streams.get(task_id, [])
+            
+            # Send new logs
+            for log in logs[sent_count:]:
+                yield f"data: {json.dumps(log)}\n\n"
+                sent_count += 1
+            
+            # Check if task is complete
+            if task_id in active_tasks:
+                status = active_tasks[task_id]["status"]
+                if status in ["completed", "failed", "error", "stopped"]:
+                    yield f"data: {json.dumps({'status': 'complete', 'final_status': status})}\n\n"
+                    break
+            
+            time.sleep(1)
+    
+    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+
+
+@app.route("/api/reflections")
+def get_reflections():
+    """Get reflections"""
+    try:
+        status = request.args.get("status")
+        limit = request.args.get("limit", type=int, default=50)
+        
+        reflections = reflection_system.get_reflections(status=status, limit=limit)
+        
+        return jsonify({
+            "success": True,
+            "reflections": [{
+                "task_id": r.task_id,
+                "description": r.task_description,
+                "status": r.status,
+                "what_worked": r.what_worked,
+                "what_failed": r.what_failed,
+                "lessons_learned": r.lessons_learned,
+                "execution_time": r.execution_time,
+                "timestamp": r.timestamp,
+            } for r in reflections],
+            "total": len(reflections)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/reflections/metrics")
+def get_reflection_metrics():
+    """Get performance metrics"""
+    try:
+        metrics = reflection_system.calculate_metrics()
+        summary = reflection_system.get_summary()
+        
+        return jsonify({
+            "success": True,
+            "metrics": {
+                "task_success_rate": metrics.task_success_rate,
+                "target_success_rate": 70.0,
+                "mean_time_to_result": metrics.mean_time_to_result,
+                "target_mtr": 10.0,
+                "hallucination_rate": metrics.hallucination_rate,
+                "target_hallucination": 0.0,
+                "tool_use_accuracy": metrics.tool_use_accuracy,
+                "target_tool_accuracy": 90.0,
+            },
+            "summary": summary
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     print(
         """
@@ -533,6 +869,17 @@ if __name__ == "__main__":
 
 🌸 МИРАЙ's choice: Unified dashboard for comprehensive monitoring
 🤖 КАЙДЗЕН: Dashboard starting on port 5000...
+
+🎯 Task Runner Endpoints (NEW):
+   • http://localhost:5000/api/tasks/run - Execute task (POST)
+   • http://localhost:5000/api/tasks/list - List all tasks
+   • http://localhost:5000/api/tasks/<task_id> - Get task status
+   • http://localhost:5000/api/tasks/<task_id>/stop - Stop task
+   • http://localhost:5000/api/tasks/stream - SSE stream for logs
+
+📝 Reflection Endpoints:
+   • http://localhost:5000/api/reflections - Get reflections
+   • http://localhost:5000/api/reflections/metrics - Performance metrics
 
 """
     )
