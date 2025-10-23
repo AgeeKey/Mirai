@@ -877,7 +877,24 @@ def test_add_message():
 
 ## 📚 Documentation
 
-### Available Documentation
+### Phase 0: Vision & Planning Documents
+
+📂 **[docs/](./docs/)** - Comprehensive Phase 0 documentation (85 pages, ~49k words)
+
+| Document | Description | Pages |
+|----------|-------------|-------|
+| **[docs/README.md](./docs/README.md)** | Documentation index and navigation | 11 |
+| **[docs/VISION_AND_SCOPE.md](./docs/VISION_AND_SCOPE.md)** | Project vision, scope, goals, constraints | 6 |
+| **[docs/USE_CASES.md](./docs/USE_CASES.md)** | 20 prioritized use cases (P0/P1/P2) | 12 |
+| **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | Logical system architecture | 14 |
+| **[docs/DEVELOPMENT_ROADMAP.md](./docs/DEVELOPMENT_ROADMAP.md)** | 5-phase development plan (9-16 months) | 18 |
+| **[docs/RISK_MATRIX.md](./docs/RISK_MATRIX.md)** | Risk assessment & mitigation (12 risks) | 11 |
+| **[docs/HIRING_PLAN.md](./docs/HIRING_PLAN.md)** | Team structure & hiring (10→100 people) | 13 |
+| **[docs/POC_GUIDE.md](./docs/POC_GUIDE.md)** | Technical PoC implementation guide | 11 |
+
+👉 **Start here:** [docs/README.md](./docs/README.md) for navigation by role
+
+### Implementation Documentation
 
 | Document | Description |
 |----------|-------------|
@@ -893,6 +910,7 @@ def test_add_message():
 - **MIRAI_ARCHITECTURE_EXPLAINED.md** - System architecture
 - **NASA_LEVEL_ARCHITECTURE_PLAN.md** - Advanced features
 - **MIRAI_CAPABILITIES.txt** - Full capability list
+- **docs/ARCHITECTURE.md** - Logical architecture (Phase 0)
 
 ### API Documentation
 
