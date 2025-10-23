@@ -30,3 +30,19 @@ bcrypt==4.1.2
 
 # Windows Service (optional)
 pywin32>=300; platform_system == 'Windows'
+
+# RAG and Vector Storage
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.0
+tiktoken>=0.5.0
+
+# Browser Automation
+playwright>=1.40.0
+
+# Document Parsing
+beautifulsoup4>=4.12.0
+pypdf>=3.17.0
+pdfplumber>=0.10.0
+
+# Ollama for local LLM
+ollama>=0.1.0
