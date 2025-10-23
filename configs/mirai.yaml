@@ -455,9 +455,9 @@ iot:
 security:
   # API ключи (Production: env vars, НЕ JSON!)
   api_keys:
-    source: "env"                # "env" или "file" (env безопаснее!)
+    source: "file"               # "env" или "file" (file для локальной разработки на Windows)
     env_var: "OPENAI_API_KEY"
-    fallback_file: "configs/api_keys.json"
+    fallback_file: "mirai-agent/configs/api_keys.json"
 
   # Ротация ключей
   key_rotation:

@@ -203,4 +203,6 @@ if __name__ == "__main__":
     history = agent.get_history()
     print(f"Total searches: {len(history)}")
     for i, search in enumerate(history, 1):
-        print(f"{i}. {search['query']} ({search['tokens_used']} tokens}")
+        query = search['query']
+        tokens = search['tokens_used']
+        print(f"{i}. {query} ({tokens} tokens)")

@@ -151,12 +151,14 @@ class ConfigLoader:
     def _find_config(self) -> Path:
         """
         Автопоиск конфига в:
-        1. configs/mirai.yaml
-        2. /root/mirai/configs/mirai.yaml
-        3. ./mirai.yaml
+        1. configs/mirai.yaml (относительно текущей директории)
+        2. ../configs/mirai.yaml (один уровень выше)
+        3. /root/mirai/configs/mirai.yaml (Linux сервер)
+        4. ./mirai.yaml (текущая директория)
         """
         search_paths = [
             Path("configs/mirai.yaml"),
+            Path("../configs/mirai.yaml"),
             Path("/root/mirai/configs/mirai.yaml"),
             Path("mirai.yaml"),
         ]
@@ -166,8 +168,14 @@ class ConfigLoader:
                 self.logger.info(f"Found config at: {path}")
                 return path
         
-        # Если не нашли - использовать дефолтный путь
-        default = Path("/root/mirai/configs/mirai.yaml")
+        # Если не нашли - попробовать относительно текущего файла
+        current_file = Path(__file__).parent.parent.parent / "configs" / "mirai.yaml"
+        if current_file.exists():
+            self.logger.info(f"Found config at: {current_file}")
+            return current_file
+        
+        # Если всё еще не нашли - использовать дефолтный путь
+        default = Path("configs/mirai.yaml")
         self.logger.warning(f"Config not found, using default: {default}")
         return default
     
@@ -455,11 +463,24 @@ def get_api_key() -> Optional[str]:
         fallback = config.security.api_keys.get('fallback_file', 'configs/api_keys.json')
         fallback_path = Path(fallback)
         
-        if fallback_path.exists():
-            import json
-            with open(fallback_path, 'r') as f:
-                keys = json.load(f)
-                return keys.get('openai_api_key')
+        # Try multiple locations
+        search_paths = [
+            fallback_path,
+            Path("mirai-agent") / fallback_path,
+            Path.cwd() / fallback_path,
+            Path.cwd() / "mirai-agent" / fallback_path,
+        ]
+        
+        for path in search_paths:
+            if path.exists():
+                import json
+                try:
+                    with open(path, 'r') as f:
+                        keys = json.load(f)
+                        # Try both 'openai' and 'openai_api_key' for compatibility
+                        return keys.get('openai') or keys.get('openai_api_key')
+                except Exception:
+                    pass
     
     return None
 

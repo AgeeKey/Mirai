@@ -1,0 +1,233 @@
+# MIRAI-PRO Configuration
+
+llm:
+  # Backend: ollama, vllm, llama-cpp
+  backend: ollama
+  
+  # Model name (для Ollama)
+  model: qwen2.5:7b-instruct-q4_K_M
+  
+  # Context length
+  context_length: 8192
+  
+  # Temperature (0.0 - 1.0)
+  temperature: 0.7
+  
+  # Top-p sampling
+  top_p: 0.9
+  
+  # Ollama settings
+  ollama:
+    host: http://localhost:11434
+    timeout: 120
+    keep_alive: 300
+  
+  # vLLM settings (опционально)
+  vllm:
+    host: http://localhost:8000
+    max_model_len: 8192
+  
+  # llama.cpp settings (опционально)
+  llama_cpp:
+    model_path: models/qwen2.5-7b-instruct-q4_k_m.gguf
+    n_ctx: 8192
+    n_gpu_layers: 35  # -1 для всех слоёв на GPU
+
+memory:
+  # Embedding model
+  embedding_model: intfloat/e5-small-v2
+  embedding_dim: 384
+  
+  # FAISS index
+  faiss_index_path: data/faiss.index
+  
+  # SQLite database
+  sqlite_path: data/memories.sqlite
+  
+  # Chunk settings
+  chunk_size: 512
+  chunk_overlap: 50
+  
+  # Search settings
+  top_k: 5
+  score_threshold: 0.7
+
+workspace:
+  # Root directory for agent work
+  root: ./workspace
+  
+  # Allowed directories (relative to root)
+  allowed_dirs:
+    - workspace
+    - knowledge
+    - data/temp
+  
+  # Blocked patterns
+  blocked_patterns:
+    - "*.key"
+    - "*.pem"
+    - ".env"
+    - "config.yaml"
+
+tools:
+  # File system
+  fs:
+    enabled: true
+    max_file_size: 10485760  # 10 MB
+  
+  # Shell commands
+  shell:
+    enabled: true
+    whitelist:
+      - python
+      - python3
+      - pip
+      - git
+      - ls
+      - dir
+      - cat
+      - type
+      - echo
+      - pwd
+      - cd
+    blacklist:
+      - rm
+      - rmdir
+      - del
+      - format
+      - shutdown
+      - reboot
+    timeout: 30
+    max_output_size: 102400  # 100 KB
+  
+  # Code execution (Docker)
+  code:
+    enabled: true
+    docker:
+      image: python:3.11-slim
+      memory_limit: 256m
+      cpu_limit: 0.5
+      network: none
+      timeout: 30
+    
+    # Supported languages
+    languages:
+      - python
+      - javascript
+      - typescript
+      - bash
+      - go
+      - rust
+      - c
+      - cpp
+  
+  # Browser (CDP)
+  browser:
+    enabled: false  # Требует Chrome с --remote-debugging-port=9222
+    cdp_url: http://127.0.0.1:9222
+    timeout: 30
+    headless: true
+  
+  # Parsers
+  parser:
+    enabled: true
+    supported_formats:
+      - pdf
+      - html
+      - markdown
+      - txt
+
+security:
+  # Требовать подтверждения для опасных действий
+  require_approve:
+    - shell_run
+    - file_write_large  # > 1 MB
+    - code_execute
+    - file_delete
+  
+  # Логировать все действия
+  log_all_actions: true
+  log_path: data/logs/agent.log
+  
+  # Лимиты
+  max_iterations: 10
+  max_tool_calls_per_iteration: 5
+  max_execution_time: 300  # 5 минут
+  
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 30
+
+sensei:
+  # Режим обучения от OpenAI
+  enabled: false
+  
+  # OpenAI API key (опционально)
+  openai_api_key: null
+  
+  # Model for training
+  model: gpt-4o-mini
+  
+  # Auto-generate training examples
+  generate_examples: true
+  examples_per_task: 5
+  dataset_path: data/training/
+  
+  # Auto-grader
+  grade_outputs: true
+  min_score: 0.8
+  rubric_path: data/rubrics/
+  
+  # Fine-tuning (LoRA)
+  finetune:
+    enabled: false
+    base_model: qwen2.5:7b-instruct
+    output_path: models/finetuned/
+    epochs: 3
+    batch_size: 4
+    learning_rate: 0.0001
+    lora_r: 8
+    lora_alpha: 16
+
+ui:
+  # Web UI settings
+  enabled: true
+  host: 127.0.0.1
+  port: 5000
+  
+  # Authentication
+  auth:
+    enabled: false
+    username: admin
+    password: change_me
+  
+  # Features
+  features:
+    logs: true
+    metrics: true
+    memory_viewer: true
+    approve_panel: true
+    task_manager: true
+
+advanced:
+  # Планировщик задач
+  planner:
+    enabled: true
+    max_subtasks: 10
+  
+  # Self-reflection
+  reflection:
+    enabled: true
+    every_n_iterations: 3
+  
+  # Retry logic
+  retry:
+    max_attempts: 3
+    backoff_factor: 2
+  
+  # Caching
+  cache:
+    enabled: true
+    cache_path: data/cache/
+    ttl: 3600  # 1 час
