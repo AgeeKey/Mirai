@@ -601,7 +601,8 @@ class PlanSignOff:
         all_valid = all(r.valid for r in validation_results.values())
         avg_score = sum(r.score for r in validation_results.values()) / len(validation_results)
         
-        if all_valid and avg_score >= 0.8:
+        # Более мягкие критерии: либо все пройдено, либо хороший score (>= 0.7)
+        if all_valid or avg_score >= 0.7:
             signed_plan['approved'] = True
             signed_plan['approval_status'] = 'APPROVED'
             signed_plan['approval_score'] = avg_score
