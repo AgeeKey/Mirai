@@ -4,13 +4,71 @@ This file helps GitHub Copilot understand the project context and generate bette
 
 ## Project Overview
 
-- **Name**: MIRAI AI Trading Agent
-- **Purpose**: Autonomous AI agent for trading and continuous improvement
-- **Key Agents**: KAIZEN (改善) and MIRAI (未来)
+- **Name**: MIRAI V3 SUPERAGENT
+- **Purpose**: Autonomous AI agent with vision, reasoning, planning, execution, browser automation, application control, and learning capabilities
+- **Architecture**: 7-phase modular system (Vision → Reasoning → Planning → Execution → Browser → Apps → Memory)
+- **Original Legacy**: Trading agent KAIZEN (改善) and MIRAI (未来)
 
 ## Architecture
 
-### Core Components
+### MIRAI V3 SUPERAGENT - 7 Phase System
+
+The project is organized into **7 complete phases**, each with 100-150 implementation steps:
+
+**Phase 1: Vision System** (`MIRAI_V3_SUPERAGENT/01_VISION_SYSTEM/`)
+- Screenshot capture and analysis using GPT-4 Vision API
+- Element detection (buttons, inputs, menus) with OpenCV
+- Problem detection (ads, popups, errors)
+- Scene understanding and recommendations
+- Main modules: `vision_complete.py`, `vision_tests.py`
+- 8 files, ~5,400 lines of code
+
+**Phase 2: Reasoning Engine** (`mirai-agent/core/reasoning_engine/`)
+- Context processing and decision making
+- Intelligent planning with preference management
+- Risk assessment and memory system
+- Main modules: `decision_maker.py`, `context_processor.py`, `intelligent_planner.py`
+- 6 modules, ~3,900 lines
+
+**Phase 3: Task Planning** (`mirai-agent/core/task_planning/`)
+- Task decomposition into atomic steps
+- Sequential and parallel planning strategies
+- Optimization and validation
+- Main modules: `task_decomposition.py`, `sequential_planning.py`, `main_planner.py`
+- 6 modules, ~4,200 lines
+
+**Phase 4: Action Execution** (`mirai-agent/core/action_execution/`)
+- Multi-platform action execution (keyboard, mouse, filesystem)
+- Browser and application actions
+- Error recovery and rollback system
+- Safety guards and performance tracking
+- Main modules: `action_executor.py`, `browser_actions.py`, `file_system_actions.py`
+- 14 modules, ~3,100 lines
+
+**Phase 5: Browser Automation** (`mirai-agent/core/browser_automation/`)
+- Multi-browser support (Chrome, Firefox, Edge, Brave, Opera)
+- Profile management and session persistence
+- CDP-based navigation
+- Main modules: `browser_detection.py`, `navigation.py`, `profile_management.py`
+- 4 modules, ~2,800 lines
+
+**Phase 6: Application Control** (`mirai-agent/core/phase6/`)
+- Desktop application management (VSCode, CapCut, File Explorer, System apps)
+- Application detection, launch, and monitoring
+- Error handling and auto-recovery
+- Multi-app coordination
+- Main modules: `application_manager.py`, `vscode_controller.py`, `capcut_controller.py`
+- 12 modules, ~4,200 lines
+
+**Phase 7: Memory & Learning** (`MIRAI_V3_SUPERAGENT/07_MEMORY_AND_LEARNING/`)
+- 6 types of memory: Short-term, Long-term, Episodic, Semantic, Procedural, Working
+- Experience recording and pattern detection
+- Learning engine and knowledge graph
+- Memory consolidation and retrieval
+- Main modules: `memory_complete.py`, `memory_tests.py`
+- 7 modules, ~5,500 lines
+
+### Legacy Components (Trading Agent)
 
 - `autonomous_agent.py` - Base AI agent using OpenAI GPT-4o-mini
 - `autonomous_service.py` - Background service for KAIZEN × MIRAI collaboration
@@ -91,6 +149,109 @@ async def monitor_loop():
 
 ## Common Tasks
 
+### Working with Vision System (Phase 1)
+
+```python
+from MIRAI_V3_SUPERAGENT.vision_complete import initialize_vision_system
+
+# Initialize vision system
+vision = initialize_vision_system()
+
+# Capture and analyze screen
+result = vision.analyze_screen()
+print(f"Scene: {result['scene_description']}")
+print(f"Elements detected: {len(result['elements'])}")
+```
+
+### Working with Reasoning Engine (Phase 2)
+
+```python
+from mirai-agent.core.reasoning_engine import DecisionMaker, ContextProcessor
+
+# Initialize reasoning
+decision_maker = DecisionMaker()
+context_processor = ContextProcessor()
+
+# Process context and make decision
+context = context_processor.process_user_input("Open browser and search")
+decision = decision_maker.make_decision(context)
+```
+
+### Working with Task Planning (Phase 3)
+
+```python
+from mirai-agent.core.task_planning import TaskDecomposer, SequentialPlanner
+
+# Decompose task into steps
+decomposer = TaskDecomposer()
+steps = decomposer.decompose("Create Python script and test it")
+
+# Create sequential plan
+planner = SequentialPlanner()
+plan = planner.create_plan(steps)
+```
+
+### Working with Action Execution (Phase 4)
+
+```python
+from mirai-agent.core.action_execution import ActionExecutor
+
+# Execute actions
+executor = ActionExecutor()
+result = executor.execute_action({
+    "type": "file_system",
+    "action": "create_file",
+    "params": {"path": "test.py", "content": "print('hello')"}
+})
+```
+
+### Working with Browser Automation (Phase 5)
+
+```python
+from mirai-agent.core.browser_automation import BrowserDetector, NavigationController
+
+# Detect and launch browser
+detector = BrowserDetector()
+browsers = detector.detect_browsers()
+browser = detector.launch_browser("chrome", headless=False)
+
+# Navigate
+nav = NavigationController(browser)
+nav.navigate_to("https://example.com")
+```
+
+### Working with Application Control (Phase 6)
+
+```python
+from mirai-agent.core.phase6 import ApplicationManager, VSCodeController
+
+# Detect and launch application
+app_manager = ApplicationManager()
+vscode = app_manager.get_controller("vscode")
+vscode.launch()
+vscode.open_file("script.py")
+vscode.run_code()
+```
+
+### Working with Memory & Learning (Phase 7)
+
+```python
+from MIRAI_V3_SUPERAGENT.memory_complete import initialize_memory_system
+
+# Initialize memory
+memory = initialize_memory_system()
+
+# Record experience
+memory.experience_recorder.record_experience(
+    event={"type": "user_request"},
+    action={"type": "open_browser"},
+    result={"success": True}
+)
+
+# Learn from experience
+memory.learning_engine.learn_from_patterns()
+```
+
 ### Adding New Tool to Agent
 
 ```python
@@ -113,36 +274,6 @@ async def monitor_loop():
 def your_tool_name(self, param: str) -> str:
     """Implementation"""
     pass
-```
-
-### Creating New Monitor
-
-```python
-# Use CICDMonitor as template
-class NewMonitor:
-    def __init__(self, config):
-        self.config = config
-
-    def check_health(self) -> Dict:
-        """Return health status"""
-        pass
-
-    def generate_report(self) -> str:
-        """Generate text report"""
-        pass
-```
-
-### Adding Terminal Command
-
-```python
-# In kaizen_terminal.py:
-def cmd_your_command(self):
-    """Your command implementation"""
-    self.console.print("[bold]Your output[/bold]")
-
-# Add to process_command():
-elif cmd == 'your_command':
-    self.cmd_your_command()
 ```
 
 ## Naming Conventions
