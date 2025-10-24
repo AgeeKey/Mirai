@@ -1,0 +1,24 @@
+# MIRAI V3 SUPERAGENT - Phase 7: Memory & Learning
+# Requirements for production deployment
+
+# Core dependencies
+numpy>=1.24.0
+sqlite3  # Built-in with Python
+
+# OpenAI API (optional, for embeddings)
+openai>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Type checking
+mypy>=1.5.0
+
+# Linting
+pylint>=2.17.0
+black>=23.7.0
+
+# Documentation
+sphinx>=7.1.0
+sphinx-rtd-theme>=1.3.0
