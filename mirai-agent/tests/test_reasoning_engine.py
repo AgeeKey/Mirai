@@ -175,7 +175,8 @@ def test_preference_manager():
     """Test Preference Manager component"""
     print("\n🧪 Testing Preference Manager...")
     
-    pm = PreferenceManager(user_id="test_user")
+    import time
+    pm = PreferenceManager(user_id=f"test_user_{int(time.time())}")
     
     # Test browser preference learning
     pm.learn_browser_preference("chrome", "Profile 1")
@@ -184,8 +185,9 @@ def test_preference_manager():
     print("✅ Browser preference learning works")
     
     # Test interaction recording
+    initial_count = pm.profile.total_interactions
     pm.record_interaction({"type": "click", "target": "button"})
-    assert pm.profile.total_interactions == 1
+    assert pm.profile.total_interactions == initial_count + 1
     print("✅ Interaction recording works")
     
     # Test app usage tracking

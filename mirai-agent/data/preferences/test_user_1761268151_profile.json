@@ -1,5 +1,5 @@
 {
-  "user_id": "test_user",
+  "user_id": "test_user_1761268151",
   "preferred_browser": "chrome",
   "preferred_profile": "Profile 1",
   "preferred_search_language": "en",
@@ -34,7 +34,7 @@
   "patience_level": "patient",
   "confidence_threshold": 0.7,
   "auto_execute_threshold": 0.9,
-  "created_at": "2025-10-24T01:00:48.421215",
-  "last_updated": "2025-10-24T01:08:41.516715",
+  "created_at": "2025-10-24T01:09:11.546826",
+  "last_updated": "2025-10-24T01:09:11.547702",
   "total_interactions": 1
 }
