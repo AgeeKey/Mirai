@@ -1,0 +1,41 @@
+{
+  "user_id": "demo_user",
+  "preferred_browser": "chrome",
+  "preferred_profile": "Work Profile",
+  "preferred_search_language": "en",
+  "work_hours_start": "09:00:00",
+  "work_hours_end": "17:00:00",
+  "works_weekends": false,
+  "active_days": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday"
+  ],
+  "app_sequence": [],
+  "frequently_used_apps": {
+    "chrome": 1,
+    "vscode": 1
+  },
+  "search_categories": {
+    "programming": 1
+  },
+  "favorite_websites": [],
+  "common_directories": [],
+  "common_file_extensions": [],
+  "click_speed": "normal",
+  "prefers_keyboard": false,
+  "click_pattern": "center",
+  "error_recovery_style": "conservative",
+  "preferred_undo_method": "ctrl_z",
+  "risk_tolerance": "medium",
+  "decision_speed": "balanced",
+  "acceptable_deadline": 60,
+  "patience_level": "patient",
+  "confidence_threshold": 0.7,
+  "auto_execute_threshold": 0.9,
+  "created_at": "2025-10-24T01:02:46.611211",
+  "last_updated": "2025-10-24T01:02:46.613269",
+  "total_interactions": 5
+}
