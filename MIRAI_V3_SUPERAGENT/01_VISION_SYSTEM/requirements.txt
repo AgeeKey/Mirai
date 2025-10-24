@@ -1,0 +1,14 @@
+# Phase 1 Vision System Requirements
+
+# Core dependencies
+openai>=1.3.0
+pillow>=10.0.0
+pyautogui>=0.9.54
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Testing dependencies
+pytest>=7.4.0
+
+# Optional dependencies
+# opencv-contrib-python>=4.8.0  # For additional OpenCV features
