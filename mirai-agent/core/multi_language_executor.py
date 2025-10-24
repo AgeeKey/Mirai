@@ -75,13 +75,18 @@ class MultiLanguageExecutor:
     async def _execute_python(self, code: str) -> Dict[str, str]:
         """Выполнить Python код"""
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".py", delete=False, dir=self.working_dir
+            mode="w", suffix=".py", delete=False, dir=self.working_dir, encoding="utf-8"
         ) as f:
             f.write(code)
             filepath = f.name
 
         try:
-            result = await self._run_command(["python3", filepath])
+            # На Windows предпочитаем 'python' (virtualenv), на UNIX — 'python3' если доступен
+            if os.name == 'nt':
+                python_exec = shutil.which("python") or shutil.which("python3") or "python"
+            else:
+                python_exec = shutil.which("python3") or shutil.which("python") or "python"
+            result = await self._run_command([python_exec, filepath])
             return result
         finally:
             os.unlink(filepath)
@@ -299,6 +304,7 @@ class MultiLanguageExecutor:
     async def _run_command(self, cmd: list) -> Dict[str, str]:
         """Выполнить команду с таймаутом"""
         import time
+    # Debug logging removed - keep function quiet in normal runs
 
         start_time = time.time()
 
@@ -339,6 +345,30 @@ class MultiLanguageExecutor:
                 "error": f"❌ Ошибка запуска команды: {str(e)}",
                 "execution_time": time.time() - start_time,
             }
+
+    def execute(self, language: str, code: str) -> Dict[str, str]:
+        """
+        Синхронная оболочка для выполнения кода.
+
+        Используется внешним кодом, который ожидает синхронный интерфейс.
+        Для асинхронных вызовов можно использовать execute_code.
+        """
+        try:
+            # Проверяем, нет ли уже запущенного цикла (например, если вызывают из async контекста)
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                # Если цикл уже запущен, создаём новую задачу и ждём её завершения
+                coro = self.execute_code(code, language)
+                fut = asyncio.run_coroutine_threadsafe(coro, loop)
+                return fut.result()
+            else:
+                return asyncio.run(self.execute_code(code, language))
+        except Exception as e:
+            return {"success": False, "output": "", "error": str(e), "execution_time": 0}
 
     def get_supported_languages(self) -> list:
         """Получить список поддерживаемых языков"""

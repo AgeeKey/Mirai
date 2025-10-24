@@ -1,0 +1,29 @@
+{
+  "memory_manager": {
+    "create_session": {
+      "count": 6,
+      "total_ms": 66.62679999135435,
+      "avg_ms": 11.104466665225724,
+      "max_ms": 13.840999992680736,
+      "min_ms": 9.337399998912588,
+      "last_ms": 12.035899999318644,
+      "last_timestamp": "2025-10-23T22:15:51.055091Z",
+      "metadata": {
+        "user_id": "main_user"
+      }
+    },
+    "add_message": {
+      "count": 20,
+      "total_ms": 287.0486999891,
+      "avg_ms": 14.352434999455,
+      "max_ms": 28.363199991872534,
+      "min_ms": 10.973099997499958,
+      "last_ms": 10.973099997499958,
+      "last_timestamp": "2025-10-23T22:11:14.994274Z",
+      "metadata": {
+        "session_id": "98ddbfe8-ec1e-42bd-b984-eb1ed559bd2b",
+        "role": "assistant"
+      }
+    }
+  }
+}

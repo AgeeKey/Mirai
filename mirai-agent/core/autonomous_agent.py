@@ -16,16 +16,22 @@ import json
 import logging
 import os
 import subprocess
+from contextlib import nullcontext
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import requests
 from dotenv import load_dotenv
 from openai import OpenAI
 
+try:
+    from utils.performance_tracker import performance_tracker
+except Exception:  # pragma: no cover - metrics should not block execution
+    performance_tracker = None
+
 # Import memory manager for persistent storage
 try:
-    from core.memory_manager import MemoryManager, Message
+    from core.memory_manager import Message, get_memory_manager
 
     MEMORY_AVAILABLE = True
 except ImportError:
@@ -53,13 +59,14 @@ class AutonomousAgent:
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini"  # Используем GPT-4 для лучших результатов
         self.memory = []  # Память агента (старая, для обратной совместимости)
+        self._metrics_enabled = performance_tracker is not None
 
         # Initialize persistent memory manager
         self.user_id = user_id
         self.session_id = None
         if MEMORY_AVAILABLE:
             try:
-                self.memory_manager = MemoryManager()
+                self.memory_manager = get_memory_manager()
                 session = self.memory_manager.create_session(user_id=user_id)
                 self.session_id = session.id  # Store session ID as string
                 logger.info(f"🧠 Memory initialized: session {self.session_id}")
@@ -75,19 +82,22 @@ class AutonomousAgent:
             from core.github_integration import GitHubIntegration
             from core.multi_language_executor import MultiLanguageExecutor
             from core.web_search_integration import get_web_search
+            from core.desktop_agent_v2 import MiraiDesktopAgent
 
             self.multi_lang = MultiLanguageExecutor()
             self.db_manager = DatabaseManager()
             self.github = GitHubIntegration()
             self.web_search = get_web_search()
+            self.desktop_agent = MiraiDesktopAgent(user_id=user_id)
             self.has_advanced_features = True
-            logger.info("✅ Advanced features loaded (including Web Search)")
+            logger.info("✅ Advanced features loaded (including Web Search and Desktop Control)")
         except ImportError as e:
             logger.warning(f"Some advanced features not available: {e}")
             self.multi_lang = None
             self.db_manager = None
             self.github = None
             self.web_search = None
+            self.desktop_agent = None
             self.has_advanced_features = False
         self.tasks = []  # Список задач
         self.working_dir = "/root/mirai/mirai-agent"
@@ -268,6 +278,23 @@ class AutonomousAgent:
                             },
                         },
                         "required": ["task_name", "description"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "desktop_control",
+                    "description": "Управление компьютером: мышь, клавиатура, скриншоты, приложения, браузер. Полный контроль над рабочим столом для автономного выполнения задач.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "task": {
+                                "type": "string",
+                                "description": "Задача для выполнения на компьютере (например: 'открой браузер и найди погоду в Москве', 'сделай скриншот и опиши что на нем', 'открой notepad и напиши список покупок')",
+                            },
+                        },
+                        "required": ["task"],
                     },
                 },
             },
@@ -557,7 +584,7 @@ class AutonomousAgent:
                     try:
                         decoded = base64.b64decode(result["content"]).decode("utf-8")
                         return f"✅ Файл {path} из {owner}/{repo}:\n\n{decoded}"
-                    except:
+                    except Exception:
                         return f"✅ Файл {path} (бинарный): {result['size']} байт"
                 elif isinstance(result, list):
                     # Список файлов в директории
@@ -589,10 +616,12 @@ class AutonomousAgent:
             "execute_code": self.execute_code,
             "database_query": self.database_query,
             "github_action": self.github_action,
+            "desktop_control": self.desktop_control,
         }
 
         if tool_name in tools_map:
-            return tools_map[tool_name](**arguments)
+            with self._track("execute_tool", {"tool": tool_name}):
+                return tools_map[tool_name](**arguments)
         else:
             return f"❌ Неизвестный инструмент: {tool_name}"
 
@@ -615,6 +644,28 @@ class AutonomousAgent:
         except Exception as e:
             logger.error(f"❌ AI request failed: {e}")
             return f"Error: {str(e)}"
+
+    def desktop_control(self, task: str) -> str:
+        """Управление компьютером через Desktop Agent"""
+        if not self.has_advanced_features or not self.desktop_agent:
+            return "❌ Desktop control не доступен. Проверьте установку desktop_agent_v2.py и зависимостей."
+
+        try:
+            logger.info(f"🖥️ Desktop control: {task}")
+            result = self.desktop_agent.execute_task(task)
+            return f"🖥️ Результат управления компьютером:\n{result}"
+        except Exception as e:
+            logger.error(f"❌ Desktop control error: {e}")
+            return f"❌ Ошибка управления компьютером: {str(e)}"
+
+    def _track(self, operation: str, metadata: Optional[Dict[str, Any]] = None):
+        """Return a performance tracking context manager if metrics are enabled."""
+        if self._metrics_enabled:
+            base_metadata: Dict[str, Any] = {"model": self.model}
+            if metadata:
+                base_metadata.update(metadata)
+            return performance_tracker.track("autonomous_agent", operation, base_metadata)
+        return nullcontext()
 
     def think(self, prompt: str, max_iterations: int = 5) -> str:
         """Основной цикл мышления агента"""
@@ -645,6 +696,7 @@ class AutonomousAgent:
 - Выполнять команды (run_command)
 - Работать с базами данных (database_query): SQLite, PostgreSQL, Redis, MongoDB
 - Работать с GitHub (github_action): list_repos, create_repo, create_issue, search_repos, get_user_info
+- Управлять компьютером (desktop_control): мышь, клавиатура, скриншоты, приложения, браузер
 - Создавать задачи (create_task)
 
 Ты можешь:
@@ -653,6 +705,7 @@ class AutonomousAgent:
 ✅ Создавать и модифицировать файлы
 ✅ Работать с разными базами данных
 ✅ Управлять GitHub репозиториями
+✅ Полностью управлять компьютером пользователя
 ✅ Улучшать сам себя
 ✅ Принимать автономные решения
 
@@ -669,12 +722,16 @@ class AutonomousAgent:
 
             try:
                 # Запрос к GPT-4 с инструментами
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    tools=self.tools,
-                    tool_choice="auto",
-                )
+                with self._track(
+                    "think_completion",
+                    {"iteration": str(iteration + 1), "message_count": str(len(messages))},
+                ):
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        tools=self.tools,
+                        tool_choice="auto",
+                    )
 
                 response_message = response.choices[0].message
                 messages.append(response_message)
@@ -686,7 +743,7 @@ class AutonomousAgent:
                 # Если нет вызовов инструментов - агент закончил
                 if not response_message.tool_calls:
                     final_response = response_message.content or ""
-                    logger.info(f"✅ Агент завершил работу")
+                    logger.info("✅ Агент завершил работу")
 
                     # Store AI response in memory
                     if self.memory_manager and self.session_id and MEMORY_AVAILABLE:

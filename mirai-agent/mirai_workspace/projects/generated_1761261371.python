@@ -1,0 +1,34 @@
+import os
+
+def get_files_in_directory(directory_path):
+    """
+    Получает список файлов в указанной директории.
+
+    :param directory_path: Путь к директории, в которой необходимо получить список файлов.
+    :return: Список файлов в директории.
+    """
+    try:
+        # Получаем список всех элементов в директории
+        items = os.listdir(directory_path)
+        # Фильтруем только файлы из всех элементов
+        files = [item for item in items if os.path.isfile(os.path.join(directory_path, item))]
+        return files
+    except FileNotFoundError:
+        print(f"Ошибка: Директория '{directory_path}' не найдена.")
+        return []
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+        return []
+
+def main():
+    # Указываем путь к директории, из которой необходимо получить список файлов
+    directory_path = "/path/to/your/directory"
+    # Получаем список файлов, используя функцию get_files_in_directory
+    files = get_files_in_directory(directory_path)
+    # Выводим список файлов
+    print("Список файлов в директории:")
+    for file in files:
+        print(file)
+
+if __name__ == "__main__":
+    main()

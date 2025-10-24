@@ -24,11 +24,16 @@ import json
 import logging
 import sqlite3
 import uuid
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+try:
+    from utils.performance_tracker import performance_tracker
+except Exception:  # pragma: no cover - metrics should not break functionality
+    performance_tracker = None
 
 # ═══════════════════════════════════════════════════════════════════
 # Data Models
@@ -200,6 +205,7 @@ class MemoryManager:
             max_messages: Max messages in short-term memory
         """
         self.logger = logging.getLogger(__name__)
+        self._metrics_enabled = performance_tracker is not None
         self.db_path = Path(db_path)
         self.max_messages = max_messages
 
@@ -225,6 +231,16 @@ class MemoryManager:
             raise
         finally:
             conn.close()
+
+    def _track(self, operation: str, metadata: Optional[Dict[str, str]] = None):
+        """Return performance tracking context manager if metrics are enabled."""
+        if self._metrics_enabled:
+            return performance_tracker.track(
+                "memory_manager",
+                operation,
+                metadata=metadata or {"db_path": str(self.db_path)},
+            )
+        return nullcontext()
 
     def _init_database(self):
         """Initialize database schema"""
@@ -339,26 +355,27 @@ class MemoryManager:
 
     def create_session(self, user_id: str = "default") -> Session:
         """Create new session"""
-        session = Session(user_id=user_id)
+        with self._track("create_session", {"user_id": user_id}):
+            session = Session(user_id=user_id)
 
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                INSERT INTO sessions (id, user_id, created_at, last_active, message_count)
-                VALUES (?, ?, ?, ?, ?)
-            """,
-                (
-                    session.id,
-                    session.user_id,
-                    session.created_at,
-                    session.last_active,
-                    session.message_count,
-                ),
-            )
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO sessions (id, user_id, created_at, last_active, message_count)
+                    VALUES (?, ?, ?, ?, ?)
+                """,
+                    (
+                        session.id,
+                        session.user_id,
+                        session.created_at,
+                        session.last_active,
+                        session.message_count,
+                    ),
+                )
 
-        self.logger.info(f"Created session: {session.id}")
-        return session
+            self.logger.info(f"Created session: {session.id}")
+            return session
 
     def get_session(self, session_id: str) -> Optional[Session]:
         """Get session by ID"""
@@ -431,38 +448,45 @@ class MemoryManager:
 
     def add_message(self, message: Message) -> int:
         """Add message to session"""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                INSERT INTO messages (session_id, role, content, timestamp, tokens, model)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """,
-                (
-                    message.session_id,
-                    message.role,
-                    message.content,
-                    message.timestamp,
-                    message.tokens,
-                    message.model,
-                ),
+        metadata = {
+            "session_id": message.session_id,
+            "role": message.role,
+        }
+        with self._track("add_message", metadata):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO messages (session_id, role, content, timestamp, tokens, model)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        message.session_id,
+                        message.role,
+                        message.content,
+                        message.timestamp,
+                        message.tokens,
+                        message.model,
+                    ),
+                )
+
+                message_id = cursor.lastrowid
+
+                # Update session message count
+                cursor.execute(
+                    """
+                    UPDATE sessions 
+                    SET message_count = message_count + 1,
+                        last_active = ?
+                    WHERE id = ?
+                """,
+                    (datetime.now(), message.session_id),
+                )
+
+            self.logger.debug(
+                f"Added message {message_id} to session {message.session_id}"
             )
-
-            message_id = cursor.lastrowid
-
-            # Update session message count
-            cursor.execute(
-                """
-                UPDATE sessions 
-                SET message_count = message_count + 1,
-                    last_active = ?
-                WHERE id = ?
-            """,
-                (datetime.now(), message.session_id),
-            )
-
-        self.logger.debug(f"Added message {message_id} to session {message.session_id}")
-        return message_id
+            return message_id
 
     def get_recent_messages(
         self, session_id: str, limit: Optional[int] = None
@@ -477,34 +501,35 @@ class MemoryManager:
         if limit is None:
             limit = self.max_messages
 
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT * FROM messages 
-                WHERE session_id = ?
-                ORDER BY timestamp DESC
-                LIMIT ?
-            """,
-                (session_id, limit),
-            )
-
-            messages = []
-            for row in reversed(
-                list(cursor.fetchall())
-            ):  # Reverse to get chronological order
-                messages.append(
-                    Message(
-                        id=row["id"],
-                        session_id=row["session_id"],
-                        role=row["role"],
-                        content=row["content"],
-                        timestamp=datetime.fromisoformat(row["timestamp"]),
-                        tokens=row["tokens"],
-                        model=row["model"],
-                    )
+        metadata = {"session_id": session_id, "limit": str(limit)}
+        with self._track("get_recent_messages", metadata):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    SELECT * FROM messages 
+                    WHERE session_id = ?
+                    ORDER BY timestamp DESC
+                    LIMIT ?
+                """,
+                    (session_id, limit),
                 )
-            return messages
+                rows = list(cursor.fetchall())
+
+            messages = [
+                Message(
+                    id=row["id"],
+                    session_id=row["session_id"],
+                    role=row["role"],
+                    content=row["content"],
+                    timestamp=datetime.fromisoformat(row["timestamp"]),
+                    tokens=row["tokens"],
+                    model=row["model"],
+                )
+                for row in reversed(rows)  # Convert back to chronological order
+            ]
+
+        return messages
 
     def get_conversation_history(
         self, session_id: str, limit: Optional[int] = None
@@ -563,39 +588,42 @@ class MemoryManager:
 
     def save_user_preferences(self, prefs: UserPreferences):
         """Save or update user preferences"""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                INSERT OR REPLACE INTO user_preferences 
-                (user_id, coding_style, communication_tone, favorite_tools, project_context, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """,
-                (
-                    prefs.user_id,
-                    prefs.coding_style,
-                    prefs.communication_tone,
-                    json.dumps(prefs.favorite_tools),
-                    prefs.project_context,
-                    prefs.updated_at,
-                ),
-            )
+        metadata = {"user_id": prefs.user_id}
+        with self._track("save_user_preferences", metadata):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT OR REPLACE INTO user_preferences 
+                    (user_id, coding_style, communication_tone, favorite_tools, project_context, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        prefs.user_id,
+                        prefs.coding_style,
+                        prefs.communication_tone,
+                        json.dumps(prefs.favorite_tools),
+                        prefs.project_context,
+                        prefs.updated_at,
+                    ),
+                )
 
-        self.logger.info(f"Saved preferences for user: {prefs.user_id}")
+            self.logger.info(f"Saved preferences for user: {prefs.user_id}")
 
     def get_user_preferences(
         self, user_id: str = "default"
     ) -> Optional[UserPreferences]:
         """Get user preferences"""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT * FROM user_preferences WHERE user_id = ?
-            """,
-                (user_id,),
-            )
-            row = cursor.fetchone()
+        with self._track("get_user_preferences", {"user_id": user_id}):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    SELECT * FROM user_preferences WHERE user_id = ?
+                """,
+                    (user_id,),
+                )
+                row = cursor.fetchone()
 
             if row:
                 favorite_tools = (
@@ -812,80 +840,89 @@ class MemoryManager:
     # Cleanup & Maintenance
     # ═══════════════════════════════════════════════════════════════
 
-    def cleanup_old_sessions(self, days: int = 90):
+    def cleanup_old_sessions(self, days: int = 90) -> int:
         """Delete sessions older than N days"""
         cutoff = datetime.now() - timedelta(days=days)
+        metadata = {"days": str(days)}
 
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
+        removed = 0
+        with self._track("cleanup_old_sessions", metadata):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Get old session IDs
-            cursor.execute(
-                """
-                SELECT id FROM sessions WHERE last_active < ?
-            """,
-                (cutoff,),
-            )
-            old_sessions = [row["id"] for row in cursor.fetchall()]
-
-            if old_sessions:
-                # Delete messages from old sessions
-                placeholders = ",".join("?" * len(old_sessions))
+                # Get old session IDs
                 cursor.execute(
-                    f"""
-                    DELETE FROM messages WHERE session_id IN ({placeholders})
+                    """
+                    SELECT id FROM sessions WHERE last_active < ?
                 """,
-                    old_sessions,
+                    (cutoff,),
                 )
+                old_sessions = [row["id"] for row in cursor.fetchall()]
+                removed = len(old_sessions)
+                metadata["removed"] = str(removed)
 
-                # Delete tasks from old sessions
-                cursor.execute(
-                    f"""
-                    DELETE FROM tasks WHERE session_id IN ({placeholders})
-                """,
-                    old_sessions,
-                )
+                if old_sessions:
+                    # Delete messages from old sessions
+                    placeholders = ",".join("?" * len(old_sessions))
+                    cursor.execute(
+                        f"""
+                        DELETE FROM messages WHERE session_id IN ({placeholders})
+                    """,
+                        old_sessions,
+                    )
 
-                # Delete old sessions
-                cursor.execute(
-                    f"""
-                    DELETE FROM sessions WHERE id IN ({placeholders})
-                """,
-                    old_sessions,
-                )
+                    # Delete tasks from old sessions
+                    cursor.execute(
+                        f"""
+                        DELETE FROM tasks WHERE session_id IN ({placeholders})
+                    """,
+                        old_sessions,
+                    )
 
-                self.logger.info(f"Cleaned up {len(old_sessions)} old sessions")
+                    # Delete old sessions
+                    cursor.execute(
+                        f"""
+                        DELETE FROM sessions WHERE id IN ({placeholders})
+                    """,
+                        old_sessions,
+                    )
+
+                    self.logger.info(f"Cleaned up {removed} old sessions")
+
+        return removed
 
     def get_stats(self) -> Dict[str, Any]:
         """Get memory statistics"""
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
+        metadata: Dict[str, str] = {}
+        with self._track("get_stats", metadata):
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Count sessions
-            cursor.execute("SELECT COUNT(*) as count FROM sessions")
-            session_count = cursor.fetchone()["count"]
+                # Count sessions
+                cursor.execute("SELECT COUNT(*) as count FROM sessions")
+                session_count = cursor.fetchone()["count"]
 
-            # Count messages
-            cursor.execute("SELECT COUNT(*) as count FROM messages")
-            message_count = cursor.fetchone()["count"]
+                # Count messages
+                cursor.execute("SELECT COUNT(*) as count FROM messages")
+                message_count = cursor.fetchone()["count"]
 
-            # Count tasks
-            cursor.execute("SELECT COUNT(*) as count FROM tasks")
-            task_count = cursor.fetchone()["count"]
+                # Count tasks
+                cursor.execute("SELECT COUNT(*) as count FROM tasks")
+                task_count = cursor.fetchone()["count"]
 
-            # Count knowledge
-            cursor.execute("SELECT COUNT(*) as count FROM knowledge")
-            knowledge_count = cursor.fetchone()["count"]
+                # Count knowledge
+                cursor.execute("SELECT COUNT(*) as count FROM knowledge")
+                knowledge_count = cursor.fetchone()["count"]
 
-            # Active sessions (last 24h)
-            cutoff = datetime.now() - timedelta(hours=24)
-            cursor.execute(
-                "SELECT COUNT(*) as count FROM sessions WHERE last_active > ?",
-                (cutoff,),
-            )
-            active_sessions = cursor.fetchone()["count"]
+                # Active sessions (last 24h)
+                cutoff = datetime.now() - timedelta(hours=24)
+                cursor.execute(
+                    "SELECT COUNT(*) as count FROM sessions WHERE last_active > ?",
+                    (cutoff,),
+                )
+                active_sessions = cursor.fetchone()["count"]
 
-            return {
+            stats = {
                 "total_sessions": session_count,
                 "active_sessions_24h": active_sessions,
                 "total_messages": message_count,
@@ -898,6 +935,15 @@ class MemoryManager:
                     else 0
                 ),
             }
+
+            metadata.update(
+                {
+                    "sessions": str(session_count),
+                    "messages": str(message_count),
+                }
+            )
+
+        return stats
 
 
 # ═══════════════════════════════════════════════════════════════════

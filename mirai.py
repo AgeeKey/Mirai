@@ -254,13 +254,13 @@ def check_health():
 
     # Check 5: Memory database (using config + actual test)
     try:
-        from core.memory_manager import MemoryManager
+        from core.memory_manager import get_memory_manager
 
         config = get_config()
         db_file = Path(config.memory.db_path)
 
-        # Try to initialize memory manager
-        mm = MemoryManager(str(db_file))
+        # Reuse the shared memory manager instance for health checks
+        mm = get_memory_manager(str(db_file))
         stats = mm.get_stats()
 
         checks.append(
