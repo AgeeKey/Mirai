@@ -70,6 +70,54 @@ from .error_recovery import (
     FallbackActionExecutor,
 )
 
+# Browser Actions
+from .browser_actions import (
+    URLNavigator,
+    PageLoadWaiter,
+    RedirectHandler,
+    PageErrorHandler,
+    FormInteractor,
+    FormSubmitter,
+    FormValidationHandler,
+    LinkClicker,
+    NewTabHandler,
+    JavaScriptPopupHandler,
+    BrowserNotificationHandler,
+    PageTextExtractor,
+    ElementSelector,
+    ElementVisibilityWaiter,
+    ElementScroller,
+    InfiniteScrollHandler,
+    LazyLoadingHandler,
+    DOMInspector,
+    AJAXHandler,
+    AuthenticationHandler,
+)
+
+# File System Actions
+from .file_system_actions import (
+    FileOpener,
+    FileSaver,
+    FileCreator,
+    FileDeleter,
+    FileMover,
+    FileCopier,
+    FileRenamer,
+    DirectoryLister,
+    DirectoryChanger,
+    DirectoryCreator,
+    CapCutVideoImporter,
+    CapCutVideoEditor,
+    CapCutVideoExporter,
+    VSCodeFileOpener,
+    VSCodeCodeEditor,
+    VSCodeCodeRunner,
+    ChromeProfileSelector,
+    ChromeExtensionInstaller,
+    NotepadTextEditor,
+    AppActionDispatcher,
+)
+
 __all__ = [
     # Core
     'ActionExecutor',
@@ -119,7 +167,51 @@ __all__ = [
     'ActionRetrier',
     'CheckpointRollbacker',
     'FallbackActionExecutor',
+    
+    # Browser Actions
+    'URLNavigator',
+    'PageLoadWaiter',
+    'RedirectHandler',
+    'PageErrorHandler',
+    'FormInteractor',
+    'FormSubmitter',
+    'FormValidationHandler',
+    'LinkClicker',
+    'NewTabHandler',
+    'JavaScriptPopupHandler',
+    'BrowserNotificationHandler',
+    'PageTextExtractor',
+    'ElementSelector',
+    'ElementVisibilityWaiter',
+    'ElementScroller',
+    'InfiniteScrollHandler',
+    'LazyLoadingHandler',
+    'DOMInspector',
+    'AJAXHandler',
+    'AuthenticationHandler',
+    
+    # File System Actions
+    'FileOpener',
+    'FileSaver',
+    'FileCreator',
+    'FileDeleter',
+    'FileMover',
+    'FileCopier',
+    'FileRenamer',
+    'DirectoryLister',
+    'DirectoryChanger',
+    'DirectoryCreator',
+    'CapCutVideoImporter',
+    'CapCutVideoEditor',
+    'CapCutVideoExporter',
+    'VSCodeFileOpener',
+    'VSCodeCodeEditor',
+    'VSCodeCodeRunner',
+    'ChromeProfileSelector',
+    'ChromeExtensionInstaller',
+    'NotepadTextEditor',
+    'AppActionDispatcher',
 ]
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'  # Updated to 2.0 with Section 3 complete
 __author__ = 'MIRAI Team'
