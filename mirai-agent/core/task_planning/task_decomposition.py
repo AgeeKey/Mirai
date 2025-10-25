@@ -923,3 +923,72 @@ class SubtaskSetValidator:
             result['coverage'] = max(0.0, 1.0 - len(result['issues']) * 0.2)
         
         return result
+
+
+# ============================================================================
+# ФАСАД ДЛЯ ДЕКОМПОЗИЦИИ ЗАДАЧ
+# ============================================================================
+
+class TaskDecomposer:
+    """
+    Фасад для декомпозиции задач.
+    Объединяет все компоненты анализа и разбиения задач.
+    """
+    
+    def __init__(self):
+        """Инициализация декомпозера"""
+        self.parser = TaskParser()
+        self.classifier = TaskTypeClassifier()
+        self.complexity_analyzer = ComplexityAnalyzer()
+        self.resource_identifier = ResourceIdentifier()
+        self.subtask_creator = SubtaskCreator()
+        self.validator = SubtaskSetValidator()
+        logger.info("✅ TaskDecomposer инициализирован")
+    
+    def decompose(self, task_description: str) -> Dict[str, Any]:
+        """
+        Разложить задачу на подзадачи.
+        
+        Args:
+            task_description: Описание задачи
+            
+        Returns:
+            Результат декомпозиции с подзадачами
+        """
+        logger.info(f"🔍 Декомпозиция задачи: {task_description}")
+        
+        # 1. Парсинг задачи
+        parsed = self.parser.parse(task_description)
+        
+        # 2. Классификация
+        task_type = self.classifier.classify(parsed)
+        
+        # 3. Анализ сложности
+        complexity = self.complexity_analyzer.analyze(parsed)
+        
+        # 4. Идентификация ресурсов
+        resources = self.resource_identifier.identify(parsed)
+        
+        # 5. Создание подзадач
+        subtasks = self.subtask_creator.create(
+            parsed,
+            task_type,
+            complexity
+        )
+        
+        # 6. Валидация
+        validation = self.validator.validate(
+            subtasks,
+            parsed,
+            parsed.success_criteria
+        )
+        
+        return {
+            'task': parsed,
+            'type': task_type,
+            'complexity': complexity,
+            'resources': resources,
+            'subtasks': subtasks,
+            'validation': validation,
+            'success': validation['valid']
+        }

@@ -1346,6 +1346,29 @@ class VisionOrchestrator:
 
 
 # ============================================================================
+# Public API / Initialization Functions
+# ============================================================================
+
+def initialize_vision_system(api_key: Optional[str] = None) -> VisionOrchestrator:
+    """
+    Инициализация системы зрения MIRAI.
+    
+    Args:
+        api_key: OpenAI API ключ (опционально, будет загружен из конфига если не указан)
+    
+    Returns:
+        VisionOrchestrator: Инициализированная система зрения
+    
+    Example:
+        >>> vision = initialize_vision_system()
+        >>> result = vision.run_complete_vision()
+        >>> print(result['summary'])
+    """
+    orchestrator = VisionOrchestrator()
+    return orchestrator
+
+
+# ============================================================================
 # Main Entry Point
 # ============================================================================
 
