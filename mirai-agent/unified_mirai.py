@@ -111,6 +111,8 @@ class UnifiedMiraiAgent:
         logger.info(f"   • Управление компьютером: {self.desktop_available}")
         logger.info(f"   • Выполнение кода: {self.code_execution_available}")
         logger.info(f"   • Управление браузером: {self.browser_available}")
+        logger.info(f"   • 🌐 Web Scraper (парсинг): {self.web_scraper_available}")
+        logger.info(f"   • 🤖 Selenium (автоматизация): {self.selenium_available}")
         logger.info(f"   • Работа с БД: {self.database_available}")
         logger.info(f"   • GitHub: {self.github_available}")
         logger.info(f"   • Веб-поиск: {self.web_search_available}")
@@ -162,7 +164,7 @@ class UnifiedMiraiAgent:
             self.code_executor = None
             self.code_execution_available = False
         
-        # 3. Browser Automation
+        # 3. Browser Automation (Старый модуль)
         try:
             from core.browser_automation import BrowserAutomation
             self.browser = BrowserAutomation(headless=False)
@@ -172,6 +174,33 @@ class UnifiedMiraiAgent:
             logger.warning(f"⚠️ Browser недоступен: {e}")
             self.browser = None
             self.browser_available = False
+        
+        # 3.1. Web Scraper Agent (НОВЫЙ - для реального парсинга веб-страниц)
+        try:
+            from core.web_scraper_agent import WebScraperAgent
+            self.web_scraper = WebScraperAgent(ai_manager=None)  # AI будем передавать позже
+            self.web_scraper_available = True
+            logger.info("✅ Web Scraper Agent загружен")
+        except Exception as e:
+            logger.warning(f"⚠️ Web Scraper недоступен: {e}")
+            self.web_scraper = None
+            self.web_scraper_available = False
+        
+        # 3.2. Selenium Browser Agent (НОВЫЙ - для реальной автоматизации браузера)
+        try:
+            from core.selenium_browser_agent import SeleniumBrowserAgent, SELENIUM_AVAILABLE
+            if SELENIUM_AVAILABLE:
+                self.selenium_agent = SeleniumBrowserAgent(headless=False)
+                self.selenium_available = True
+                logger.info("✅ Selenium Browser Agent загружен")
+            else:
+                self.selenium_agent = None
+                self.selenium_available = False
+                logger.info("ℹ️ Selenium не установлен (опционально)")
+        except Exception as e:
+            logger.warning(f"⚠️ Selenium Agent недоступен: {e}")
+            self.selenium_agent = None
+            self.selenium_available = False
         
         # 4. Database Manager
         try:
@@ -352,6 +381,63 @@ class UnifiedMiraiAgent:
                             "url": {"type": "string"}
                         },
                         "required": ["url"]
+                    }
+                }
+            })
+        
+        # 🌐 НОВЫЙ: Web Scraper - реальный поиск и анализ
+        if self.web_scraper_available:
+            tools.append({
+                "type": "function",
+                "function": {
+                    "name": "search_and_analyze_web",
+                    "description": "🌐 РЕАЛЬНЫЙ поиск в Google с ЧТЕНИЕМ и АНАЛИЗОМ найденных сайтов. "
+                                   "Агент открывает сайты, читает их содержимое и даёт подробный ответ. "
+                                   "Используй это когда пользователь просит найти информацию и рассказать о ней.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "Поисковый запрос (например: 'Binance', 'что такое Python')"
+                            },
+                            "num_results": {
+                                "type": "integer",
+                                "description": "Сколько сайтов прочитать (по умолчанию 3)",
+                                "default": 3
+                            }
+                        },
+                        "required": ["query"]
+                    }
+                }
+            })
+        
+        # 🤖 НОВЫЙ: Selenium - автоматизация браузера
+        if self.selenium_available:
+            tools.append({
+                "type": "function",
+                "function": {
+                    "name": "automate_browser",
+                    "description": "🤖 Автоматизация браузера через Selenium. "
+                                   "Может кликать, вводить текст, делать скриншоты.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "enum": ["search_google", "screenshot", "visit_url"],
+                                "description": "Действие для выполнения"
+                            },
+                            "query": {
+                                "type": "string",
+                                "description": "Поисковый запрос (для search_google)"
+                            },
+                            "url": {
+                                "type": "string",
+                                "description": "URL для посещения (для visit_url)"
+                            }
+                        },
+                        "required": ["action"]
                     }
                 }
             })
@@ -612,6 +698,21 @@ class UnifiedMiraiAgent:
                 self.browser.navigate(args.get("url"))
                 return f"✅ Открыт: {args.get('url')}"
             
+            # 🌐 НОВЫЙ: Web Scraper - реальный поиск и анализ
+            elif name == "search_and_analyze_web":
+                return asyncio.run(self._search_and_analyze_web(
+                    args.get("query"),
+                    args.get("num_results", 3)
+                ))
+            
+            # 🤖 НОВЫЙ: Selenium - автоматизация браузера  
+            elif name == "automate_browser":
+                return asyncio.run(self._automate_browser(
+                    args.get("action"),
+                    args.get("query"),
+                    args.get("url")
+                ))
+            
             # Database
             elif name == "database_query":
                 return self.database.execute_query(args.get("db_type"), args.get("query"))
@@ -643,6 +744,150 @@ class UnifiedMiraiAgent:
         except Exception as e:
             logger.error(f"Ошибка выполнения {name}: {e}", exc_info=True)
             return f"❌ Ошибка: {e}"
+    
+    # ═══════════════════════════════════════════════════════════════
+    # НОВЫЕ МЕТОДЫ: Реальная автоматизация браузера
+    # ═══════════════════════════════════════════════════════════════
+    
+    async def _search_and_analyze_web(self, query: str, num_results: int = 3) -> str:
+        """
+        🌐 РЕАЛЬНЫЙ поиск в Google с чтением и анализом сайтов.
+        
+        Args:
+            query: Поисковый запрос
+            num_results: Количество сайтов для анализа
+            
+        Returns:
+            Подробный ответ с анализом найденной информации
+        """
+        logger.info(f"🌐 Реальный поиск и анализ: {query}")
+        
+        try:
+            # Умное извлечение поискового запроса
+            clean_query = self.web_scraper.extract_search_query(query)
+            logger.info(f"🔍 Очищенный запрос: {clean_query}")
+            
+            # Выполняем поиск и анализ
+            result = await self.web_scraper.search_and_analyze(
+                clean_query,
+                num_results=num_results,
+                analyze=True  # Включаем AI анализ
+            )
+            
+            if not result['success']:
+                return f"❌ Ошибка поиска: {result.get('error', 'Неизвестная ошибка')}"
+            
+            # Формируем подробный ответ
+            response_parts = [
+                f"🔍 **Поиск выполнен**: {clean_query}",
+                f"📊 **Найдено результатов**: {result['summary']['total_results']}",
+                f"📄 **Прочитано сайтов**: {result['summary']['scraped_pages']}",
+                "",
+                "📋 **Найденные источники**:"
+            ]
+            
+            # Список источников
+            for i, res in enumerate(result['search_results'][:5], 1):
+                response_parts.append(f"{i}. {res['title']}")
+                response_parts.append(f"   🔗 {res['url']}")
+                if res.get('snippet'):
+                    response_parts.append(f"   📝 {res['snippet'][:100]}...")
+            
+            # AI анализ если есть
+            if result.get('analysis'):
+                response_parts.extend([
+                    "",
+                    "🧠 **АНАЛИЗ ИНФОРМАЦИИ**:",
+                    "─" * 50,
+                    result['analysis'],
+                    "─" * 50
+                ])
+            
+            # Контент для справки
+            if result['scraped_content']:
+                response_parts.append("")
+                response_parts.append("📚 **Прочитанный контент** (для справки):")
+                for i, content in enumerate(result['scraped_content'][:2], 1):
+                    response_parts.append(f"\n{i}. **{content['title']}**")
+                    response_parts.append(f"   {content['content'][:300]}...")
+            
+            return "\n".join(response_parts)
+            
+        except Exception as e:
+            logger.error(f"❌ Ошибка search_and_analyze_web: {e}", exc_info=True)
+            return f"❌ Ошибка: {str(e)}"
+    
+    async def _automate_browser(
+        self,
+        action: str,
+        query: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> str:
+        """
+        🤖 Автоматизация браузера через Selenium.
+        
+        Args:
+            action: Действие (search_google, screenshot, visit_url)
+            query: Поисковый запрос для search_google
+            url: URL для visit_url
+            
+        Returns:
+            Результат выполнения действия
+        """
+        logger.info(f"🤖 Автоматизация браузера: {action}")
+        
+        try:
+            # Инициализируем браузер если нужно
+            if not self.selenium_agent.driver:
+                await self.selenium_agent.initialize()
+            
+            if action == "search_google":
+                if not query:
+                    return "❌ Не указан поисковый запрос"
+                
+                # Выполняем поиск
+                result = await self.selenium_agent.search_google(query)
+                
+                if not result['success']:
+                    return f"❌ Ошибка поиска: {result.get('error')}"
+                
+                # Формируем ответ
+                response = [
+                    f"✅ Поиск в Google выполнен: {query}",
+                    f"📊 Найдено результатов: {result['count']}",
+                    "",
+                    "📋 Результаты:"
+                ]
+                
+                for i, res in enumerate(result['results'][:5], 1):
+                    response.append(f"{i}. {res['title']}")
+                    response.append(f"   🔗 {res['url']}")
+                
+                return "\n".join(response)
+            
+            elif action == "screenshot":
+                filepath = await self.selenium_agent.take_screenshot()
+                if filepath:
+                    return f"✅ Скриншот сохранён: {filepath}"
+                else:
+                    return "❌ Не удалось создать скриншот"
+            
+            elif action == "visit_url":
+                if not url:
+                    return "❌ Не указан URL"
+                
+                content = await self.selenium_agent.visit_and_read(url)
+                if content:
+                    return f"✅ Страница загружена: {url}\n\n📄 Контент (первые 500 символов):\n{content[:500]}..."
+                else:
+                    return f"❌ Не удалось загрузить {url}"
+            
+            else:
+                return f"❌ Неизвестное действие: {action}"
+        
+        except Exception as e:
+            logger.error(f"❌ Ошибка automate_browser: {e}", exc_info=True)
+            return f"❌ Ошибка: {str(e)}"
     
     # ═══════════════════════════════════════════════════════════════
     # Автономный режим - сам ставит себе задачи

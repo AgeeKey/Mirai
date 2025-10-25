@@ -18,6 +18,7 @@ from .task_decomposition import (
     TaskTypeClassifier,
     ComplexityAnalyzer,
     ResourceIdentifier,
+    TaskDecomposer,
 )
 
 from .decomposition_strategies import (
@@ -56,6 +57,7 @@ __all__ = [
     'ConstraintExtractor',
     'TaskTypeClassifier',
     'ComplexityAnalyzer',
+    'TaskDecomposer',
     'LinearDecomposer',
     'HierarchicalDecomposer',
     'ExecutionOrderDeterminer',
